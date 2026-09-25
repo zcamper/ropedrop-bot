@@ -11,7 +11,7 @@ function escapeRegex(s: string): string {
 
 /**
  * Matches "u/name" or "/u/name" (case-insensitive) as a whole token, so
- * u/ropedrop-bot does not match u/ropedrop-bot2 or xu/ropedrop-bot.
+ * u/ropedropbot does not match u/ropedropbot2 or xu/ropedropbot.
  */
 function mentionRegex(botUsername: string): RegExp {
   return new RegExp(

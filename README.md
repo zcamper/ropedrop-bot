@@ -1,4 +1,4 @@
-# RopeDrop Bot (`ropedrop-bot`)
+# RopeDrop Bot (`ropedropbot`)
 
 ## Overview
 
@@ -15,7 +15,7 @@ What it does:
    answer (70% by default), the bot replies with the answer, up to three
    links, and a short footer with a feedback link. If it isn't confident, the
    bot stays silent.
-2. **Answers when summoned.** A comment that mentions `u/ropedrop-bot` is
+2. **Answers when summoned.** A comment that mentions `u/ropedropbot` is
    treated as a question (the mention is removed first). Other comments are
    ignored.
 3. **Posts a daily "Today's Crowd Outlook"** each morning (7:00 AM US Eastern
@@ -87,7 +87,7 @@ Reply format:
 ## Settings
 
 Subreddit settings are edited by moderators on the app's install settings
-page (`https://developers.reddit.com/r/ropedropplanner/apps/ropedrop-bot`).
+page (`https://developers.reddit.com/r/ropedropplanner/apps/ropedropbot`).
 Global settings are set by the app developer with the Devvit CLI.
 
 | Setting | Scope | Default | What it does |
@@ -140,7 +140,7 @@ Domain approval: domains listed in `devvit.json` → `permissions.http.domains`
 are submitted for review automatically on the first `devvit playtest` or
 `devvit upload`. Reddit says most requests are reviewed within **1–2 business
 days**, longer if there's policy ambiguity. Approved domains show at
-`https://developers.reddit.com/apps/ropedrop-bot/developer-settings`. Until
+`https://developers.reddit.com/apps/ropedropbot/developer-settings`. Until
 approval, calls to the API fail (logged, nothing posted).
 
 Note: Reddit's fetch policy says personal domains "will not be approved"
@@ -179,8 +179,8 @@ See `MANUAL_CHECKLIST.md` for the full ordered list. In short:
 
 1. `npm install`
 2. `npx devvit login` (opens a browser; log in as the Reddit account that will own the app).
-3. `npx devvit upload` — creates the app `ropedrop-bot` (and its app account
-   **u/ropedrop-bot**) and submits the `ropedropplanner.com` fetch domain for
+3. `npx devvit upload` — creates the app `ropedropbot` (and its app account
+   **u/ropedropbot**) and submits the `ropedropplanner.com` fetch domain for
    review.
 4. Create a **private test subreddit** (e.g. r/ropedrop_bot_test) where you
    are a moderator.
@@ -190,7 +190,7 @@ See `MANUAL_CHECKLIST.md` for the full ordered list. In short:
 7. Test with dry run on (check logs), then turn dry run off in the test sub
    and test real replies, the mod menu, and the daily post (temporarily set
    `dailyPostHourET` to the current Eastern hour).
-8. Fill in the app details on `https://developers.reddit.com/apps/ropedrop-bot`
+8. Fill in the app details on `https://developers.reddit.com/apps/ropedropbot`
    (description, Terms of Service + Privacy Policy links — required because
    the app uses fetch), then `npx devvit publish` to submit for Reddit review.
    Published apps are **unlisted** by default (only you can install them),
@@ -198,7 +198,7 @@ See `MANUAL_CHECKLIST.md` for the full ordered list. In short:
    new apps that use fetch. Playtest installs only work on subreddits with
    fewer than 200 members, so a real community needs the approved version.
 9. Install on r/ropedropplanner: `npx devvit install r/ropedropplanner`
-   (or the Install button on `https://developers.reddit.com/apps/ropedrop-bot`).
+   (or the Install button on `https://developers.reddit.com/apps/ropedropbot`).
 10. Watch `npx devvit logs r/ropedropplanner` for a day in dry run, then turn
     **Dry run** off in the install settings.
 
@@ -215,7 +215,7 @@ Settings and Redis data survive upgrades.
 
 ### Uninstall
 
-On `https://developers.reddit.com/r/ropedropplanner/apps/ropedrop-bot`,
+On `https://developers.reddit.com/r/ropedropplanner/apps/ropedropbot`,
 choose **Uninstall** (or remove it from the subreddit's mod tools → Installed
 apps). Posts and comments the bot already made stay; delete them manually if
 wanted. To stop the backend from answering at all, delete/rotate

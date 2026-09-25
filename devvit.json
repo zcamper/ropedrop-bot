@@ -1,6 +1,6 @@
 {
   "$schema": "https://developers.reddit.com/schema/config-file.v1.json",
-  "name": "ropedrop-bot",
+  "name": "ropedropbot",
   "server": {
     "dir": "dist/server",
     "entry": "index.cjs"
@@ -8,7 +8,9 @@
   "permissions": {
     "http": {
       "enable": true,
-      "domains": ["ropedropplanner.com"]
+      "domains": [
+        "ropedropplanner.com"
+      ]
     },
     "redis": true,
     "reddit": {
@@ -25,7 +27,10 @@
       {
         "label": "Ask RopeDrop bot",
         "description": "Ask the RopeDrop bot to answer this (ignores flair skip list and hourly cap; still needs confidence >= 0.5).",
-        "location": ["post", "comment"],
+        "location": [
+          "post",
+          "comment"
+        ],
         "forUserType": "moderator",
         "endpoint": "/internal/menu/ask"
       }
@@ -100,8 +105,14 @@
         "type": "select",
         "label": "Daily post destination",
         "options": [
-          { "label": "Walt Disney World", "value": "wdw" },
-          { "label": "Disneyland Resort", "value": "dlr" }
+          {
+            "label": "Walt Disney World",
+            "value": "wdw"
+          },
+          {
+            "label": "Disneyland Resort",
+            "value": "dlr"
+          }
         ],
         "defaultValue": "wdw"
       },
@@ -115,5 +126,8 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite build --watch"
+  },
+  "dev": {
+    "subreddit": "ropedropbot_dev"
   }
 }
