@@ -1,0 +1,119 @@
+{
+  "$schema": "https://developers.reddit.com/schema/config-file.v1.json",
+  "name": "ropedrop-bot",
+  "server": {
+    "dir": "dist/server",
+    "entry": "index.cjs"
+  },
+  "permissions": {
+    "http": {
+      "enable": true,
+      "domains": ["ropedropplanner.com"]
+    },
+    "redis": true,
+    "reddit": {
+      "enable": true,
+      "scope": "moderator"
+    }
+  },
+  "triggers": {
+    "onPostCreate": "/internal/triggers/post-create",
+    "onCommentCreate": "/internal/triggers/comment-create"
+  },
+  "menu": {
+    "items": [
+      {
+        "label": "Ask RopeDrop bot",
+        "description": "Ask the RopeDrop bot to answer this (ignores flair skip list and hourly cap; still needs confidence >= 0.5).",
+        "location": ["post", "comment"],
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/ask"
+      }
+    ]
+  },
+  "scheduler": {
+    "tasks": {
+      "daily-outlook": {
+        "endpoint": "/internal/scheduler/daily-outlook",
+        "cron": "0 * * * *"
+      }
+    }
+  },
+  "settings": {
+    "global": {
+      "botKey": {
+        "type": "string",
+        "label": "RopeDrop bot API key (X-Bot-Key)",
+        "helpText": "Secret. Set with `npx devvit settings set botKey` using the value of GCP secret REDDIT_BOT_KEY.",
+        "isSecret": true
+      },
+      "apiBaseUrl": {
+        "type": "string",
+        "label": "RopeDrop API base URL",
+        "helpText": "Must be https on ropedropplanner.com (the only allow-listed domain).",
+        "defaultValue": "https://ropedropplanner.com",
+        "validationEndpoint": "/internal/settings/api-base-url"
+      }
+    },
+    "subreddit": {
+      "dryRun": {
+        "type": "boolean",
+        "label": "Dry run (log instead of posting)",
+        "helpText": "ON by default. While on, the bot only writes what it would post to the app logs. Turn off to go live.",
+        "defaultValue": true
+      },
+      "minConfidence": {
+        "type": "number",
+        "label": "Minimum confidence to auto-reply (0.5-1)",
+        "defaultValue": 0.7,
+        "validationEndpoint": "/internal/settings/min-confidence"
+      },
+      "maxRepliesPerHour": {
+        "type": "number",
+        "label": "Max automatic replies per rolling hour",
+        "defaultValue": 5,
+        "validationEndpoint": "/internal/settings/max-replies"
+      },
+      "skipFlairs": {
+        "type": "string",
+        "label": "Skip posts with these flairs (comma-separated)",
+        "defaultValue": "Trip Report, Photo, Photos, Meta"
+      },
+      "feedbackUrl": {
+        "type": "string",
+        "label": "Feedback link in the reply footer",
+        "defaultValue": "https://www.reddit.com/message/compose?to=/r/ropedropplanner&subject=RopeDrop%20bot%20feedback",
+        "validationEndpoint": "/internal/settings/https-url"
+      },
+      "dailyPostEnabled": {
+        "type": "boolean",
+        "label": "Post \"Today's Crowd Outlook\" daily",
+        "defaultValue": true
+      },
+      "dailyPostHourET": {
+        "type": "number",
+        "label": "Daily post hour (0-23, US Eastern Time)",
+        "defaultValue": 7,
+        "validationEndpoint": "/internal/settings/hour-et"
+      },
+      "dailyDestination": {
+        "type": "select",
+        "label": "Daily post destination",
+        "options": [
+          { "label": "Walt Disney World", "value": "wdw" },
+          { "label": "Disneyland Resort", "value": "dlr" }
+        ],
+        "defaultValue": "wdw"
+      },
+      "dailyPostSticky": {
+        "type": "boolean",
+        "label": "Distinguish + sticky the daily post",
+        "defaultValue": false
+      }
+    }
+  },
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite build --watch"
+  }
+}
