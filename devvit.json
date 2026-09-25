@@ -1,6 +1,6 @@
 {
   "$schema": "https://developers.reddit.com/schema/config-file.v1.json",
-  "name": "ropedropbot",
+  "name": "ropedropplannerbot",
   "server": {
     "dir": "dist/server",
     "entry": "index.cjs"
@@ -128,6 +128,6 @@
     "dev": "vite build --watch"
   },
   "dev": {
-    "subreddit": "ropedropbot_dev"
+    "subreddit": "ropedropplannerbo_dev"
   }
 }

@@ -20,8 +20,8 @@ Node 24.18+.
 ## B. Reddit developer account
 
 - [ ] 3. Decide which Reddit account owns the app (it becomes the developer;
-      the bot posts as the separate app account **u/ropedropbot**). If the
-      name `ropedropbot` is taken, change `name` in `devvit.json` +
+      the bot posts as the separate app account **u/ropedropplannerbot**). If the
+      name `ropedropplannerbot` is taken, change `name` in `devvit.json` +
       `package.json` (see README → Renaming).
 - [ ] 4. `npm install`
 - [ ] 5. `npx devvit login` (browser OAuth).
@@ -30,10 +30,10 @@ Node 24.18+.
       `ropedropplanner.com` for fetch-domain review (Reddit: usually 1–2
       business days; may be longer — their policy says personal domains need
       a detailed justification, which is in README → Fetch Domains). Check
-      status at `https://developers.reddit.com/apps/ropedropbot/developer-settings`.
+      status at `https://developers.reddit.com/apps/ropedropplannerbot/developer-settings`.
       If it is denied, reply with the README justification / contact r/Devvit
       modmail; the bot can do nothing useful without it.
-- [ ] 8. On `https://developers.reddit.com/apps/ropedropbot`, fill in the
+- [ ] 8. On `https://developers.reddit.com/apps/ropedropplannerbot`, fill in the
       app description and the Terms of Service
       (`https://ropedropplanner.com/terms-of-service`) and Privacy Policy
       (`https://ropedropplanner.com/privacy-policy`) links.
@@ -53,10 +53,10 @@ Node 24.18+.
       - [ ] Question post → log shows `DRY RUN — would reply ...` with a sane body.
       - [ ] Post flaired "Trip Report" → `skipped (flair_skipped)`.
       - [ ] Post by a mod → `skipped (author_is_mod)`.
-      - [ ] Comment mentioning `u/ropedropbot` → dry-run reply; comment without mention → nothing.
+      - [ ] Comment mentioning `u/ropedropplannerbot` → dry-run reply; comment without mention → nothing.
       - [ ] If the log shows `HTTP 401` the key is wrong; `HTTP 503` the backend key isn't set; `network`/`config` errors → domain not approved yet or apiBaseUrl wrong.
 - [ ] 13. In the test sub's install settings turn **Dry run** off and repeat
-      step 12: replies should appear as u/ropedropbot with the footer and
+      step 12: replies should appear as u/ropedropplannerbot with the footer and
       a working Feedback link. Post the same question twice (or wait for a
       redelivery) → only one reply.
 - [ ] 14. Hourly cap: set `maxRepliesPerHour` to 1, make two question posts →
@@ -77,7 +77,7 @@ Node 24.18+.
 - [ ] 19. `npx devvit install r/ropedropplanner` (you need full mod
       permissions there).
 - [ ] 20. Confirm install settings on
-      `https://developers.reddit.com/r/ropedropplanner/apps/ropedropbot`:
+      `https://developers.reddit.com/r/ropedropplanner/apps/ropedropplannerbot`:
       Dry run **on**, minConfidence 0.7, maxRepliesPerHour 5, skipFlairs,
       feedbackUrl, daily post 7 ET / wdw.
 - [ ] 21. Watch `npx devvit logs r/ropedropplanner` for ~1 day of dry-run
@@ -93,4 +93,4 @@ Node 24.18+.
 - [ ] Updates: `npm test` → `npx devvit playtest r/ropedrop_bot_test` →
       `npx devvit publish` → `npx devvit install r/ropedropplanner`.
 - [ ] Uninstall: developers.reddit.com → r/ropedropplanner → Installed apps
-      → ropedropbot → Uninstall. Existing bot comments/posts remain.
+      → ropedropplannerbot → Uninstall. Existing bot comments/posts remain.
