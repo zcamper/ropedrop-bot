@@ -77,9 +77,12 @@ backend key. Commands run from the repo root on any machine with Node 24.18+.
 
 ## E. Later
 
-- [ ] If the nightly export stops, the bot keeps answering from the last
-      stored generation for up to 7 days, then goes silent (logged as
-      `bundle is stale`).
+- [ ] If the nightly export or the daily fetch stops, the bot keeps
+      answering from the newest data it has (the last stored generation or
+      the snapshot embedded at upload) for up to 30 days, dating its hours
+      and crowd answers and staying silent on dates the data doesn't cover;
+      after that it goes silent (logged as `bundle is stale`). Any upload
+      (`npm run build` runs `npm run snapshot`) ships fresh embedded data.
 - [ ] Updates: `npm test` → `npx devvit playtest r/ropedrop_bot_test` →
       `npx devvit publish` → `npx devvit install r/ropedropplanner`.
 - [ ] Uninstall: developers.reddit.com → r/ropedropplanner → Installed apps

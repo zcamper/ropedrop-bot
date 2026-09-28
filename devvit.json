@@ -110,8 +110,8 @@
     }
   },
   "scripts": {
-    "build": "vite build",
-    "dev": "vite build --watch"
+    "build": "npm run build",
+    "dev": "node scripts/snapshot-bundle.mjs --if-missing && vite build --watch"
   },
   "dev": {
     "subreddit": "ropedropplannerbo_dev"

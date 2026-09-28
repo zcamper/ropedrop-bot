@@ -51,6 +51,7 @@ import {
   isoDay,
   pyRound,
   pyRoundInt,
+  shortIso,
   weekday,
   WEEKDAY_NAMES,
   wordCount,
@@ -687,6 +688,17 @@ function factsCompareRides(
   return out;
 }
 
+/**
+ * "Sep 20" when the data was built before the park-local today of the
+ * question (an older snapshot): date-bound answers then say how old their
+ * schedule/forecast is instead of presenting it as current. null when fresh.
+ */
+export function staleAsOf(core: Core, pq: ParsedQuestion): string | null {
+  return core.local_date && core.local_date < isoDay(pq.today)
+    ? shortIso(core.local_date)
+    : null;
+}
+
 function factsCrowds(common: Common, core: Core, pq: ParsedQuestion): Facts {
   const parks = targetParks(common, pq);
   const dates = pq.dates.slice(
@@ -699,6 +711,8 @@ function factsCrowds(common: Common, core: Core, pq: ParsedQuestion): Facts {
     data_basis: 'prediction from historical wait-time data (not live)',
     forecasts: [],
   };
+  const asOf = staleAsOf(core, pq);
+  if (asOf) out.as_of = asOf;
   for (const d of dates) {
     for (const p of parks) {
       const c = getCrowd(core, p, d);
@@ -755,6 +769,8 @@ function factsHours(common: Common, core: Core, pq: ParsedQuestion): Facts {
     note: 'Published Disney hours; subject to change.',
     days: [],
   };
+  const asOf = staleAsOf(core, pq);
+  if (asOf) out.as_of = asOf;
   for (const d of dates) {
     for (const p of parks) {
       const h = getHours(core, p, d);
@@ -1070,14 +1086,15 @@ function templateAnswer(pq: ParsedQuestion, facts: Facts): string {
   if (t === 'crowd_forecast') {
     const fc: Facts[] = facts.forecasts ?? [];
     if (!fc.length) return "I don't have a crowd prediction for that date yet.";
+    const asOf = facts.as_of ? ` (Forecast as of ${facts.as_of}.)` : '';
     if (fc.length === 1) {
       const f = fc[0] as Facts;
       return (
         `Predicted crowd level for ${f.park} on ${f.date}: ${f.crowd_level}/10 (${f.label}), ` +
-        'based on historical wait data.'
+        `based on historical wait data.${asOf}`
       );
     }
-    return crowdList(facts);
+    return crowdList(facts) + asOf;
   }
   if (t === 'park_hours') {
     const days: Facts[] = facts.days ?? [];
@@ -1087,7 +1104,11 @@ function templateAnswer(pq: ParsedQuestion, facts: Facts): string {
       if (d.early_entry) b += ` (Early Entry from ${d.early_entry.open})`;
       return b;
     });
-    return `${bits.join('; ')}. Hours can change, so double-check before you go.`;
+    // Older data: say how old the schedule is instead of presenting it as current.
+    const tail = facts.as_of
+      ? `That's Disney's published schedule as of ${facts.as_of}; hours can change, so double-check before you go.`
+      : 'Hours can change, so double-check before you go.';
+    return `${bits.join('; ')}. ${tail}`;
   }
   if (t === 'compare_rides') return compareText(facts);
   return "Sorry — I couldn't find data to answer that one.";

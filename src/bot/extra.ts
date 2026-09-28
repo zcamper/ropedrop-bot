@@ -8,6 +8,7 @@
 // page the data came from, and return _quality 0 (silent) when the bundle
 // doesn't have what was asked. Opinion questions never reach here.
 
+import { MAX_CLOSURES_AGE_MS } from '../core/config.js';
 import type { AnswerEnv, Facts, Link } from './answer.js';
 import { partialRatio } from './fuzz.js';
 import { parkDisplayName, targetParks, type ParsedQuestion } from './parse.js';
@@ -1061,8 +1062,11 @@ async function eventsFacts(
   const facts: Facts = { type: 'special_events', _quality: 0 };
   const ev = await env.src.events(pq.destination);
   if (!ev) return facts;
-  const first = parseIsoDay(ev.local_date) ?? pq.today;
-  const last = first + 13;
+  // The schedule covers 14 days from the data's own date; with an older
+  // snapshot the default window starts today, never in the past.
+  const dataFirst = parseIsoDay(ev.local_date) ?? pq.today;
+  const last = dataFirst + 13;
+  const first = Math.max(dataFirst, pq.today);
   const asked = pq.dateExplicit
     ? pq.dates
     : Array.from({ length: 14 }, (_, i) => first + i);
@@ -1192,6 +1196,10 @@ async function closuresFacts(
   const facts: Facts = { type: 'closures', _quality: 0 };
   const ev = await env.src.events(pq.destination);
   if (!ev) return facts;
+  // "Operating in the last ~24 hours" is only true of recent data: stay
+  // silent on closures when the data is older than 2 days.
+  const built = Date.parse(ev.generated_at);
+  if (!(env.now.getTime() - built <= MAX_CLOSURES_AGE_MS)) return facts;
   const cl = ev.closures;
   facts.as_of = `${fmtAsOf(cl.as_of)} ${tzLabel(pq.destination)}`;
   facts.recent = 'the last ~24 hours';

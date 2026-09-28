@@ -7,8 +7,17 @@ export const BOT_DISPLAY_NAME = 'RopeDrop Planner bot';
 /** Max characters of post text the parser looks at (same limit the old API had). */
 export const MAX_QUESTION_CHARS = 2000;
 
-/** Don't answer from a bundle older than this (the nightly refresh has been failing). */
-export const MAX_BUNDLE_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+/**
+ * Don't answer from a bundle older than this. 30 days = the published-hours
+ * window, so the snapshot embedded at upload time keeps working while the
+ * daily refresh is unavailable. Date-bound answers are further limited to
+ * the dates the data covers (hours 30 d, crowds 60 d, events 14 d from the
+ * data's own date); closures need data from the last 2 days.
+ */
+export const MAX_BUNDLE_AGE_MS = 30 * 24 * 60 * 60 * 1000;
+
+/** Closures ("no operating status in the last ~24 hours") need data at most this old. */
+export const MAX_CLOSURES_AGE_MS = 48 * 60 * 60 * 1000;
 
 /** Hard confidence floor for the mod "Ask RopeDrop bot" menu action. */
 export const MANUAL_CONFIDENCE_FLOOR = 0.5;

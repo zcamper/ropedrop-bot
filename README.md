@@ -9,10 +9,13 @@ Friday?", "How much is a Dole Whip?", "What can a 40-inch kid ride?") by
 answering from RopeDrop Planner's historical wait-time data and published
 park information.
 
-**Everything is computed inside Reddit.** Once a day the app downloads a
-public, precomputed data bundle (see [Fetch Domains](#fetch-domains)) and
-stores it in the app's Redis. Questions are parsed and answered by code in
-this repo; post and comment text is never sent anywhere.
+**Everything is computed inside Reddit, and it works out of the box.** Each
+build of the app embeds a snapshot of RopeDrop Planner's public, precomputed
+data bundle, so it answers right after install with **no external request at
+all**. Once a day the app GETs the newest bundle (see
+[Fetch Domains](#fetch-domains)) and stores it in the app's Redis, which only
+keeps the data fresh. Questions are parsed and answered by code in this repo;
+post and comment text is never sent anywhere.
 
 What it does:
 
@@ -60,16 +63,65 @@ Safety and operational notes:
   bot only writes to the app logs what it _would_ post. Nothing appears on Reddit.
 - It never replies twice to the same post or comment, and it sends at most
   **5 automatic replies per rolling hour** (configurable).
-- It skips posts by moderators, its own posts, removed/deleted content, and
-  posts flaired _Trip Report_, _Photo_, _Photos_ or _Meta_ (configurable).
-- If the data bundle hasn't loaded, is unreadable, or is more than 7 days old,
-  the bot logs it and does nothing. It never posts an error message.
+- It skips posts by moderators (e.g. announcements), its own posts,
+  removed/deleted content, and posts flaired _Trip Report_, _Photo_, _Photos_
+  or _Meta_ (configurable). A comment that mentions the bot is answered even
+  when a moderator wrote it (a mention is an explicit request).
+- It answers from the newest data it has: the daily-refreshed copy in Redis
+  or the snapshot built into the app, whichever was generated later. If
+  neither is usable or the newest is more than 30 days old, the bot logs it
+  and does nothing. It never posts an error message.
+- Date-bound answers only cover the dates the data covers (hours 30 days,
+  crowd forecasts 60 days, events 14 days, from the data's own date; LL prices
+  for the dates captured) and stay silent beyond them. When the data is from
+  an earlier day, hours and crowd answers say "as of <date>" instead of
+  presenting it as current, closures need data from the last 2 days, and the
+  daily "Today's Crowd Outlook" is only posted from data built that day.
+
+## For Reddit reviewers: how to test
+
+1. Install the app on a test subreddit. It answers immediately from the data
+   built into the app; the `ropedrop-bot-data.storage.googleapis.com` fetch
+   only refreshes that data daily (GET-only, public files, no user data sent).
+   The install log shows which data it uses, e.g.
+   `[bundle] embedded snapshot 20260928T1750Z loaded (...)` and
+   `[bundle] answering from embedded:20260928T1750Z (generated 2026-09-28T17:50:11Z)`.
+2. **Dry run is ON by default**: the bot then only writes what it _would_
+   reply to the app logs (`devvit logs <subreddit>`), and nothing appears on
+   Reddit. To see real replies, turn off _Dry run_ in the app's settings for
+   the test subreddit.
+3. Ask a question in one of these ways (the bot skips **posts** by the
+   subreddit's moderators on purpose, so a moderator should use b or c):
+   - a. a new post from a non-moderator account, e.g. title
+     _"What time does Magic Kingdom open tomorrow?"_;
+   - b. a comment that mentions the bot, e.g.
+     `u/ropedropplannerbot when is the best time to ride Slinky Dog Dash?`;
+   - c. the moderator menu item **Ask RopeDrop bot** on any post or comment.
+4. Example questions that it answers:
+   - "When is the best time to ride Slinky Dog Dash?"
+   - "Is EPCOT busy on Friday?"
+   - "What time does Magic Kingdom open tomorrow?"
+   - "How tall do you have to be for TRON?"
+   - "How much is a Dole Whip?"
+   - "What should we rope drop at Hollywood Studios on Saturday?"
+
+   Opinion questions ("Is Lightning Lane worth it?") and statements get no
+   reply, by design.
+
+5. Every post, comment and mention the bot handles writes exactly one log
+   line (no post text, no usernames), e.g.
+   `[bot] post t3_abc mode=auto outcome=dry_run intent=best_time confidence=0.95 dest=wdw data=embedded:20260928T1750Z`.
+   `outcome` is `replied`, `dry_run`, `silent` or `skipped`, with a `reason`
+   when it didn't answer (`low_confidence(...)`, `author_is_mod`,
+   `no_mention`, `flair_skipped`, ...).
 
 ## Privacy
 
 - **Post and comment text never leaves Reddit.** It is parsed in the app and
   is not stored, logged or sent to any server or AI model. Logs contain only
-  post/comment IDs and outcomes (e.g. `confidence 0.95; replied`).
+  post/comment IDs, the decision, the detected intent/destination, the
+  confidence and which data answered (see the log line above); in dry run,
+  also the reply the bot would have posted.
 - The only outgoing requests are `GET`s of public data files from
   `ropedrop-bot-data.storage.googleapis.com`. No usernames, IDs, post text or
   other user data is included in them.
@@ -107,7 +159,24 @@ Safety and operational notes:
    + the files it lists (public, precomputed nightly at 04:15 ET)
 ```
 
-**Data layer** (`src/bundle/sync.ts`, `src/bundle/source.ts`):
+**Data layer** (`src/bundle/sync.ts`, `src/bundle/source.ts`,
+`src/bundle/embedded.ts`):
+
+0. **Embedded snapshot.** `npm run snapshot` (`scripts/snapshot-bundle.mjs`,
+   plain Node on the developer machine) GETs the current manifest and every
+   file it lists, verifies each file's byte count and SHA-256 against the
+   manifest, drops fields no answer reads (show lists, showtimes, per-drink
+   DAW lists) and writes one gzipped JSON container to
+   `snapshot/bundle.json.gz` (git-ignored). `vite.config.ts` inlines it into
+   `dist/server/index.cjs` as base64 (`virtual:rdb-snapshot`). The server
+   decodes it once per instance with `node:zlib` (a Node built-in that the
+   Devvit server bundle already loads) and reads it from memory; it is never
+   written to Redis. Size for generation `20260928T1750Z`: 3.58 MB of JSON
+   downloaded → 3.38 MB trimmed → **624 KB gzipped** (832 KB as base64 in the
+   bundle). `npm run build` and `devvit upload`/`publish` (via `scripts.build`
+   in `devvit.json`) always take a fresh snapshot, so every upload ships
+   current data; `npm test` and `devvit playtest` reuse an existing one
+   (`--if-missing`) so they work offline.
 
 1. A scheduler task (`bundle-refresh`, cron `10 9-12 * * *` UTC, i.e. about
    05:10 ET with three hourly retries) and the `onAppInstall` / `onAppUpgrade`
@@ -128,6 +197,11 @@ Safety and operational notes:
 6. Readers (`openRedisBundle`) follow `current`, fall back to `previous` if a
    file can't be read, and parse each file lazily at most once per request.
    A generation is ~3.6 MB (47 Redis keys); with the previous one kept, ~7.2 MB.
+7. **Load order** (`dataSources`): the Redis generation and the embedded
+   snapshot, ordered by their `generated_at`, newest first (Redis wins a tie).
+   Each answer tries them in that order, so an unreadable or missing Redis
+   generation falls back to the embedded snapshot. A failed fetch never
+   affects answering.
 
 **Answers** (`src/bot/`): `parse.ts` turns each question sentence into a
 destination, park, rides, dates, time window and intent; `answer.ts` reads
@@ -231,11 +305,16 @@ Earlier versions requested `ropedropplanner.com` (a personal domain, which
 the policy does not allow). This version makes no requests to it; answers
 still _link_ to ropedropplanner.com pages, which needs no fetch permission.
 
+**The app works without this domain.** Every build embeds a snapshot of the
+same public bundle, so the bot answers out of the box with zero external
+requests; the domain only refreshes that data daily. While the domain is not
+approved, the refresh logs an error (`HTTP request to domain ... is not
+allowed`) and the bot keeps answering from the embedded snapshot.
+
 Domain approval: domains listed in `devvit.json` → `permissions.http.domains`
 are submitted for review on `devvit playtest` / `devvit upload`. Approved
 domains show at
-`https://developers.reddit.com/apps/ropedropplannerbot/developer-settings`.
-Until approval, the refresh logs an error and the bot stays silent. Apps that
+`https://developers.reddit.com/apps/ropedropplannerbot/developer-settings`. Apps that
 fetch must link a Terms of Service and Privacy Policy in the app details form
 (`https://ropedropplanner.com/terms-of-service`,
 `https://ropedropplanner.com/privacy-policy`).
@@ -252,12 +331,16 @@ npm test          # typecheck + eslint + unit tests + build + devvit.json schema
 
 - `npm run test:unit` — unit tests only (`node --test`, run against the
   `tsc` output in `dist/types`).
-- `npm run build` — bundles the server to `dist/server/index.cjs` (Vite +
-  `@devvit/start`).
+- `npm run snapshot` — downloads the current public data bundle into
+  `snapshot/` (sha256-verified) for embedding.
+- `npm run build` — takes a fresh snapshot, then bundles the server (with the
+  snapshot inlined) to `dist/server/index.cjs` (Vite + `@devvit/start`).
+  `npm run build:offline` reuses an existing snapshot.
 - `npm run check:config` — validates `devvit.json` offline with the same
   parser the Devvit CLI uses, checks the HTTP allow-list is exactly
   `ropedrop-bot-data.storage.googleapis.com`, that there are no global
-  settings, and that the server bundle has no `ropedropplanner.com/api/` calls.
+  settings, that the server bundle has no `ropedropplanner.com/api/` calls,
+  and that it contains the current embedded snapshot.
 
 Tests run offline against the frozen bundle snapshot in
 `test/fixtures/bundle`: parser and fuzzy-matching units (checked against
@@ -283,9 +366,12 @@ See `MANUAL_CHECKLIST.md` for the full ordered list. In short:
    are a moderator.
 5. `npx devvit playtest r/ropedrop_bot_test` — installs a dev build there and
    streams logs.
-6. Check the logs for `[bundle] install: {"status":"updated",...}` (the data
-   loaded). If it says `error` (e.g. domain not approved yet), a retry is
-   scheduled in 5 minutes and the nightly job keeps trying.
+6. Check the logs for `[bundle] embedded snapshot <generation> loaded` and
+   `[bundle] answering from ...` (the data in use). `[bundle] install:
+{"status":"updated",...}` means the daily fetch works too; if it says
+   `error` (e.g. domain not approved yet), the bot answers from the embedded
+   snapshot, a retry is scheduled in 5 minutes and the nightly job keeps
+   trying.
 7. Test with dry run on (check logs), then turn dry run off in the test sub
    and test real replies, the mod menu, and the daily post (temporarily set
    `dailyPostHourET` to the current Eastern hour).

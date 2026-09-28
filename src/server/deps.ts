@@ -2,8 +2,9 @@
 // Redis and settings, plus the data-bundle refresh (the only HTTP fetch).
 
 import { context, reddit, redis, settings } from '@devvit/web/server';
-import { askFromBundle, dailyFromBundle } from '../bot/service.js';
-import { openRedisBundle } from '../bundle/source.js';
+import embeddedGzBase64 from 'virtual:rdb-snapshot';
+import { askFromSources, dailyFromSources } from '../bot/service.js';
+import { dataSources, loadEmbedded } from '../bundle/embedded.js';
 import { refreshBundle, type KV, type RefreshResult } from '../bundle/sync.js';
 import {
   normalizeSettings,
@@ -126,6 +127,26 @@ const log = {
   error: (m: string) => console.error(m),
 };
 
+/**
+ * The data snapshot built into this version (see scripts/snapshot-bundle.mjs).
+ * Decoded once per server instance, kept in memory, never written to Redis.
+ */
+export const embedded = loadEmbedded(embeddedGzBase64, (m) => console.log(m));
+
+/** Usable data, newest first: the Redis generation (daily fetch) and the embedded snapshot. */
+function sources() {
+  return dataSources(kv, embedded, log.warn);
+}
+
+/** One line for logs: which data answers right now. */
+export async function describeData(): Promise<string> {
+  const all = await sources();
+  if (!all.length) return 'no data (no Redis generation, no embedded snapshot)';
+  const [first, ...rest] = all;
+  const others = rest.map((s) => `${s.label} (${s.generatedAt})`).join(', ');
+  return `answering from ${first?.label} (generated ${first?.generatedAt})${others ? `; also available: ${others}` : ''}`;
+}
+
 /** GET the public bundle manifest and store a new generation if there is one. */
 export function refreshData(
   opts: { force?: boolean } = {}
@@ -141,9 +162,9 @@ export const deps: Deps = {
   botUsername,
   isModerator,
   isStillVisible,
-  ask: async (_s, q) => askFromBundle(await openRedisBundle(kv), new Date(), q),
+  ask: async (_s, q) => askFromSources(await sources(), new Date(), q),
   dailySummary: async (s) =>
-    dailyFromBundle(await openRedisBundle(kv), new Date(), s.dailyDestination),
+    dailyFromSources(await sources(), new Date(), s.dailyDestination),
   async submitComment(parentId, text) {
     const id = parentId.startsWith('t1_') ? asT1(parentId) : asT3(parentId);
     const c = await reddit.submitComment({ id, text, runAs: 'APP' });

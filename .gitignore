@@ -2,3 +2,5 @@ node_modules
 .DS_Store
 dist
 .env
+# Embedded data snapshot (npm run snapshot; public data, rebuilt on every build/upload)
+snapshot/

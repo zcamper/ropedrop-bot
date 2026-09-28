@@ -5,14 +5,16 @@
   "license": "BSD-3-Clause",
   "type": "module",
   "scripts": {
-    "build": "vite build",
+    "snapshot": "node scripts/snapshot-bundle.mjs",
+    "build": "npm run snapshot && vite build",
+    "build:offline": "node scripts/snapshot-bundle.mjs --if-missing && vite build",
     "dev": "devvit playtest",
     "deploy": "npm test && devvit upload",
     "launch": "npm run deploy && devvit publish",
     "login": "devvit login",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "prettier": "prettier --write .",
-    "test": "npm run test:types && npm run lint && npm run test:unit && npm run build && npm run check:config",
+    "test": "npm run test:types && npm run lint && npm run test:unit && npm run build:offline && npm run check:config",
     "test:types": "tsc --build",
     "test:unit": "tsc --build && node --test \"dist/types/src/**/*.test.js\"",
     "check:config": "node scripts/check-devvit-json.mjs"

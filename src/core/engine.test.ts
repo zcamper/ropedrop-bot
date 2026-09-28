@@ -169,7 +169,7 @@ void test('auto: data unavailable (no bundle / stale / read error) -> log only, 
     const o = await handlePost(w.deps, postEv(), 'auto');
     assert.equal(o.status, 'error');
     assert.equal(w.comments.length, 0);
-    assert.ok(w.logs.some((l) => l.includes(error)));
+    assert.ok(w.logs.some((l) => l.includes(error.replace(/ /g, '_'))));
   }
 });
 
@@ -408,4 +408,123 @@ void test('daily: dryRun logs the post; sticky flag passes through', async () =>
   w.settings.dailyPostSticky = true;
   await runDaily(w.deps);
   assert.equal(w.posts[0]!.sticky, true);
+});
+
+// ---------------------------------------------------------------- one log line per event
+
+const botLines = (w: World) => w.logs.filter((l) => l.startsWith('[bot] '));
+
+void test('log: exactly one line per post/comment/mention, with outcome, intent, confidence, dest and data source', async () => {
+  w.settings.dryRun = true;
+  w.askResult = {
+    ok: true,
+    data: {
+      answer: 'Rope drop Slinky.',
+      confidence: 0.8,
+      links: [],
+      intent: 'best_time',
+      destination: 'wdw',
+      source: 'embedded:20260928T1750Z',
+    },
+  };
+  await handlePost(w.deps, postEv(), 'auto');
+  const dry = botLines(w).filter((l) => !l.includes('DRY RUN'));
+  assert.deepEqual(dry, [
+    '[bot] post t3_p1 mode=auto outcome=dry_run intent=best_time confidence=0.8 dest=wdw data=embedded:20260928T1750Z',
+  ]);
+
+  w = makeWorld();
+  w.askResult = {
+    ok: true,
+    data: {
+      answer: 'x',
+      confidence: 0.3,
+      links: [],
+      intent: 'park_hours',
+      destination: 'dlr',
+      source: 'redis:G9',
+    },
+  };
+  await handlePost(w.deps, postEv(), 'auto');
+  assert.deepEqual(botLines(w), [
+    '[bot] post t3_p1 mode=auto outcome=silent reason=low_confidence(0.3<0.7) intent=park_hours confidence=0.3 dest=dlr data=redis:G9',
+  ]);
+
+  w = makeWorld();
+  await handlePost(w.deps, postEv({ authorName: 'ModPerson' }), 'auto');
+  await handleComment(
+    w.deps,
+    {
+      id: 't1_c9',
+      body: 'nice trip!',
+      authorName: 'visitor',
+      deleted: false,
+      spam: false,
+    },
+    'auto'
+  );
+  w.askResult = { ok: false, error: 'bundle not loaded yet' };
+  await handleComment(
+    w.deps,
+    {
+      id: 't1_c10',
+      body: 'u/ropedrop-bot is MK busy tomorrow?',
+      authorName: 'visitor',
+      deleted: false,
+      spam: false,
+    },
+    'auto'
+  );
+  assert.deepEqual(botLines(w), [
+    '[bot] post t3_p1 mode=auto outcome=skipped reason=author_is_mod',
+    '[bot] comment t1_c9 mode=auto outcome=skipped reason=no_mention',
+    '[bot] mention t1_c10 mode=auto outcome=silent reason=error:no_data:_bundle_not_loaded_yet',
+  ]);
+});
+
+void test('log: never contains the post text or the author name', async () => {
+  const secret = 'Zebra42 Quokka';
+  for (const dryRun of [true, false]) {
+    w = makeWorld();
+    w.settings.dryRun = dryRun;
+    await handlePost(
+      w.deps,
+      postEv({ title: `${secret}?`, body: secret, authorName: 'SecretUser9' }),
+      'auto'
+    );
+    await handleComment(
+      w.deps,
+      {
+        id: 't1_s',
+        body: `u/ropedrop-bot ${secret}?`,
+        authorName: 'SecretUser9',
+        deleted: false,
+        spam: false,
+      },
+      'auto'
+    );
+    for (const l of w.logs) {
+      assert.ok(!l.includes('Zebra42') && !l.includes('SecretUser9'), l);
+    }
+  }
+});
+
+void test('mention by a moderator is answered (posts by mods are still skipped)', async () => {
+  const o = await handleComment(
+    w.deps,
+    {
+      id: 't1_m1',
+      body: 'u/ropedrop-bot when is Slinky shortest?',
+      authorName: 'modperson',
+      deleted: false,
+      spam: false,
+    },
+    'auto'
+  );
+  assert.equal(o.status, 'replied');
+  assert.equal(
+    (await handlePost(w.deps, postEv({ authorName: 'modperson' }), 'auto'))
+      .status,
+    'skipped'
+  );
 });

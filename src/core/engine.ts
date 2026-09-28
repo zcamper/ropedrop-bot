@@ -15,6 +15,7 @@ import {
   buildPostQuestion,
   buildReplyBody,
   meetsConfidence,
+  mentionsBot,
   parseDailySummary,
   shouldHandleComment,
   shouldHandlePost,
@@ -31,6 +32,10 @@ export type AskResponse = {
   confidence: number;
   links: Link[];
   intent: string;
+  /** Destination the (main) question was answered for, e.g. "wdw". */
+  destination?: string;
+  /** Data the answer came from, e.g. "redis:20260928T1750Z" / "embedded:...". */
+  source?: string;
 };
 
 /** Errors are values (logged, never posted on Reddit). */
@@ -67,7 +72,9 @@ export type Deps = {
   /** Answer from the stored data bundle. The text never leaves Reddit. */
   ask: (s: BotSettings, question: string) => Promise<Result<AskResponse>>;
   /** Markdown for "Today's Crowd Outlook" ("## title" line + body). */
-  dailySummary: (s: BotSettings) => Promise<Result<{ markdown: string }>>;
+  dailySummary: (
+    s: BotSettings
+  ) => Promise<Result<{ markdown: string; source?: string }>>;
   submitComment: (parentId: string, text: string) => Promise<string>;
   submitPost: (title: string, text: string, sticky: boolean) => Promise<string>;
   store: Store;
@@ -80,8 +87,8 @@ export type Outcome =
   | { status: 'dry_run'; confidence: number }
   | { status: 'skipped'; reason: string }
   | { status: 'low_confidence'; confidence: number; threshold: number }
-  | { status: 'capped'; count: number }
-  | { status: 'duplicate' }
+  | { status: 'capped'; count: number; limit?: number }
+  | { status: 'duplicate'; reason?: string }
   | { status: 'error'; message: string };
 
 export type Mode = 'auto' | 'manual';
@@ -108,11 +115,23 @@ export type CommentEvent = {
   spam: boolean;
 };
 
+export type EventKind = 'post' | 'comment' | 'mention';
+
+/** What the log line reports about the answer (never the user's text or name). */
+type Trace = {
+  intent?: string;
+  confidence?: number;
+  destination?: string;
+  source?: string;
+};
+
 export async function handlePost(
   deps: Deps,
   ev: PostEvent,
   mode: Mode
 ): Promise<Outcome> {
+  const trace: Trace = {};
+  let outcome: Outcome;
   try {
     const [s, bot] = await Promise.all([deps.settings(), deps.botUsername()]);
     const opts = {
@@ -127,15 +146,17 @@ export async function handlePost(
     if (d.handle && mode === 'auto' && ev.authorName) {
       d = decide(await deps.isModerator(ev.authorName));
     }
-    if (!d.handle) return skip(deps, ev.id, d.reason);
-
-    return await respond(deps, s, mode, {
-      thingId: ev.id as string,
-      question: buildPostQuestion(ev.title ?? '', ev.body),
-    });
+    outcome = !d.handle
+      ? { status: 'skipped', reason: d.reason }
+      : await respond(deps, s, mode, trace, {
+          thingId: ev.id as string,
+          question: buildPostQuestion(ev.title ?? '', ev.body),
+        });
   } catch (err) {
-    return fail(deps, ev.id, err);
+    outcome = errorOutcome(err);
   }
+  deps.log.info(outcomeLine('post', ev.id, mode, outcome, trace));
+  return outcome;
 }
 
 export async function handleComment(
@@ -143,29 +164,29 @@ export async function handleComment(
   ev: CommentEvent,
   mode: Mode
 ): Promise<Outcome> {
+  const trace: Trace = {};
+  let kind: EventKind = 'comment';
+  let outcome: Outcome;
   try {
     const [s, bot] = await Promise.all([deps.settings(), deps.botUsername()]);
+    if (mentionsBot(ev.body, bot)) kind = 'mention';
     const opts = {
       botUsername: bot,
       skipFlairs: s.skipFlairs,
       manual: mode === 'manual',
     };
-    const decide = (authorIsMod: boolean): Decision =>
-      shouldHandleComment({ ...ev, authorIsMod }, opts);
-
-    let d = decide(false);
-    if (d.handle && mode === 'auto' && ev.authorName) {
-      d = decide(await deps.isModerator(ev.authorName));
-    }
-    if (!d.handle) return skip(deps, ev.id, d.reason);
-
-    return await respond(deps, s, mode, {
-      thingId: ev.id as string,
-      question: buildCommentQuestion(ev.body ?? '', bot),
-    });
+    const d = shouldHandleComment(ev, opts);
+    outcome = !d.handle
+      ? { status: 'skipped', reason: d.reason }
+      : await respond(deps, s, mode, trace, {
+          thingId: ev.id as string,
+          question: buildCommentQuestion(ev.body ?? '', bot),
+        });
   } catch (err) {
-    return fail(deps, ev.id, err);
+    outcome = errorOutcome(err);
   }
+  deps.log.info(outcomeLine(kind, ev.id, mode, outcome, trace));
+  return outcome;
 }
 
 // ---------------------------------------------------------------- core flow
@@ -174,6 +195,7 @@ async function respond(
   deps: Deps,
   s: BotSettings,
   mode: Mode,
+  trace: Trace,
   t: Target
 ): Promise<Outcome> {
   const { store, log } = deps;
@@ -183,8 +205,7 @@ async function respond(
   //    flipping dryRun off doesn't answer a backlog) but not a mod's request.
   const marker = await store.getReplied(id);
   if (marker === 'live' || (marker === 'dry' && mode === 'auto')) {
-    log.info(`[bot] ${id}: already handled (${marker})`);
-    return { status: 'duplicate' };
+    return { status: 'duplicate', reason: `already_handled_${marker}` };
   }
 
   // 2. Rolling hourly cap on actual replies (mods bypass it).
@@ -192,47 +213,41 @@ async function respond(
   if (mode === 'auto' && !s.dryRun) {
     const count = await store.countRecentReplies(nowMs, CAP_WINDOW_MS);
     if (count >= s.maxRepliesPerHour) {
-      log.info(
-        `[bot] ${id}: hourly cap reached (${count}/${s.maxRepliesPerHour})`
-      );
-      return { status: 'capped', count };
+      return { status: 'capped', count, limit: s.maxRepliesPerHour };
     }
   }
 
   // 3. In-flight lock: triggers can be delivered more than once.
   const lockKey = `${mode === 'auto' ? 'lock' : 'mlock'}:${id}`;
   if (!(await store.tryLock(lockKey, LOCK_TTL_SECONDS))) {
-    log.info(`[bot] ${id}: in flight elsewhere`);
-    return { status: 'duplicate' };
+    return { status: 'duplicate', reason: 'in_flight' };
   }
 
   // 4. Still there? (Delivery is async; it may have been removed meanwhile.)
   if (!(await deps.isStillVisible(id))) {
-    return skip(deps, id, 'deleted_or_removed');
+    return { status: 'skipped', reason: 'deleted_or_removed' };
   }
 
   // 5. Answer from the data bundle (in-process; nothing is sent anywhere).
   const res = await deps.ask(s, t.question);
   if (!res.ok) {
     await store.unlock(lockKey); // let a redelivery / mod retry try again
-    log.warn(
-      `[bot] ${id}: answer engine unavailable (${res.error}); not replying`
-    );
-    return { status: 'error', message: res.error };
+    return { status: 'error', message: `no data: ${res.error}` };
   }
   const { confidence } = res.data;
+  trace.intent = res.data.intent;
+  trace.confidence = confidence;
+  if (res.data.destination) trace.destination = res.data.destination;
+  if (res.data.source) trace.source = res.data.source;
   const threshold =
     mode === 'manual' ? MANUAL_CONFIDENCE_FLOOR : s.minConfidence;
   if (!meetsConfidence(confidence, threshold) || !res.data.answer.trim()) {
-    log.info(
-      `[bot] ${id}: confidence ${confidence} < ${threshold} (intent=${res.data.intent}); staying quiet`
-    );
     return { status: 'low_confidence', confidence, threshold };
   }
 
   const body = buildReplyBody(res.data.answer, res.data.links, s.feedbackUrl);
 
-  // 6. Dry run: log instead of posting.
+  // 6. Dry run: log instead of posting (the bot's reply, not the user's text).
   if (s.dryRun) {
     log.info(
       `[bot] DRY RUN — would reply to ${id} (confidence ${confidence}):\n${body}`
@@ -242,26 +257,84 @@ async function respond(
   }
 
   // 7. Re-check the marker right before posting (a parallel path may have won).
-  if ((await store.getReplied(id)) === 'live') return { status: 'duplicate' };
+  if ((await store.getReplied(id)) === 'live')
+    return { status: 'duplicate', reason: 'already_handled_live' };
 
   const commentId = await deps.submitComment(id, body);
   await store.setReplied(id, 'live', DEDUPE_TTL_SECONDS);
   await store.recordReply(id, nowMs, CAP_WINDOW_MS);
-  log.info(
-    `[bot] replied to ${id} with ${commentId} (confidence ${confidence}, mode ${mode})`
-  );
   return { status: 'replied', commentId, confidence };
 }
 
-function skip(deps: Deps, id: string | undefined, reason: string): Outcome {
-  deps.log.info(`[bot] ${id ?? '?'}: skipped (${reason})`);
-  return { status: 'skipped', reason };
+function errorOutcome(err: unknown): Outcome {
+  return {
+    status: 'error',
+    message: err instanceof Error ? err.message : String(err),
+  };
 }
 
-function fail(deps: Deps, id: string | undefined, err: unknown): Outcome {
-  const message = err instanceof Error ? err.message : String(err);
-  deps.log.error(`[bot] ${id ?? '?'}: error (${message}); not replying`);
-  return { status: 'error', message };
+/** Keep log fields on one line and short; they never contain user text. */
+function field(v: string): string {
+  return v.replace(/\s+/g, '_').slice(0, 200);
+}
+
+/**
+ * The one log line per handled post / comment / mention:
+ *   [bot] post t3_abc mode=auto outcome=dry_run intent=park_hours confidence=0.95 dest=wdw data=embedded:20260928T1750Z
+ *   [bot] comment t1_xyz mode=auto outcome=skipped reason=no_mention
+ * outcome is replied | dry_run | silent | skipped (+ reason). Contains ids,
+ * decisions and data labels only: never the post text or the author's name.
+ */
+export function outcomeLine(
+  kind: EventKind,
+  id: string | undefined,
+  mode: Mode,
+  o: Outcome,
+  trace: Trace = {}
+): string {
+  let outcome: string;
+  let reason: string | null = null;
+  switch (o.status) {
+    case 'replied':
+      outcome = 'replied';
+      reason = `comment_${o.commentId}`;
+      break;
+    case 'dry_run':
+      outcome = 'dry_run';
+      break;
+    case 'skipped':
+      outcome = 'skipped';
+      reason = o.reason;
+      break;
+    case 'duplicate':
+      outcome = 'skipped';
+      reason = o.reason ?? 'duplicate';
+      break;
+    case 'low_confidence':
+      outcome = 'silent';
+      reason = `low_confidence(${o.confidence}<${o.threshold})`;
+      break;
+    case 'capped':
+      outcome = 'silent';
+      reason = `hourly_cap(${o.count}/${o.limit ?? '?'})`;
+      break;
+    case 'error':
+      outcome = 'silent';
+      reason = `error:${o.message}`;
+      break;
+  }
+  const parts = [
+    `[bot] ${kind} ${id ?? '?'}`,
+    `mode=${mode}`,
+    `outcome=${outcome}`,
+  ];
+  if (reason) parts.push(`reason=${field(reason)}`);
+  if (trace.intent) parts.push(`intent=${field(trace.intent)}`);
+  if (trace.confidence !== undefined)
+    parts.push(`confidence=${trace.confidence}`);
+  if (trace.destination) parts.push(`dest=${field(trace.destination)}`);
+  if (trace.source) parts.push(`data=${field(trace.source)}`);
+  return parts.join(' ');
 }
 
 /** Toast text for the mod menu action. Never includes the answer itself. */
@@ -320,9 +393,10 @@ export async function runDaily(deps: Deps): Promise<DailyOutcome> {
     const parsed = parseDailySummary(res.data, etDateLabel(now));
     if (!parsed) throw new Error('daily-summary had no markdown');
 
+    const data = res.data.source ? ` (data ${res.data.source})` : '';
     if (s.dryRun) {
       log.info(
-        `[daily] DRY RUN — would post "${parsed.title}":\n${parsed.body}`
+        `[daily] DRY RUN — would post "${parsed.title}"${data}:\n${parsed.body}`
       );
       return { status: 'dry_run', dateKey: probe.dateKey };
     }
@@ -331,7 +405,7 @@ export async function runDaily(deps: Deps): Promise<DailyOutcome> {
       parsed.body,
       s.dailyPostSticky
     );
-    log.info(`[daily] posted ${postId} for ${probe.dateKey}`);
+    log.info(`[daily] posted ${postId} for ${probe.dateKey}${data}`);
     return { status: 'posted', postId, dateKey: probe.dateKey };
   } catch (err) {
     // Release the claim so the next hourly tick inside the window retries.

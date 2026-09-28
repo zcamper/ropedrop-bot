@@ -116,7 +116,6 @@ export type CommentCandidate = {
   authorName: string | undefined;
   deleted: boolean;
   spam: boolean;
-  authorIsMod: boolean;
 };
 
 export type FilterOptions = {
@@ -170,8 +169,8 @@ export function shouldHandleComment(
   if (!o.manual && !mentionsBot(c.body, o.botUsername)) {
     return { handle: false, reason: 'no_mention' };
   }
-  if (!o.manual && c.authorIsMod)
-    return { handle: false, reason: 'author_is_mod' };
+  // A mention is an explicit request, so moderators get answers too (the
+  // moderator rule only keeps the bot off mods' own posts, e.g. announcements).
   if (!buildCommentQuestion(c.body ?? '', o.botUsername)) {
     return { handle: false, reason: 'empty_question' };
   }

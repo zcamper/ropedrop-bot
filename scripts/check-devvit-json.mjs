@@ -34,6 +34,25 @@ if (/ropedropplanner\.com\/api\//.test(bundle)) {
   console.error('server bundle still references ropedropplanner.com/api/');
   process.exit(1);
 }
+// Every build carries the baseline data snapshot, so the app answers even
+// before (or without) its daily fetch.
+const info = existsSync('snapshot/info.json')
+  ? JSON.parse(readFileSync('snapshot/info.json', 'utf8'))
+  : null;
+if (!info || !bundle.includes('] embedded snapshot ')) {
+  console.error(
+    'server bundle has no embedded data snapshot — run npm run snapshot, then npm run build'
+  );
+  process.exit(1);
+}
+const b64 = readFileSync('snapshot/bundle.json.gz').toString('base64');
+if (!bundle.includes(b64.slice(0, 64)) || !bundle.includes(b64.slice(-64))) {
+  console.error(
+    'server bundle does not contain the current snapshot/bundle.json.gz — rebuild'
+  );
+  process.exit(1);
+}
 console.log(
-  `devvit.json valid (app "${cfg.name}", server ${entry}, http ${JSON.stringify(domains)})`
+  `devvit.json valid (app "${cfg.name}", server ${entry}, http ${JSON.stringify(domains)}); ` +
+    `embedded data ${info.generation} (${info.generated_at}, ${info.gz_bytes} bytes gz)`
 );

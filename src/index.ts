@@ -26,6 +26,7 @@ import {
 import {
   callerIsModerator,
   deps,
+  describeData,
   loadCommentEvent,
   loadPostEvent,
   refreshData,
@@ -40,43 +41,50 @@ const internal = new Hono();
 // removed as spam. Always return 200 — errors are logged, never posted.
 
 internal.post('/triggers/post-create', async (c) => {
-  const input = await c.req.json<OnPostCreateRequest>();
-  const post = input.post;
-  const outcome = await handlePost(
-    deps,
-    {
-      id: post?.id,
-      title: post?.title,
-      body: post?.selftext,
-      authorName: input.author?.name,
-      flairText: post?.linkFlair?.text,
-      deleted: !!post?.deleted,
-      spam: !!post?.spam,
-    },
-    'auto'
-  );
-  console.log(`[trigger] post-create ${post?.id ?? '?'} -> ${outcome.status}`);
+  // handlePost logs exactly one "[bot] post ..." line per event; this catch
+  // only covers a malformed trigger payload.
+  try {
+    const input = await c.req.json<OnPostCreateRequest>();
+    const post = input.post;
+    await handlePost(
+      deps,
+      {
+        id: post?.id,
+        title: post?.title,
+        body: post?.selftext,
+        authorName: input.author?.name,
+        flairText: post?.linkFlair?.text,
+        deleted: !!post?.deleted,
+        spam: !!post?.spam,
+      },
+      'auto'
+    );
+  } catch (err) {
+    console.error(
+      `[bot] post ? mode=auto outcome=silent reason=bad_trigger_payload:${err instanceof Error ? err.name : 'error'}`
+    );
+  }
   return c.json<TriggerResponse>({}, 200);
 });
 
 internal.post('/triggers/comment-create', async (c) => {
-  const input = await c.req.json<OnCommentCreateRequest>();
-  const comment = input.comment;
-  const outcome = await handleComment(
-    deps,
-    {
-      id: comment?.id,
-      body: comment?.body,
-      authorName: input.author?.name,
-      deleted: !!comment?.deleted,
-      spam: !!comment?.spam,
-    },
-    'auto'
-  );
-  // Most comments don't mention the bot; only log the interesting ones.
-  if (!(outcome.status === 'skipped' && outcome.reason === 'no_mention')) {
-    console.log(
-      `[trigger] comment-create ${comment?.id ?? '?'} -> ${outcome.status}`
+  try {
+    const input = await c.req.json<OnCommentCreateRequest>();
+    const comment = input.comment;
+    await handleComment(
+      deps,
+      {
+        id: comment?.id,
+        body: comment?.body,
+        authorName: input.author?.name,
+        deleted: !!comment?.deleted,
+        spam: !!comment?.spam,
+      },
+      'auto'
+    );
+  } catch (err) {
+    console.error(
+      `[bot] comment ? mode=auto outcome=silent reason=bad_trigger_payload:${err instanceof Error ? err.name : 'error'}`
     );
   }
   return c.json<TriggerResponse>({}, 200);
@@ -89,6 +97,7 @@ internal.post('/triggers/comment-create', async (c) => {
 async function refreshOrRetry(why: string): Promise<void> {
   const r = await refreshData({ force: why === 'upgrade' });
   console.log(`[bundle] ${why}: ${JSON.stringify(r)}`);
+  console.log(`[bundle] ${await describeData()}`);
   if (r.status === 'error') {
     try {
       await scheduler.runJob({
@@ -116,6 +125,7 @@ internal.post('/triggers/app-upgrade', async (c) => {
 internal.post('/scheduler/bundle-refresh', async (c) => {
   const r = await refreshData();
   console.log(`[scheduler] bundle-refresh -> ${JSON.stringify(r)}`);
+  console.log(`[bundle] ${await describeData()}`);
   return c.json<TaskResponse>({}, 200);
 });
 

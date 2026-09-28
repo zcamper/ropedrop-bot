@@ -41,7 +41,6 @@ const comment = (over: Partial<CommentCandidate> = {}): CommentCandidate => ({
   authorName: 'someuser',
   deleted: false,
   spam: false,
-  authorIsMod: false,
   ...over,
 });
 
@@ -159,14 +158,13 @@ void test('shouldHandleComment: only when the bot is mentioned', () => {
   );
 });
 
-void test('shouldHandleComment: skips bot, mods, removed, empty-after-mention', () => {
+void test('shouldHandleComment: skips bot, removed, empty-after-mention; answers mods who mention it', () => {
   const o = { botUsername: BOT, skipFlairs: SKIP };
   const reason = (c: CommentCandidate) => {
     const d = shouldHandleComment(c, o);
     return d.handle ? 'handled' : d.reason;
   };
   assert.equal(reason(comment({ authorName: BOT })), 'is_bot');
-  assert.equal(reason(comment({ authorIsMod: true })), 'author_is_mod');
   assert.equal(reason(comment({ spam: true })), 'deleted_or_removed');
   assert.equal(reason(comment({ body: '[deleted]' })), 'deleted_or_removed');
   assert.equal(reason(comment({ body: 'u/ropedrop-bot' })), 'empty_question');
