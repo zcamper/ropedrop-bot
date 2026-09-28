@@ -1,38 +1,32 @@
 # RopeDrop Bot — owner checklist (do these by hand, in order)
 
-Nothing here has been done yet. The code builds and tests locally; it has
-never talked to Reddit. Commands run from `reddit-bot/` on any machine with
-Node 24.18+.
+The app answers from a public data bundle it downloads itself; there is no
+backend key. Commands run from the repo root on any machine with Node 24.18+.
 
-## A. Backend (RopeDrop side) — before the app can answer
+## A. Data bundle (RopeDrop side)
 
-- [ ] 1. Confirm the backend is live: `REDDIT_BOT_KEY` exists in GCP Secret
-      Manager (project `<your-gcp-project>`) and is mounted on Cloud Run
-      (`cloudbuild.yaml`), and `curl -s -o /dev/null -w '%{http_code}'
-      -X POST https://ropedropplanner.com/api/bot/ask` returns **401**
-      (not 503 = key not configured, not 404 = not deployed).
+- [ ] 1. Confirm the bundle is live and fresh:
+      `curl -s https://ropedrop-bot-data.storage.googleapis.com/bundle/v1/manifest.json | head -c 300`
+      shows `"schema":"ropedrop-bot-bundle","schema_version":1` and a
+      `generated_at` from the last 24 h (nightly export at 04:15 ET).
 - [ ] 2. Update `https://ropedropplanner.com/privacy-policy` (and terms if
-      needed) to describe the Reddit bot: what's sent (post/comment text),
-      that it isn't stored or logged, optional Gemini wording, no training.
-      Reddit requires ToS + Privacy links for apps that use fetch and won't
-      accept links to Reddit's own policies.
+      needed) to describe the Reddit bot: post/comment text is processed only
+      inside Reddit and is never sent to RopeDrop or stored; the app only
+      downloads public data files. Reddit requires ToS + Privacy links for
+      apps that use fetch and won't accept links to Reddit's own policies.
 
 ## B. Reddit developer account
 
-- [ ] 3. Decide which Reddit account owns the app (it becomes the developer;
-      the bot posts as the separate app account **u/ropedropplannerbot**). If the
-      name `ropedropplannerbot` is taken, change `name` in `devvit.json` +
-      `package.json` (see README → Renaming).
-- [ ] 4. `npm install`
+- [ ] 3. The app `ropedropplannerbot` (app account **u/ropedropplannerbot**)
+      is already registered.
+- [ ] 4. `npm ci`
 - [ ] 5. `npx devvit login` (browser OAuth).
 - [ ] 6. `npm test` — must pass before uploading.
-- [ ] 7. `npx devvit upload` — creates the app and submits
-      `ropedropplanner.com` for fetch-domain review (Reddit: usually 1–2
-      business days; may be longer — their policy says personal domains need
-      a detailed justification, which is in README → Fetch Domains). Check
-      status at `https://developers.reddit.com/apps/ropedropplannerbot/developer-settings`.
-      If it is denied, reply with the README justification / contact r/Devvit
-      modmail; the bot can do nothing useful without it.
+- [ ] 7. `npx devvit upload` — uploads the version and submits
+      `ropedrop-bot-data.storage.googleapis.com` for fetch-domain review
+      (category 2: approved provider `storage.googleapis.com`, asset hosting;
+      justification in README → Fetch Domains). Check status at
+      `https://developers.reddit.com/apps/ropedropplannerbot/developer-settings`.
 - [ ] 8. On `https://developers.reddit.com/apps/ropedropplannerbot`, fill in the
       app description and the Terms of Service
       (`https://ropedropplanner.com/terms-of-service`) and Privacy Policy
@@ -44,17 +38,12 @@ Node 24.18+.
       200 members), you as mod. Add post flairs "Question" and "Trip Report".
 - [ ] 10. `npx devvit playtest r/ropedrop_bot_test` (leave it running; it
       streams logs).
-- [ ] 11. In another terminal: `npx devvit settings set botKey` and paste the
-      value of `gcloud secrets versions access latest --secret=REDDIT_BOT_KEY
-      --project <your-gcp-project>`. (Needs at least one install — step 10.)
-      Never paste it into a file.
+- [ ] 11. In the playtest log, look for `[bundle] install: {"status":"updated",...}`
+      (or `[bundle] upgrade:`). `status":"error"` with an HTTP/network message
+      means the fetch domain isn't approved yet; a retry is scheduled in 5
+      minutes and the nightly `bundle-refresh` job keeps trying.
 - [ ] 12. Dry-run checks (dry run is ON by default) — from a **non-mod** test
-      account:
-      - [ ] Question post → log shows `DRY RUN — would reply ...` with a sane body.
-      - [ ] Post flaired "Trip Report" → `skipped (flair_skipped)`.
-      - [ ] Post by a mod → `skipped (author_is_mod)`.
-      - [ ] Comment mentioning `u/ropedropplannerbot` → dry-run reply; comment without mention → nothing.
-      - [ ] If the log shows `HTTP 401` the key is wrong; `HTTP 503` the backend key isn't set; `network`/`config` errors → domain not approved yet or apiBaseUrl wrong.
+      account: - [ ] Question post → log shows `DRY RUN — would reply ...` with a sane body. - [ ] Post flaired "Trip Report" → `skipped (flair_skipped)`. - [ ] Post by a mod → `skipped (author_is_mod)`. - [ ] Comment mentioning `u/ropedropplannerbot` → dry-run reply; comment without mention → nothing. - [ ] A log line `answer engine unavailable (bundle not loaded yet)` means step 11 hasn't succeeded yet. - [ ] Try a few new question types: "How much is a Dole Whip at Magic Kingdom?", "What can a 40-inch kid ride at Disneyland?", "Is Hong Kong Disneyland busy during Chinese New Year?".
 - [ ] 13. In the test sub's install settings turn **Dry run** off and repeat
       step 12: replies should appear as u/ropedropplannerbot with the footer and
       a working Feedback link. Post the same question twice (or wait for a
@@ -88,8 +77,9 @@ Node 24.18+.
 
 ## E. Later
 
-- [ ] Rotate the key: new `REDDIT_BOT_KEY` version → redeploy backend →
-      `npx devvit settings set botKey`.
+- [ ] If the nightly export stops, the bot keeps answering from the last
+      stored generation for up to 7 days, then goes silent (logged as
+      `bundle is stale`).
 - [ ] Updates: `npm test` → `npx devvit playtest r/ropedrop_bot_test` →
       `npx devvit publish` → `npx devvit install r/ropedropplanner`.
 - [ ] Uninstall: developers.reddit.com → r/ropedropplanner → Installed apps

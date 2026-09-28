@@ -10,9 +10,8 @@ import type {
   TriggerResponse,
   UiResponse,
 } from '@devvit/web/shared';
-import type { TaskResponse } from '@devvit/web/server';
+import { scheduler, type TaskResponse } from '@devvit/web/server';
 import {
-  validateApiBaseUrl,
   validateHourET,
   validateHttpsUrl,
   validateMaxRepliesPerHour,
@@ -29,6 +28,7 @@ import {
   deps,
   loadCommentEvent,
   loadPostEvent,
+  refreshData,
 } from './server/deps.js';
 
 const app = new Hono();
@@ -82,6 +82,43 @@ internal.post('/triggers/comment-create', async (c) => {
   return c.json<TriggerResponse>({}, 200);
 });
 
+// ---------------------------------------------------------------- data bundle
+// Install / upgrade: load the data right away (the nightly job may be hours
+// off). If that fails, retry in 5 minutes via a one-off scheduler job.
+
+async function refreshOrRetry(why: string): Promise<void> {
+  const r = await refreshData({ force: why === 'upgrade' });
+  console.log(`[bundle] ${why}: ${JSON.stringify(r)}`);
+  if (r.status === 'error') {
+    try {
+      await scheduler.runJob({
+        name: 'bundle-refresh',
+        runAt: new Date(Date.now() + 5 * 60_000),
+      });
+    } catch (err) {
+      console.error(`[bundle] could not schedule a retry: ${String(err)}`);
+    }
+  }
+}
+
+internal.post('/triggers/app-install', async (c) => {
+  await refreshOrRetry('install');
+  return c.json<TriggerResponse>({}, 200);
+});
+
+internal.post('/triggers/app-upgrade', async (c) => {
+  await refreshOrRetry('upgrade');
+  return c.json<TriggerResponse>({}, 200);
+});
+
+// Nightly (cron, UTC) shortly after the 04:15 ET export, with retries; a run
+// with an unchanged generation is one small manifest GET.
+internal.post('/scheduler/bundle-refresh', async (c) => {
+  const r = await refreshData();
+  console.log(`[scheduler] bundle-refresh -> ${JSON.stringify(r)}`);
+  return c.json<TaskResponse>({}, 200);
+});
+
 // ---------------------------------------------------------------- mod menu
 
 internal.post('/menu/ask', async (c) => {
@@ -129,7 +166,6 @@ const validators: Record<string, (v: unknown) => SettingsValidationResponse> = {
   'max-replies': validateMaxRepliesPerHour,
   'hour-et': validateHourET,
   'https-url': validateHttpsUrl,
-  'api-base-url': validateApiBaseUrl,
 };
 
 internal.post('/settings/:name', async (c) => {

@@ -1,14 +1,14 @@
 // Pure configuration: constants, defaults, and settings normalization.
 // No Devvit imports here so everything is unit-testable in plain Node.
 
-/** The only host the app may call. Must match `permissions.http.domains` in devvit.json. */
-export const ALLOWED_API_HOST = 'ropedropplanner.com';
-
 /** Shown in the reply footer. Change here if the brand name changes. */
 export const BOT_DISPLAY_NAME = 'RopeDrop Planner bot';
 
-/** Max characters of question text sent to /api/bot/ask (backend rejects > 2000). */
+/** Max characters of post text the parser looks at (same limit the old API had). */
 export const MAX_QUESTION_CHARS = 2000;
+
+/** Don't answer from a bundle older than this (the nightly refresh has been failing). */
+export const MAX_BUNDLE_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 
 /** Hard confidence floor for the mod "Ask RopeDrop bot" menu action. */
 export const MANUAL_CONFIDENCE_FLOOR = 0.5;
@@ -31,8 +31,6 @@ export const DAILY_WINDOW_HOURS = 3;
 export type Destination = 'wdw' | 'dlr';
 
 export type BotSettings = {
-  apiBaseUrl: string;
-  botKey: string;
   minConfidence: number;
   maxRepliesPerHour: number;
   skipFlairs: string[];
@@ -45,7 +43,6 @@ export type BotSettings = {
 };
 
 export const DEFAULTS = {
-  apiBaseUrl: 'https://ropedropplanner.com',
   minConfidence: 0.7,
   maxRepliesPerHour: 5,
   skipFlairs: 'Trip Report, Photo, Photos, Meta',
@@ -106,8 +103,6 @@ export function normalizeSettings(raw: RawSettings): BotSettings {
     DEFAULTS.dailyDestination
   ).toLowerCase();
   return {
-    apiBaseUrl: str(raw.apiBaseUrl, DEFAULTS.apiBaseUrl).replace(/\/+$/, ''),
-    botKey: typeof raw.botKey === 'string' ? raw.botKey.trim() : '',
     minConfidence: clamp(num(raw.minConfidence, DEFAULTS.minConfidence), 0, 1),
     maxRepliesPerHour: Math.floor(
       clamp(num(raw.maxRepliesPerHour, DEFAULTS.maxRepliesPerHour), 0, 60)
@@ -125,23 +120,6 @@ export function normalizeSettings(raw: RawSettings): BotSettings {
     dailyPostSticky: bool(raw.dailyPostSticky, DEFAULTS.dailyPostSticky),
     dryRun: bool(raw.dryRun, DEFAULTS.dryRun),
   };
-}
-
-/**
- * The bot key is only ever sent to https://ropedropplanner.com. Returns the
- * normalized origin, or null if the configured URL points anywhere else.
- */
-export function allowedApiOrigin(baseUrl: string): string | null {
-  let u: URL;
-  try {
-    u = new URL(baseUrl);
-  } catch {
-    return null;
-  }
-  if (u.protocol !== 'https:') return null;
-  if (u.hostname.toLowerCase() !== ALLOWED_API_HOST) return null;
-  if (u.username || u.password) return null;
-  return u.origin;
 }
 
 // ---- Settings validators (wired to devvit.json validationEndpoint) ----
@@ -190,11 +168,4 @@ export function validateHttpsUrl(value: unknown): ValidationResult {
     // fall through
   }
   return { success: false, error: 'Must be a full https:// URL.' };
-}
-
-export function validateApiBaseUrl(value: unknown): ValidationResult {
-  if (typeof value !== 'string' || value.trim() === '') return OK; // empty -> default
-  return allowedApiOrigin(value.trim())
-    ? OK
-    : { success: false, error: `Must be an https URL on ${ALLOWED_API_HOST}.` };
 }

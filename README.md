@@ -5,42 +5,80 @@
 RopeDrop Bot is a Reddit app for **r/ropedropplanner**, a community about
 planning Disney theme-park days. It helps people with the questions that come
 up again and again ("When is Slinky Dog shortest?", "Is EPCOT busy on
-Friday?") by answering from RopeDrop Planner's historical and live wait-time
-data.
+Friday?", "How much is a Dole Whip?", "What can a 40-inch kid ride?") by
+answering from RopeDrop Planner's historical wait-time data and published
+park information.
+
+**Everything is computed inside Reddit.** Once a day the app downloads a
+public, precomputed data bundle (see [Fetch Domains](#fetch-domains)) and
+stores it in the app's Redis. Questions are parsed and answered by code in
+this repo; post and comment text is never sent anywhere.
 
 What it does:
 
-1. **Answers new posts.** When someone creates a post, the bot sends the
-   title and body to the RopeDrop Planner API. If the API is confident in its
-   answer (70% by default), the bot replies with the answer, up to three
-   links, and a short footer with a feedback link. If it isn't confident, the
-   bot stays silent.
-2. **Answers when summoned.** A comment that mentions `u/ropedropplannerbot` is
-   treated as a question (the mention is removed first). Other comments are
-   ignored.
+1. **Answers new posts.** When someone creates a post, the bot parses the
+   title and body. If it's confident in its answer (70% by default), it
+   replies with the answer, up to three links to ropedropplanner.com pages,
+   and a short footer with a feedback link. If it isn't confident, it stays
+   silent.
+2. **Answers when summoned.** A comment that mentions `u/ropedropplannerbot`
+   is treated as a question (the mention is removed first). Other comments
+   are ignored.
 3. **Posts a daily "Today's Crowd Outlook"** each morning (7:00 AM US Eastern
    by default) with the expected crowd level, park hours and a rope-drop
    pick for each park.
 4. **Gives moderators an "Ask RopeDrop bot" menu item** on posts and comments
    to request an answer on demand.
 
+What it can answer (all 12 parks at Walt Disney World, Disneyland Resort,
+Disneyland Paris, Tokyo, Hong Kong and Shanghai unless noted):
+
+| Topic                         | Examples                                                                                                        | Data window                                                                            |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Ride timing                   | "best time to ride Slinky", "Flight of Passage wait in the afternoon"                                           | posted-wait averages, last ~90 days                                                    |
+| Ride order at open            | "Rise or Indy first?"                                                                                           | opening-rush profile (first 15 min after the official open vs 2 h later), last 60 days |
+| Rope drop, busy/quiet windows | "what should we rope drop at HS on Saturday?"                                                                   | last 90 days                                                                           |
+| Crowds on a date              | "Is MK busy tomorrow?", "Mondays in mid-October"                                                                | model forecast, next 60 days                                                           |
+| Crowd patterns                | "quietest day of the week at Epcot", "weekends vs weekdays at Disneyland", "Tokyo DisneySea during Golden Week" | last 90 days; holidays for DLR/TDR/HKDL                                                |
+| Park hours                    | "MK hours tomorrow"                                                                                             | Disney's published hours, next 30 days                                                 |
+| Lightning Lane (WDW)          | "Multi Pass price at MK on Oct 3", "when does 7DMT Single Pass sell out?"                                       | captured prices; sell-out times in ET since Apr 2026                                   |
+| Menus and prices              | "how much is a Dole Whip", "breakfast menu at Be Our Guest", Drinking Around the World                          | Disney menus seen in the last 30 days                                                  |
+| Ride facts                    | height ("what can a 40-inch kid ride"), indoor rides, rides with no minimum height, rain-sensitive rides        | ride data / rain analysis window                                                       |
+| Events and closures           | "Halloween party on Oct 9?", "what's closed for refurb at MK?"                                                  | Disney's schedule (14 days), closures as of the nightly snapshot                       |
+
+Opinion questions ("is Lightning Lane worth it?", "which hotel is better?",
+restaurant recommendations) are left to humans: the bot stays silent. Every
+answer states its window or an "as of" time and never adds numbers the data
+doesn't contain (a number guard caps confidence if one slips in).
+
 Who it's for: members of r/ropedropplanner who want a quick, data-based answer,
 and moderators who want the repetitive questions answered consistently.
 
 Safety and operational notes:
 
-- **Dry run is ON after install.** Until a moderator turns off *Dry run*, the
-  bot only writes to the app logs what it *would* post. Nothing appears on Reddit.
+- **Dry run is ON after install.** Until a moderator turns off _Dry run_, the
+  bot only writes to the app logs what it _would_ post. Nothing appears on Reddit.
 - It never replies twice to the same post or comment, and it sends at most
   **5 automatic replies per rolling hour** (configurable).
 - It skips posts by moderators, its own posts, removed/deleted content, and
-  posts flaired *Trip Report*, *Photo*, *Photos* or *Meta* (configurable).
-- If the RopeDrop Planner API is unavailable or rejects the request, the bot
-  logs it and does nothing. It never posts an error message.
-- It stores **no Reddit content**. Redis only holds post/comment IDs (for
-  duplicate protection, expiring after 30 days), a rolling list of reply IDs
-  for the hourly cap (expires after 2 hours), and a "posted today" marker for
-  the daily post (expires after 3 days).
+  posts flaired _Trip Report_, _Photo_, _Photos_ or _Meta_ (configurable).
+- If the data bundle hasn't loaded, is unreadable, or is more than 7 days old,
+  the bot logs it and does nothing. It never posts an error message.
+
+## Privacy
+
+- **Post and comment text never leaves Reddit.** It is parsed in the app and
+  is not stored, logged or sent to any server or AI model. Logs contain only
+  post/comment IDs and outcomes (e.g. `confidence 0.95; replied`).
+- The only outgoing requests are `GET`s of public data files from
+  `ropedrop-bot-data.storage.googleapis.com`. No usernames, IDs, post text or
+  other user data is included in them.
+- Redis holds: the public data bundle (the same files anyone can download),
+  post/comment IDs for duplicate protection (expire after 30 days), a rolling
+  list of reply IDs for the hourly cap (expires after 2 hours), and a
+  "posted today" marker for the daily post (expires after 3 days). No
+  Reddit content.
+- No LLM is used. Reddit data is never used to train models.
 
 ## How it works
 
@@ -48,30 +86,60 @@ Safety and operational notes:
                           r/ropedropplanner
  new post ─────────────┐        │        ┌──────── mod clicks "Ask RopeDrop bot"
  new comment ──────────┤        │        │              (post or comment menu)
-  (only if u/bot       │        │        │
-   is mentioned)       ▼        ▼        ▼
-                ┌──────────────────────────────────────────┐
-                │ Devvit app  (Devvit Web, server-only)     │
-                │  src/index.ts          Hono routes        │
-                │  src/core/engine.ts    decide + reply     │
-                │  src/core/logic.ts     pure rules/format  │
-                │  src/core/api.ts       backend client     │
-                │  src/server/deps.ts    Reddit/Redis/fetch │
-                └──┬───────────────┬───────────────┬───────┘
-    filters:       │  Redis        │ HTTPS fetch   │ Reddit API (as the app account)
-    bot? mod?      │  replied:<id> │ (allow-list:  │  submitComment (reply)
-    removed?       │  lock:<id>    │ ropedropplanner.com only)
-    flair skip?    │  replies:window (cap)         │  submitPost (daily outlook)
-    mention?       │  daily:<dest>:<date>          │
-                   ▼               ▼               ▼
-                 dedupe      POST /api/bot/ask            ┌─ hourly cron "0 * * * *" (UTC)
-                 + cap       GET  /api/bot/daily-summary ◄┘  posts once when it's the
-                             header X-Bot-Key: <secret>       target hour in US Eastern
+  (only if u/bot       ▼        ▼        ▼
+   is mentioned) ┌──────────────────────────────────────────────┐
+                 │ Devvit app (Devvit Web, server-only)          │
+                 │  src/index.ts        Hono routes              │
+                 │  src/core/engine.ts  decide + reply           │
+                 │  src/core/logic.ts   filters, reply format    │
+                 │  src/bot/*           parser + answers (pure)  │
+                 │  src/bundle/*        bundle sync + reader     │
+                 │  src/server/deps.ts  Reddit / Redis wiring    │
+                 └───┬───────────────────────┬──────────────────┘
+     Redis           │                       │ Reddit API (as the app account)
+  bundle:v1:current ─┤ one pointer, flipped  │  submitComment / submitPost
+  bundle:v1:gen:<g>  │ after a generation    │
+  bundle:v1:blob:... │ is fully stored       │
+  replied:/lock:/... │                       │
+                     ▲
+   GET only (cron 09:10-12:10 UTC, install, upgrade)
+   https://ropedrop-bot-data.storage.googleapis.com/bundle/v1/manifest.json
+   + the files it lists (public, precomputed nightly at 04:15 ET)
 ```
 
+**Data layer** (`src/bundle/sync.ts`, `src/bundle/source.ts`):
+
+1. A scheduler task (`bundle-refresh`, cron `10 9-12 * * *` UTC, i.e. about
+   05:10 ET with three hourly retries) and the `onAppInstall` / `onAppUpgrade`
+   triggers GET `manifest.json` and check `schema`/`schema_version` and that
+   `base_url` is on the allow-listed host.
+2. If the manifest's `generation` is the one already stored, it stops (one
+   small GET per run).
+3. Otherwise it downloads each file, checks the byte count and SHA-256 from
+   the manifest, decodes it as UTF-8 JSON and stores it under a
+   content-addressed key, split into values of at most 1,000,000 characters
+   (< 3 MB each; Devvit allows 5 MB per request). A blob's "complete" marker
+   is written last.
+4. It writes the generation's metadata, then flips `bundle:v1:current` (a
+   single `SET`, so readers never see a half-written generation) and keeps the
+   previous generation in `bundle:v1:previous`.
+5. Older generations and blobs only they used are deleted. A failed run
+   leaves `current` untouched; the next run retries and cleans up.
+6. Readers (`openRedisBundle`) follow `current`, fall back to `previous` if a
+   file can't be read, and parse each file lazily at most once per request.
+   A generation is ~3.6 MB (47 Redis keys); with the previous one kept, ~7.2 MB.
+
+**Answers** (`src/bot/`): `parse.ts` turns each question sentence into a
+destination, park, rides, dates, time window and intent; `answer.ts` reads
+the facts from the bundle, fills a deterministic template and computes
+confidence in code; `extra.ts` holds the intents that are new in this app;
+`summary.ts` renders the daily outlook. Long posts are split into sentences;
+up to 3 questions are answered, and the bot stays silent if the first (main)
+question can't be answered.
+
 Reply decision, in order: already replied? → hourly cap (automatic replies
-only) → in-flight lock → still visible on Reddit? → ask the API → confidence
-≥ threshold? → dry run? (log) → post the reply → record the id.
+only) → in-flight lock → still visible on Reddit? → answer from the bundle →
+confidence ≥ threshold? → dry run? (log) → post the reply → record the id.
 
 Reply format:
 
@@ -84,78 +152,100 @@ Reply format:
 ^(I'm the RopeDrop Planner bot, answering from our wait-time data.) [^(Feedback)](<feedback link>)
 ```
 
+## Parity with the previous (server-side) bot
+
+The parser and answer templates are a line-by-line port of the Python code
+that served `/api/bot/ask` (`bot_parse.py`, `bot_answer.py`,
+`bot_summary.py`): same intents, confidence formula, 0.7 threshold, number
+guard, multi-question handling (max 3 answered parts, silent when the main
+question can't be answered), mention stripping and answer text.
+
+`test/fixtures/parity_expected.json` holds the Python output for the 29
+evaluation posts, produced by running the Python functions against the same
+frozen bundle (`scripts/parity/`; every database read replaced by the same
+value from the bundle — its reply/silent decisions match the Python code on
+the live database for all 29). `src/bot/parity.test.ts` asserts the
+TypeScript answer text, confidence, intent and links are identical, except
+for these intentional changes:
+
+| Change                                                                            | Why                                                                                                                                                                                                                                                                                                                                                                 | Posts affected                                                                                                                                                                                                    |
+| --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A. Best/worst hours ignore hours with < 10% of the ride's busiest hour's samples  | After-close stragglers (e.g. 17 stale readings at 9 PM for Flight of Passage vs ~920 at midday) were reported as the "shortest wait" and their tiny sample count capped fact quality at 0.6, so "Flight of Passage wait in the afternoon" scored 0.66 and stayed silent. Now 0.95, and the shortest-wait hour is a real one (7 PM). The 0.7 threshold is unchanged. | (none of the 29 change)                                                                                                                                                                                           |
+| B. "Which ride first" uses the opening-rush profile                               | The hour-of-day averages blended days with different opening times and flattened the first hour. Now: median posted wait in the first 15 min after the official open vs 2 h later, weekday/weekend from the date, falling back to all days, then to the old method. Same thresholds (climb ≥ 10 min to name rides; "steady" capped at 0.6).                         | live4 (Rise vs Indy: now "similar climb"), title_body_slinky_or_rise (now answered: Rise climbs 10, Slinky 0), bullet_plan_make_sense (now "steady" → the post goes silent, since its main question is the order) |
+| C. Closed-rides list only in WDW/DLR                                              | Tokyo's Splash Mountain still runs.                                                                                                                                                                                                                                                                                                                                 | —                                                                                                                                                                                                                 |
+| D. All six destinations answered; `intl_ride_aliases` for the international parks | The bundle has the data; Python answered WDW/DLR only.                                                                                                                                                                                                                                                                                                              | tokyo_golden_week (now answered from TDR holiday data)                                                                                                                                                            |
+| E. New intents (table above)                                                      | New data in the bundle. Height questions used to be treated as opinion.                                                                                                                                                                                                                                                                                             | height_tron (now "48-inch minimum, a 47-inch child is 1 inch too short")                                                                                                                                          |
+| F. No live waits                                                                  | The bundle has no live snapshot, so "current wait" answers fall back to the historical typical wait — what the Python code did whenever its live cache was stale (quality 0.5, silent at 0.7).                                                                                                                                                                      | —                                                                                                                                                                                                                 |
+
+To regenerate the golden file after a backend change, see the header of
+`scripts/parity/gen_expected.py` (needs a checkout of the private backend).
+The frozen, trimmed bundle is `test/fixtures/bundle` (gzipped; rebuild with
+`node scripts/make-fixture-bundle.mjs <downloaded bundle dir>`).
+
 ## Settings
 
 Subreddit settings are edited by moderators on the app's install settings
 page (`https://developers.reddit.com/r/ropedropplanner/apps/ropedropplannerbot`).
-Global settings are set by the app developer with the Devvit CLI.
+There are **no global settings and no secrets**.
 
-| Setting | Scope | Default | What it does |
-|---|---|---|---|
-| `botKey` | global, **secret** | *(none)* | Value of the `X-Bot-Key` header. Set with `npx devvit settings set botKey`. |
-| `apiBaseUrl` | global | `https://ropedropplanner.com` | Backend base URL. Must be https on `ropedropplanner.com` (the only allow-listed domain; the key is never sent anywhere else). |
-| `dryRun` | subreddit | **on** | Log what would be posted instead of posting. Turn off to go live. |
-| `minConfidence` | subreddit | `0.7` | Minimum API confidence for an automatic reply (0.5–1). |
-| `maxRepliesPerHour` | subreddit | `5` | Max automatic replies in any rolling 60 minutes (0–60). Only real replies count. |
-| `skipFlairs` | subreddit | `Trip Report, Photo, Photos, Meta` | Comma-separated post flairs to ignore (exact match, case-insensitive). Applies to automatic post replies. |
-| `feedbackUrl` | subreddit | modmail compose link for r/ropedropplanner | Link behind "Feedback" in the footer. |
-| `dailyPostEnabled` | subreddit | on | Post "Today's Crowd Outlook" daily. |
-| `dailyPostHourET` | subreddit | `7` | Hour (0–23, US Eastern) for the daily post. |
-| `dailyDestination` | subreddit | `wdw` | `wdw` (Walt Disney World) or `dlr` (Disneyland Resort). |
-| `dailyPostSticky` | subreddit | off | Distinguish and sticky the daily post (slot 1). |
+| Setting             | Scope     | Default                                    | What it does                                                                                              |
+| ------------------- | --------- | ------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
+| `dryRun`            | subreddit | **on**                                     | Log what would be posted instead of posting. Turn off to go live.                                         |
+| `minConfidence`     | subreddit | `0.7`                                      | Minimum confidence for an automatic reply (0.5–1).                                                        |
+| `maxRepliesPerHour` | subreddit | `5`                                        | Max automatic replies in any rolling 60 minutes (0–60). Only real replies count.                          |
+| `skipFlairs`        | subreddit | `Trip Report, Photo, Photos, Meta`         | Comma-separated post flairs to ignore (exact match, case-insensitive). Applies to automatic post replies. |
+| `feedbackUrl`       | subreddit | modmail compose link for r/ropedropplanner | Link behind "Feedback" in the footer.                                                                     |
+| `dailyPostEnabled`  | subreddit | on                                         | Post "Today's Crowd Outlook" daily.                                                                       |
+| `dailyPostHourET`   | subreddit | `7`                                        | Hour (0–23, US Eastern) for the daily post.                                                               |
+| `dailyDestination`  | subreddit | `wdw`                                      | `wdw` (Walt Disney World) or `dlr` (Disneyland Resort).                                                   |
+| `dailyPostSticky`   | subreddit | off                                        | Distinguish and sticky the daily post (slot 1).                                                           |
 
 Mod menu "Ask RopeDrop bot": ignores the flair skip list, the moderator-author
 rule and the hourly cap, but still requires confidence ≥ **0.5** (hard floor)
-and still never replies twice. Its toast says *Replied*, *Low confidence*,
-*Already replied*, *Dry run*, *Skipped* or *Error*.
-
-### Secrets
-
-`botKey` must equal the backend's `REDDIT_BOT_KEY`, stored in GCP Secret
-Manager (project `<your-gcp-project>`, secret `REDDIT_BOT_KEY`). The owner reads
-it (`gcloud secrets versions access latest --secret=REDDIT_BOT_KEY --project <your-gcp-project>`)
-and pastes it into `npx devvit settings set botKey`. **Never commit it** and
-never put it in `devvit.json`, `.env` or any file in this repo. To rotate:
-add a new secret version, redeploy the backend, then run
-`npx devvit settings set botKey` again.
-
-Devvit rule: secrets are **global only** and can **only** be set by the app
-developer via the CLI, not on the moderator settings page, and only after the
-app has been installed at least once.
+and still never replies twice. Its toast says _Replied_, _Low confidence_,
+_Already replied_, _Dry run_, _Skipped_ or _Error_.
 
 ## Fetch Domains
 
 The following domain is requested for this app:
 
-- `ropedropplanner.com` — the RopeDrop Planner API (`/api/bot/ask` and
-  `/api/bot/daily-summary`). It turns a park-planning question into an answer
-  computed from RopeDrop Planner's own wait-time and crowd data, and supplies
-  the daily crowd outlook. Only the question text (post title + body, or the
-  summoning comment without the mention) is sent; no usernames or IDs. The
-  API does not store or log question text. Answers are composed from
-  RopeDrop's data (optionally worded by Google Gemini, an approved LLM
-  provider); Reddit data is never used to train models.
+- `ropedrop-bot-data.storage.googleapis.com` — a Google Cloud Storage bucket
+  that hosts RopeDrop Planner's public, precomputed data bundle
+  (`/bundle/v1/manifest.json` and the JSON files it lists: park hours, crowd
+  forecasts, wait-time profiles, ride facts, events, menus and prices). The
+  app only makes `GET` requests to download these files, once a day plus on
+  install/upgrade, and stores them in Devvit Redis. The answers are computed
+  entirely inside the app. We need an external host because the bundle is
+  built nightly from our wait-time database (tens of millions of readings)
+  and forecasting models, which cannot run inside Devvit; Devvit has no way to
+  receive that data otherwise. **No user data is sent**: the requests carry no
+  post text, usernames or IDs, and the files are the same public files anyone
+  can download.
+
+  Category (per the [HTTP Fetch Policy](https://github.com/reddit/devvit-docs/blob/main/docs/capabilities/server/http-fetch-policy.md)):
+  **2 — limited-scope cloud provider**, approved provider
+  `storage.googleapis.com`, requested at the most granular hostname (our own
+  bucket), use case **asset hosting** (static, read-only files).
+
+Earlier versions requested `ropedropplanner.com` (a personal domain, which
+the policy does not allow). This version makes no requests to it; answers
+still _link_ to ropedropplanner.com pages, which needs no fetch permission.
 
 Domain approval: domains listed in `devvit.json` → `permissions.http.domains`
-are submitted for review automatically on the first `devvit playtest` or
-`devvit upload`. Reddit says most requests are reviewed within **1–2 business
-days**, longer if there's policy ambiguity. Approved domains show at
-`https://developers.reddit.com/apps/ropedropplannerbot/developer-settings`. Until
-approval, calls to the API fail (logged, nothing posted).
-
-Note: Reddit's fetch policy says personal domains "will not be approved"
-without a detailed justification, and apps that fetch must link a Terms of
-Service and Privacy Policy in the app details form (use
-`https://ropedropplanner.com/terms-of-service` and
-`https://ropedropplanner.com/privacy-policy`; the privacy policy should
-mention this bot).
+are submitted for review on `devvit playtest` / `devvit upload`. Approved
+domains show at
+`https://developers.reddit.com/apps/ropedropplannerbot/developer-settings`.
+Until approval, the refresh logs an error and the bot stays silent. Apps that
+fetch must link a Terms of Service and Privacy Policy in the app details form
+(`https://ropedropplanner.com/terms-of-service`,
+`https://ropedropplanner.com/privacy-policy`).
 
 ## Build and test (no Reddit login needed)
 
 Requires Node 24.18+ (see `.nvmrc`).
 
 ```sh
-cd reddit-bot
+cd ropedrop-bot
 npm install
 npm test          # typecheck + eslint + unit tests + build + devvit.json schema check
 ```
@@ -165,13 +255,21 @@ npm test          # typecheck + eslint + unit tests + build + devvit.json schema
 - `npm run build` — bundles the server to `dist/server/index.cjs` (Vite +
   `@devvit/start`).
 - `npm run check:config` — validates `devvit.json` offline with the same
-  parser the Devvit CLI uses, and checks the HTTP allow-list is exactly
-  `ropedropplanner.com`.
+  parser the Devvit CLI uses, checks the HTTP allow-list is exactly
+  `ropedrop-bot-data.storage.googleapis.com`, that there are no global
+  settings, and that the server bundle has no `ropedropplanner.com/api/` calls.
 
-Business logic lives in pure modules with no Devvit imports
-(`src/core/{config,logic,time,api,engine}.ts`); `engine.ts` receives Reddit,
-Redis, HTTP and the clock as injected dependencies so the tests exercise the
-full decision flow with fakes.
+Tests run offline against the frozen bundle snapshot in
+`test/fixtures/bundle`: parser and fuzzy-matching units (checked against
+rapidfuzz reference values), the 29-post parity suite, new-intent fixtures
+(including Tokyo, Hong Kong and Shanghai), the daily outlook (identical to
+the Python renderer), and the Redis sync (verification, atomic flip,
+fallback, garbage collection) with an in-memory Redis and fake fetch.
+
+Business logic lives in pure modules with no Devvit imports (`src/core/*`,
+`src/bot/*`, `src/bundle/*`); `engine.ts` receives Reddit, Redis, the answer
+engine and the clock as injected dependencies so the tests exercise the full
+decision flow with fakes.
 
 ## Deploy (owner, step by step)
 
@@ -179,14 +277,15 @@ See `MANUAL_CHECKLIST.md` for the full ordered list. In short:
 
 1. `npm install`
 2. `npx devvit login` (opens a browser; log in as the Reddit account that will own the app).
-3. `npx devvit upload` — creates the app `ropedropplannerbot` (and its app account
-   **u/ropedropplannerbot**) and submits the `ropedropplanner.com` fetch domain for
-   review.
+3. `npx devvit upload` — uploads a new version and submits the
+   `ropedrop-bot-data.storage.googleapis.com` fetch domain for review.
 4. Create a **private test subreddit** (e.g. r/ropedrop_bot_test) where you
    are a moderator.
 5. `npx devvit playtest r/ropedrop_bot_test` — installs a dev build there and
    streams logs.
-6. `npx devvit settings set botKey` — paste the `REDDIT_BOT_KEY` value.
+6. Check the logs for `[bundle] install: {"status":"updated",...}` (the data
+   loaded). If it says `error` (e.g. domain not approved yet), a retry is
+   scheduled in 5 minutes and the nightly job keeps trying.
 7. Test with dry run on (check logs), then turn dry run off in the test sub
    and test real replies, the mod menu, and the daily post (temporarily set
    `dailyPostHourET` to the current Eastern hour).
@@ -205,22 +304,21 @@ See `MANUAL_CHECKLIST.md` for the full ordered list. In short:
 ### Update
 
 ```sh
-cd reddit-bot && git pull && npm install && npm test
+cd ropedrop-bot && git pull && npm install && npm test
 npx devvit playtest r/ropedrop_bot_test   # try it in the test sub first (ctrl+c to stop)
 npx devvit publish                        # every version going to r/ropedropplanner needs review
 npx devvit install r/ropedropplanner      # after approval: upgrade the installation
 ```
 
-Settings and Redis data survive upgrades.
+Settings and Redis data survive upgrades. An upgrade re-downloads the
+current bundle generation.
 
 ### Uninstall
 
 On `https://developers.reddit.com/r/ropedropplanner/apps/ropedropplannerbot`,
 choose **Uninstall** (or remove it from the subreddit's mod tools → Installed
 apps). Posts and comments the bot already made stay; delete them manually if
-wanted. To stop the backend from answering at all, delete/rotate
-`REDDIT_BOT_KEY` on the server (every call then gets 401/503 and the bot stays
-silent).
+wanted. To make the bot go quiet without uninstalling, turn **Dry run** on.
 
 ### Renaming the app
 
@@ -235,7 +333,7 @@ update `name` in `package.json`, the footer text (`BOT_DISPLAY_NAME` in
 
 - **Template:** built from Reddit's current "Mod Tool" template for Devvit Web
   (`devvit-template-mod-tool-devvit-web`, what `npm create devvit` / the
-  developers.reddit.com/new wizard copies for *Mod Tool*): `devvit.json`,
+  developers.reddit.com/new wizard copies for _Mod Tool_): `devvit.json`,
   Hono server, Vite + `@devvit/start` build, no client/web view, no custom
   post. `npm create devvit@latest` itself requires a login code, so the
   template repo was copied directly (same files).
@@ -252,13 +350,19 @@ update `name` in `package.json`, the footer text (`BOT_DISPLAY_NAME` in
   hour is between `dailyPostHourET` and +2 hours (catch-up for a missed tick),
   guarded by a Redis `daily:<destination>:<YYYY-MM-DD>` key so it posts once
   per day. So 7:00 ET stays 7:00 ET across DST changes.
-- **Secrets:** `botKey` is a global secret set by CLI (Devvit does not allow
-  subreddit-scoped secrets or setting secrets in the install UI).
-  `apiBaseUrl` is global too so a subreddit setting can't redirect the key.
+- **No backend calls:** the bot used to POST questions to
+  `ropedropplanner.com/api/bot/ask` with a secret key. Reddit denies personal
+  domains, so the answer logic moved into the app and the data comes from a
+  public bundle; there is no key and nothing to rotate.
+- **Bundle refresh cron:** `10 9-12 * * *` (UTC). The export runs at 04:15 ET;
+  09:10 UTC is 05:10 EDT / 04:10 EST, so in winter the first run usually finds
+  yesterday's generation and the 10:10 UTC run picks up the new one. Runs with
+  an unchanged generation cost one small GET.
+- **Time zones:** park-local dates for all six resorts are computed without
+  ICU data (US and EU DST rules built in, checked against `Intl` in tests).
 - **Tests:** the template uses Node's built-in test runner, not Vitest, so
   this app does too.
-- **No `.env.example`:** the template doesn't use one; secrets go through
-  `devvit settings set`.
+- **No `.env.example`:** the app has no secrets or environment variables.
 
 ## Docs consulted (read 2026-09-25)
 
@@ -273,6 +377,7 @@ update `name` in `package.json`, the footer text (`BOT_DISPLAY_NAME` in
 - Settings & secrets: https://developers.reddit.com/docs/capabilities/server/settings-and-secrets
 - HTTP fetch: https://developers.reddit.com/docs/capabilities/server/http-fetch
 - HTTP fetch policy: https://developers.reddit.com/docs/capabilities/server/http-fetch-policy
+  (and https://github.com/reddit/devvit-docs/blob/main/docs/capabilities/server/http-fetch-policy.md, read 2026-09-28)
 - Redis: https://developers.reddit.com/docs/capabilities/server/redis
 - Scheduler: https://developers.reddit.com/docs/capabilities/server/scheduler
 - Menu actions: https://developers.reddit.com/docs/capabilities/client/menu-actions

@@ -1,0 +1,224 @@
+{
+  "schema": "ropedrop-bot-bundle",
+  "schema_version": 1,
+  "generated_at": "2026-09-28T17:50:11Z",
+  "generation": "20260928T1750Z",
+  "base_url": "https://ropedrop-bot-data.storage.googleapis.com/bundle/v1/",
+  "site": "https://ropedropplanner.com",
+  "max_file_bytes": 3500000,
+  "common": "g/20260928T1750Z/common.json",
+  "destinations": {
+    "wdw": {
+      "name": "Walt Disney World",
+      "tz": "America/New_York",
+      "local_date": "2026-09-28",
+      "files": {
+        "core": "g/20260928T1750Z/wdw/core.json",
+        "events": "g/20260928T1750Z/wdw/events.json",
+        "ll": "g/20260928T1750Z/wdw/ll.json",
+        "daw": "g/20260928T1750Z/wdw/daw.json",
+        "menus": ["g/20260928T1750Z/wdw/menus.json"]
+      }
+    },
+    "dlr": {
+      "name": "Disneyland Resort",
+      "tz": "America/Los_Angeles",
+      "local_date": "2026-09-28",
+      "files": {
+        "core": "g/20260928T1750Z/dlr/core.json",
+        "events": "g/20260928T1750Z/dlr/events.json",
+        "menus": ["g/20260928T1750Z/dlr/menus.json"]
+      }
+    },
+    "dlp": {
+      "name": "Disneyland Paris",
+      "tz": "Europe/Paris",
+      "local_date": "2026-09-28",
+      "files": {
+        "core": "g/20260928T1750Z/dlp/core.json",
+        "events": "g/20260928T1750Z/dlp/events.json",
+        "menus": ["g/20260928T1750Z/dlp/menus.json"]
+      }
+    },
+    "tdr": {
+      "name": "Tokyo Disney Resort",
+      "tz": "Asia/Tokyo",
+      "local_date": "2026-09-29",
+      "files": {
+        "core": "g/20260928T1750Z/tdr/core.json",
+        "events": "g/20260928T1750Z/tdr/events.json",
+        "menus": ["g/20260928T1750Z/tdr/menus.json"]
+      }
+    },
+    "hkdl": {
+      "name": "Hong Kong Disneyland",
+      "tz": "Asia/Hong_Kong",
+      "local_date": "2026-09-29",
+      "files": {
+        "core": "g/20260928T1750Z/hkdl/core.json",
+        "events": "g/20260928T1750Z/hkdl/events.json",
+        "menus": ["g/20260928T1750Z/hkdl/menus.json"]
+      }
+    },
+    "shdr": {
+      "name": "Shanghai Disney Resort",
+      "tz": "Asia/Shanghai",
+      "local_date": "2026-09-29",
+      "files": {
+        "core": "g/20260928T1750Z/shdr/core.json",
+        "events": "g/20260928T1750Z/shdr/events.json",
+        "menus": ["g/20260928T1750Z/shdr/menus.json"]
+      }
+    }
+  },
+  "files": [
+    {
+      "path": "g/20260928T1750Z/common.json",
+      "kind": "common",
+      "dest": null,
+      "bytes": 10953,
+      "sha256": "43c0760bbb2aa04a1494cb465cb0bde9653100b9f186edd367fe1044daffceb1"
+    },
+    {
+      "path": "g/20260928T1750Z/wdw/core.json",
+      "kind": "core",
+      "dest": "wdw",
+      "bytes": 631790,
+      "sha256": "113a3e16638793ea0c7c9bb26d35b278efc998991842313060a1763b8ef3d08f"
+    },
+    {
+      "path": "g/20260928T1750Z/wdw/events.json",
+      "kind": "events",
+      "dest": "wdw",
+      "bytes": 78488,
+      "sha256": "af357866c7f4f8026ac04b7d7ec713a228057574dbf3a66c8b32b1abea99e114"
+    },
+    {
+      "path": "g/20260928T1750Z/wdw/ll.json",
+      "kind": "ll",
+      "dest": "wdw",
+      "bytes": 26343,
+      "sha256": "267441826589187137160c7b8b0a4cb144c14d11fa0bbf00ac370db8be3d25b2"
+    },
+    {
+      "path": "g/20260928T1750Z/wdw/daw.json",
+      "kind": "daw",
+      "dest": "wdw",
+      "bytes": 123107,
+      "sha256": "2a7db061a09823a6e2fa565b19616bbb607ce5b3e89d02055901ebedb813f962"
+    },
+    {
+      "path": "g/20260928T1750Z/wdw/menus.json",
+      "kind": "menus",
+      "dest": "wdw",
+      "bytes": 1203393,
+      "sha256": "67038f10c3efb65accb285a99f1fcc1e26a7f5b755a7ed6c826e67a4f0b441ae"
+    },
+    {
+      "path": "g/20260928T1750Z/dlr/core.json",
+      "kind": "core",
+      "dest": "dlr",
+      "bytes": 313785,
+      "sha256": "e7f62b85c1df5e57f805ae49c1158c6622dea97211d68d8716c8dffb54cf7ee0"
+    },
+    {
+      "path": "g/20260928T1750Z/dlr/events.json",
+      "kind": "events",
+      "dest": "dlr",
+      "bytes": 32301,
+      "sha256": "a7e54dc3179ea2fa4022419e5ac7ec7707b742960d13c9e4ac1306fb28a37a0e"
+    },
+    {
+      "path": "g/20260928T1750Z/dlr/menus.json",
+      "kind": "menus",
+      "dest": "dlr",
+      "bytes": 266063,
+      "sha256": "275f49cbe13aaa65686b490a327c6b1eddf31c0f38302678d18021bd3e36218e"
+    },
+    {
+      "path": "g/20260928T1750Z/dlp/core.json",
+      "kind": "core",
+      "dest": "dlp",
+      "bytes": 200415,
+      "sha256": "363923720fd596a26e9cbe2b7350876bf361ee2305407ff64b24641bf128e458"
+    },
+    {
+      "path": "g/20260928T1750Z/dlp/events.json",
+      "kind": "events",
+      "dest": "dlp",
+      "bytes": 35976,
+      "sha256": "7d106daa6a9323c323d70e9849c04e817d6a3fe44011107851f1fa66429bbd07"
+    },
+    {
+      "path": "g/20260928T1750Z/dlp/menus.json",
+      "kind": "menus",
+      "dest": "dlp",
+      "bytes": 232,
+      "sha256": "b21ef1d242e327542060eb9893d020687ea2df5971934e9003c01252406be871"
+    },
+    {
+      "path": "g/20260928T1750Z/tdr/core.json",
+      "kind": "core",
+      "dest": "tdr",
+      "bytes": 286117,
+      "sha256": "7945f3bbf2f4b61a9ea34fe527f7e6550cc6ba159e59522851b1c616f9698d27"
+    },
+    {
+      "path": "g/20260928T1750Z/tdr/events.json",
+      "kind": "events",
+      "dest": "tdr",
+      "bytes": 2538,
+      "sha256": "0b87a234680b4bd92e0374a05e1c77cace88ab4d3a076c1c661c68cc8fe7f516"
+    },
+    {
+      "path": "g/20260928T1750Z/tdr/menus.json",
+      "kind": "menus",
+      "dest": "tdr",
+      "bytes": 72596,
+      "sha256": "0e494ba8ba772ab3b7ea55d1f338c4acaf2c1ed02485c7cc6f0fc6b3215e43fd"
+    },
+    {
+      "path": "g/20260928T1750Z/hkdl/core.json",
+      "kind": "core",
+      "dest": "hkdl",
+      "bytes": 141866,
+      "sha256": "05abf3e2a3dfdaa9545cb70bbc625165b0f71c387237869576518798e318e75b"
+    },
+    {
+      "path": "g/20260928T1750Z/hkdl/events.json",
+      "kind": "events",
+      "dest": "hkdl",
+      "bytes": 41025,
+      "sha256": "d87029252820c1f91ef52d64d8d3e7d267818af5a3325fb9ab654ff753320ccb"
+    },
+    {
+      "path": "g/20260928T1750Z/hkdl/menus.json",
+      "kind": "menus",
+      "dest": "hkdl",
+      "bytes": 1494,
+      "sha256": "5c6b7c21a24281392b01710124aaba23f9d3fff61e6442eaa76117e6a1b37fe0"
+    },
+    {
+      "path": "g/20260928T1750Z/shdr/core.json",
+      "kind": "core",
+      "dest": "shdr",
+      "bytes": 111919,
+      "sha256": "bcb9c9c7f93b80cf354fbae147b56748a05cf2214717848fba28df5e0ccce58d"
+    },
+    {
+      "path": "g/20260928T1750Z/shdr/events.json",
+      "kind": "events",
+      "dest": "shdr",
+      "bytes": 897,
+      "sha256": "84a5e7c96094acc8d73fd254df8b6eb1e8698ec50fa4e27e65db5edab259658a"
+    },
+    {
+      "path": "g/20260928T1750Z/shdr/menus.json",
+      "kind": "menus",
+      "dest": "shdr",
+      "bytes": 234,
+      "sha256": "9d9766c8be577f081baf5bf74b946e6f31ecd80b37ede4639bd39c95570334af"
+    }
+  ],
+  "total_bytes": 3581532
+}

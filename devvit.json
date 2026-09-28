@@ -8,9 +8,7 @@
   "permissions": {
     "http": {
       "enable": true,
-      "domains": [
-        "ropedropplanner.com"
-      ]
+      "domains": ["ropedrop-bot-data.storage.googleapis.com"]
     },
     "redis": true,
     "reddit": {
@@ -19,6 +17,8 @@
     }
   },
   "triggers": {
+    "onAppInstall": "/internal/triggers/app-install",
+    "onAppUpgrade": "/internal/triggers/app-upgrade",
     "onPostCreate": "/internal/triggers/post-create",
     "onCommentCreate": "/internal/triggers/comment-create"
   },
@@ -27,10 +27,7 @@
       {
         "label": "Ask RopeDrop bot",
         "description": "Ask the RopeDrop bot to answer this (ignores flair skip list and hourly cap; still needs confidence >= 0.5).",
-        "location": [
-          "post",
-          "comment"
-        ],
+        "location": ["post", "comment"],
         "forUserType": "moderator",
         "endpoint": "/internal/menu/ask"
       }
@@ -41,25 +38,14 @@
       "daily-outlook": {
         "endpoint": "/internal/scheduler/daily-outlook",
         "cron": "0 * * * *"
+      },
+      "bundle-refresh": {
+        "endpoint": "/internal/scheduler/bundle-refresh",
+        "cron": "10 9-12 * * *"
       }
     }
   },
   "settings": {
-    "global": {
-      "botKey": {
-        "type": "string",
-        "label": "RopeDrop bot API key (X-Bot-Key)",
-        "helpText": "Secret. Set with `npx devvit settings set botKey` using the value of GCP secret REDDIT_BOT_KEY.",
-        "isSecret": true
-      },
-      "apiBaseUrl": {
-        "type": "string",
-        "label": "RopeDrop API base URL",
-        "helpText": "Must be https on ropedropplanner.com (the only allow-listed domain).",
-        "defaultValue": "https://ropedropplanner.com",
-        "validationEndpoint": "/internal/settings/api-base-url"
-      }
-    },
     "subreddit": {
       "dryRun": {
         "type": "boolean",

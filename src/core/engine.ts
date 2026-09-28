@@ -1,5 +1,6 @@
-// Orchestration with every side effect injected (Reddit, Redis, HTTP, clock,
-// logging). Production wiring lives in src/server/deps.ts; tests pass fakes.
+// Orchestration with every side effect injected (Reddit, Redis, the answer
+// engine, clock, logging). Production wiring lives in src/server/deps.ts;
+// tests pass fakes.
 
 import {
   CAP_WINDOW_MS,
@@ -9,7 +10,6 @@ import {
   MANUAL_CONFIDENCE_FLOOR,
   type BotSettings,
 } from './config.js';
-import { describeApiError, type ApiResult, type AskResponse } from './api.js';
 import {
   buildCommentQuestion,
   buildPostQuestion,
@@ -19,10 +19,22 @@ import {
   shouldHandleComment,
   shouldHandlePost,
   type Decision,
+  type Link,
 } from './logic.js';
 import { etDateLabel, shouldPostDaily } from './time.js';
 
 export type ReplyMarker = 'live' | 'dry';
+
+/** What the in-app answer engine returns for one post/comment. */
+export type AskResponse = {
+  answer: string;
+  confidence: number;
+  links: Link[];
+  intent: string;
+};
+
+/** Errors are values (logged, never posted on Reddit). */
+export type Result<T> = { ok: true; data: T } | { ok: false; error: string };
 
 /** Minimal key-value surface the engine needs (backed by Devvit Redis). */
 export interface Store {
@@ -52,8 +64,10 @@ export type Deps = {
   isModerator: (username: string) => Promise<boolean>;
   /** Re-checks live state right before replying (removed/deleted since the event?). */
   isStillVisible: (thingId: string) => Promise<boolean>;
-  ask: (s: BotSettings, question: string) => Promise<ApiResult<AskResponse>>;
-  dailySummary: (s: BotSettings) => Promise<ApiResult<unknown>>;
+  /** Answer from the stored data bundle. The text never leaves Reddit. */
+  ask: (s: BotSettings, question: string) => Promise<Result<AskResponse>>;
+  /** Markdown for "Today's Crowd Outlook" ("## title" line + body). */
+  dailySummary: (s: BotSettings) => Promise<Result<{ markdown: string }>>;
   submitComment: (parentId: string, text: string) => Promise<string>;
   submitPost: (title: string, text: string, sticky: boolean) => Promise<string>;
   store: Store;
@@ -197,14 +211,14 @@ async function respond(
     return skip(deps, id, 'deleted_or_removed');
   }
 
-  // 5. Ask the backend.
+  // 5. Answer from the data bundle (in-process; nothing is sent anywhere).
   const res = await deps.ask(s, t.question);
   if (!res.ok) {
     await store.unlock(lockKey); // let a redelivery / mod retry try again
     log.warn(
-      `[bot] ${id}: /api/bot/ask failed (${describeApiError(res.error)}); not replying`
+      `[bot] ${id}: answer engine unavailable (${res.error}); not replying`
     );
-    return { status: 'error', message: describeApiError(res.error) };
+    return { status: 'error', message: res.error };
   }
   const { confidence } = res.data;
   const threshold =
@@ -266,7 +280,7 @@ export function outcomeToast(o: Outcome): string {
     case 'skipped':
       return `Skipped (${o.reason.replace(/_/g, ' ')}).`;
     case 'error':
-      return 'Error reaching RopeDrop; did not reply. See app logs.';
+      return 'Data unavailable; did not reply. See app logs.';
   }
 }
 
@@ -302,8 +316,7 @@ export async function runDaily(deps: Deps): Promise<DailyOutcome> {
     }
 
     const res = await deps.dailySummary(s);
-    if (!res.ok)
-      throw new Error(`daily-summary failed (${describeApiError(res.error)})`);
+    if (!res.ok) throw new Error(`daily-summary failed (${res.error})`);
     const parsed = parseDailySummary(res.data, etDateLabel(now));
     if (!parsed) throw new Error('daily-summary had no markdown');
 

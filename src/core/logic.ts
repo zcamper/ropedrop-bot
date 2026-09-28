@@ -1,5 +1,6 @@
 // Pure business logic: filtering, question building, reply formatting,
 // daily-summary parsing, and the rolling reply cap. No Devvit imports.
+// (The answers themselves are computed by src/bot from the data bundle.)
 
 import { BOT_DISPLAY_NAME, MAX_LINKS, MAX_QUESTION_CHARS } from './config.js';
 
@@ -46,7 +47,7 @@ export function truncate(text: string, max: number): string {
   return chars.length <= max ? text : chars.slice(0, max).join('');
 }
 
-/** "<title>\n\n<body>", truncated to the backend's 2000-char limit. */
+/** "<title>\n\n<body>", truncated to MAX_QUESTION_CHARS. */
 export function buildPostQuestion(
   title: string,
   body: string | undefined
@@ -256,7 +257,7 @@ const MAX_TITLE_CHARS = 300;
 const MAX_POST_BODY_CHARS = 40000;
 
 /**
- * Split the backend's markdown into a post title (its first "## " line, with
+ * Split the outlook markdown into a post title (its first "## " line, with
  * the "## " removed) and body (everything else). Returns null when there is
  * nothing to post.
  */

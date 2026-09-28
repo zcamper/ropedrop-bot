@@ -1,0 +1,1676 @@
+{
+  "generated_with": {
+    "today": "2026-09-28",
+    "now_utc": "2026-09-28T18:00:00+00:00",
+    "threshold": 0.7,
+    "prod_legacy": "same Python code against the live read-only database, 2026-09-28 18:00Z (reply/silent + confidence only)",
+    "bundle": "20260928T1750Z"
+  },
+  "posts": [
+    {
+      "id": "live1_first_trip_order",
+      "text": "First trip in 10 years! We're doing MK on Tuesday Oct 14 with two kids (7 and 10). We have early entry since we're staying at Pop Century. My plan is to rope drop 7DMT, then Peter Pan, then head to Tron. Is that a good order or should we do Tron first? Also how long are waits for Space Mountain usually in the afternoon?",
+      "legacy": {
+        "reply": false,
+        "confidence": 0.5,
+        "intent": "best_time",
+        "answer": "Historically, Space Mountain averages about 40 min in the afternoon (12 PM-5 PM) on a typical Wednesday. Its shortest waits are around 8 AM (about 25 min) and it peaks around 12 PM (about 48 min).",
+        "links": [
+          "https://ropedropplanner.com/wdw/attractions/space-mountain/best-time",
+          "https://ropedropplanner.com/wdw/attractions/space-mountain/wait-times",
+          "https://ropedropplanner.com/wdw/attractions/space-mountain"
+        ],
+        "parts": [
+          {
+            "intent": "compare_rides",
+            "confidence": 0.66,
+            "answer": "Historically on a typical Wednesday, Seven Dwarfs Mine Train climbs from ~49 min at 8 AM to ~45 by 10 AM, Peter Pan's Flight climbs from ~35 min at 8 AM to ~37 by 10 AM, TRON Lightcycle / Run climbs from ~60 min at 9 AM to ~60 by 11 AM; none of them climbs much, so the order matters less than being there at open.",
+            "rides": [
+              "Seven Dwarfs Mine Train",
+              "Peter Pan's Flight",
+              "TRON Lightcycle / Run"
+            ],
+            "parks": ["magic_kingdom"],
+            "dates": ["2026-10-14"],
+            "destination": "wdw",
+            "links": [
+              "https://ropedropplanner.com/wdw/magic_kingdom/rope-drop",
+              "https://ropedropplanner.com/wdw/attractions/seven-dwarfs-mine-train/best-time",
+              "https://ropedropplanner.com/wdw/attractions/peter-pans-flight/best-time"
+            ]
+          },
+          {
+            "intent": "best_time",
+            "confidence": 0.87,
+            "answer": "Historically, Space Mountain averages about 40 min in the afternoon (12 PM-5 PM) on a typical Wednesday. Its shortest waits are around 8 AM (about 25 min) and it peaks around 12 PM (about 48 min).",
+            "rides": ["Space Mountain"],
+            "parks": ["magic_kingdom"],
+            "dates": ["2026-10-14"],
+            "destination": "wdw",
+            "links": [
+              "https://ropedropplanner.com/wdw/attractions/space-mountain/best-time",
+              "https://ropedropplanner.com/wdw/attractions/space-mountain/wait-times",
+              "https://ropedropplanner.com/wdw/attractions/space-mountain"
+            ]
+          }
+        ]
+      },
+      "fixed": {
+        "reply": false,
+        "confidence": 0.5,
+        "intent": "best_time",
+        "answer": "Historically, Space Mountain averages about 40 min in the afternoon (12 PM-5 PM) on a typical Wednesday. Its shortest waits are around 8 AM (about 25 min) and it peaks around 12 PM (about 48 min).",
+        "links": [
+          "https://ropedropplanner.com/wdw/attractions/space-mountain/best-time",
+          "https://ropedropplanner.com/wdw/attractions/space-mountain/wait-times",
+          "https://ropedropplanner.com/wdw/attractions/space-mountain"
+        ],
+        "parts": [
+          {
+            "intent": "compare_rides",
+            "confidence": 0.66,
+            "answer": "Over the last 60 days on a typical weekday, Seven Dwarfs Mine Train climbs from ~40 min at opening to ~40 by 2 hours after opening, Peter Pan's Flight from ~35 to ~35, TRON Lightcycle / Run from ~45 to ~50; none of them climbs much, so the order matters less than being there at open.",
+            "rides": [
+              "Seven Dwarfs Mine Train",
+              "Peter Pan's Flight",
+              "TRON Lightcycle / Run"
+            ],
+            "parks": ["magic_kingdom"],
+            "dates": ["2026-10-14"],
+            "destination": "wdw",
+            "links": [
+              "https://ropedropplanner.com/wdw/magic_kingdom/rope-drop",
+              "https://ropedropplanner.com/wdw/attractions/seven-dwarfs-mine-train/best-time",
+              "https://ropedropplanner.com/wdw/attractions/peter-pans-flight/best-time"
+            ]
+          },
+          {
+            "intent": "best_time",
+            "confidence": 0.87,
+            "answer": "Historically, Space Mountain averages about 40 min in the afternoon (12 PM-5 PM) on a typical Wednesday. Its shortest waits are around 8 AM (about 25 min) and it peaks around 12 PM (about 48 min).",
+            "rides": ["Space Mountain"],
+            "parks": ["magic_kingdom"],
+            "dates": ["2026-10-14"],
+            "destination": "wdw",
+            "links": [
+              "https://ropedropplanner.com/wdw/attractions/space-mountain/best-time",
+              "https://ropedropplanner.com/wdw/attractions/space-mountain/wait-times",
+              "https://ropedropplanner.com/wdw/attractions/space-mountain"
+            ]
+          }
+        ]
+      },
+      "prod_legacy": {
+        "reply": false,
+        "confidence": 0.5,
+        "intent": "best_time"
+      }
+    },
+    {
+      "id": "live2_trip_report",
+      "text": "Trip report: just got back… Magic Kingdom was packed on Saturday… Tron broke down twice… Guardians was amazing… thanks everyone!",
+      "legacy": {
+        "reply": false,
+        "confidence": 0.0,
+        "intent": "no_question",
+        "answer": "",
+        "links": [],
+        "parts": []
+      },
+      "fixed": {
+        "reply": false,
+        "confidence": 0.0,
+        "intent": "no_question",
+        "answer": "",
+        "links": [],
+        "parts": []
+      },
+      "prod_legacy": {
+        "reply": false,
+        "confidence": 0.0,
+        "intent": "no_question"
+      }
+    },
+    {
+      "id": "live3_three_days_mid_october",
+      "text": "We have 3 park days in mid-October: Monday, Wednesday and Friday. Which days should we do Magic Kingdom and Hollywood Studios to avoid crowds? Also is Animal Kingdom busy on Fridays?",
+      "legacy": {
+        "reply": true,
+        "confidence": 0.95,
+        "intent": "multi",
+        "answer": "**Crowds:** Predicted crowd levels (1-10, from historical wait data): Magic Kingdom: Mon Oct 12 6/10, Wed Oct 14 7/10, Fri Oct 16 5/10 (lowest: Fri Oct 16); Hollywood Studios: Mon Oct 12 5/10, Wed Oct 14 5/10, Fri Oct 16 7/10 (about the same on each day).\n\n**Crowds:** Predicted crowd level for Animal Kingdom on Friday, Oct 16: 7/10 (High), based on historical wait data.",
+        "links": [
+          "https://ropedropplanner.com/wdw/magic_kingdom/crowd-by-day",
+          "https://ropedropplanner.com/wdw/animal_kingdom/crowd-by-day",
+          "https://ropedropplanner.com/wdw/hollywood_studios/crowd-by-day"
+        ],
+        "parts": [
+          {
+            "intent": "crowds_on_date",
+            "confidence": 0.95,
+            "answer": "Predicted crowd levels (1-10, from historical wait data): Magic Kingdom: Mon Oct 12 6/10, Wed Oct 14 7/10, Fri Oct 16 5/10 (lowest: Fri Oct 16); Hollywood Studios: Mon Oct 12 5/10, Wed Oct 14 5/10, Fri Oct 16 7/10 (about the same on each day).",
+            "rides": [],
+            "parks": ["magic_kingdom", "hollywood_studios"],
+            "dates": ["2026-10-12", "2026-10-14", "2026-10-16"],
+            "destination": "wdw",
+            "links": [
+              "https://ropedropplanner.com/wdw/magic_kingdom/crowd-by-day",
+              "https://ropedropplanner.com/wdw/hollywood_studios/crowd-by-day",
+              "https://ropedropplanner.com/wdw/crowd-calendar"
+            ]
+          },
+          {
+            "intent": "crowds_on_date",
+            "confidence": 0.95,
+            "answer": "Predicted crowd level for Animal Kingdom on Friday, Oct 16: 7/10 (High), based on historical wait data.",
+            "rides": [],
+            "parks": ["animal_kingdom"],
+            "dates": ["2026-10-16"],
+            "destination": "wdw",
+            "links": [
+              "https://ropedropplanner.com/wdw/animal_kingdom/crowd-by-day",
+              "https://ropedropplanner.com/wdw/crowd-calendar"
+            ]
+          }
+        ]
+      },
+      "fixed": {
+        "reply": true,
+        "confidence": 0.95,
+        "intent": "multi",
+        "answer": "**Crowds:** Predicted crowd levels (1-10, from historical wait data): Magic Kingdom: Mon Oct 12 6/10, Wed Oct 14 7/10, Fri Oct 16 5/10 (lowest: Fri Oct 16); Hollywood Studios: Mon Oct 12 5/10, Wed Oct 14 5/10, Fri Oct 16 7/10 (about the same on each day).\n\n**Crowds:** Predicted crowd level for Animal Kingdom on Friday, Oct 16: 7/10 (High), based on historical wait data.",
+        "links": [
+          "https://ropedropplanner.com/wdw/magic_kingdom/crowd-by-day",
+          "https://ropedropplanner.com/wdw/animal_kingdom/crowd-by-day",
+          "https://ropedropplanner.com/wdw/hollywood_studios/crowd-by-day"
+        ],
+        "parts": [
+          {
+            "intent": "crowds_on_date",
+            "confidence": 0.95,
+            "answer": "Predicted crowd levels (1-10, from historical wait data): Magic Kingdom: Mon Oct 12 6/10, Wed Oct 14 7/10, Fri Oct 16 5/10 (lowest: Fri Oct 16); Hollywood Studios: Mon Oct 12 5/10, Wed Oct 14 5/10, Fri Oct 16 7/10 (about the same on each day).",
+            "rides": [],
+            "parks": ["magic_kingdom", "hollywood_studios"],
+            "dates": ["2026-10-12", "2026-10-14", "2026-10-16"],
+            "destination": "wdw",
+            "links": [
+              "https://ropedropplanner.com/wdw/magic_kingdom/crowd-by-day",
+              "https://ropedropplanner.com/wdw/hollywood_studios/crowd-by-day",
+              "https://ropedropplanner.com/wdw/crowd-calendar"
+            ]
+          },
+          {
+            "intent": "crowds_on_date",
+            "confidence": 0.95,
+            "answer": "Predicted crowd level for Animal Kingdom on Friday, Oct 16: 7/10 (High), based on historical wait data.",
+            "rides": [],
+            "parks": ["animal_kingdom"],
+            "dates": ["2026-10-16"],
+            "destination": "wdw",
+            "links": [
+              "https://ropedropplanner.com/wdw/animal_kingdom/crowd-by-day",
+              "https://ropedropplanner.com/wdw/crowd-calendar"
+            ]
+          }
+        ]
+      },
+      "prod_legacy": {
+        "reply": true,
+        "confidence": 0.95,
+        "intent": "multi"
+      }
+    },
+    {
+      "id": "live4_dlr_rise_or_indy",
+      "text": "Rope drop question for Disneyland: Rise of the Resistance or Indiana Jones first? We have a park hopper and plan to go to DCA in the afternoon for Radiator Springs.",
+      "legacy": {
+        "reply": true,
+        "confidence": 0.95,
+        "intent": "compare_rides",
+        "answer": "Historically, Star Wars: Rise of the Resistance climbs from ~41 min at 8 AM to ~46 by 10 AM, Indiana Jones™ Adventure from ~22 to ~37, so Indiana Jones™ Adventure first saves the most.",
+        "links": [
+          "https://ropedropplanner.com/dlr/disneyland/rope-drop",
+          "https://ropedropplanner.com/dlr/attractions/star-wars-rise-of-the-resistance-dl/best-time",
+          "https://ropedropplanner.com/dlr/attractions/indiana-jones-adventure-dl/best-time"
+        ],
+        "parts": [
+          {
+            "intent": "compare_rides",
+            "confidence": 0.95,
+            "answer": "Historically, Star Wars: Rise of the Resistance climbs from ~41 min at 8 AM to ~46 by 10 AM, Indiana Jones™ Adventure from ~22 to ~37, so Indiana Jones™ Adventure first saves the most.",
+            "rides": [
+              "Star Wars: Rise of the Resistance",
+              "Indiana Jones™ Adventure"
+            ],
+            "parks": ["disneyland"],
+            "dates": [],
+            "destination": "dlr",
+            "links": [
+              "https://ropedropplanner.com/dlr/disneyland/rope-drop",
+              "https://ropedropplanner.com/dlr/attractions/star-wars-rise-of-the-resistance-dl/best-time",
+              "https://ropedropplanner.com/dlr/attractions/indiana-jones-adventure-dl/best-time"
+            ]
+          }
+        ]
+      },
+      "fixed": {
+        "reply": true,
+        "confidence": 0.87,
+        "intent": "compare_rides",
+        "answer": "Over the last 60 days on a typical day, Star Wars: Rise of the Resistance climbs from ~30 min at opening to ~40 by 2 hours after opening, Indiana Jones™ Adventure from ~20 to ~35; they climb by similar amounts, so the order matters less than being there at open.",
+        "links": [
+          "https://ropedropplanner.com/dlr/disneyland/rope-drop",
+          "https://ropedropplanner.com/dlr/attractions/star-wars-rise-of-the-resistance-dl/best-time",
+          "https://ropedropplanner.com/dlr/attractions/indiana-jones-adventure-dl/best-time"
+        ],
+        "parts": [
+          {
+            "intent": "compare_rides",
+            "confidence": 0.87,
+            "answer": "Over the last 60 days on a typical day, Star Wars: Rise of the Resistance climbs from ~30 min at opening to ~40 by 2 hours after opening, Indiana Jones™ Adventure from ~20 to ~35; they climb by similar amounts, so the order matters less than being there at open.",
+            "rides": [
+              "Star Wars: Rise of the Resistance",
+              "Indiana Jones™ Adventure"
+            ],
+            "parks": ["disneyland"],
+            "dates": [],
+            "destination": "dlr",
+            "links": [
+              "https://ropedropplanner.com/dlr/disneyland/rope-drop",
+              "https://ropedropplanner.com/dlr/attractions/star-wars-rise-of-the-resistance-dl/best-time",
+              "https://ropedropplanner.com/dlr/attractions/indiana-jones-adventure-dl/best-time"
+            ]
+          }
+        ]
+      },
+      "prod_legacy": {
+        "reply": true,
+        "confidence": 0.95,
+        "intent": "compare_rides"
+      }
+    },
+    {
+      "id": "live5_hs_no_ll_strategy",
+      "text": "Help! Hollywood Studios tomorrow and we didn't get Lightning Lane. What's the best strategy? …",
+      "legacy": {
+        "reply": false,
+        "confidence": 0.1,
+        "intent": "other",
+        "answer": "Sorry — I'm not sure how to answer that one. Try asking about a ride's wait, the best time to ride, rope drop, crowds on a date, or park hours.",
+        "links": [],
+        "parts": [
+          {
+            "intent": "other",
+            "confidence": 0.1,
+            "answer": "Sorry — I'm not sure how to answer that one. Try asking about a ride's wait, the best time to ride, rope drop, crowds on a date, or park hours.",
+            "rides": [],
+            "parks": ["hollywood_studios"],
+            "dates": ["2026-09-29"],
+            "destination": "wdw",
+            "links": []
+          }
+        ]
+      },
+      "fixed": {
+        "reply": false,
+        "confidence": 0.1,
+        "intent": "other",
+        "answer": "Sorry — I'm not sure how to answer that one. Try asking about a ride's wait, the best time to ride, rope drop, crowds on a date, or park hours.",
+        "links": [],
+        "parts": [
+          {
+            "intent": "other",
+            "confidence": 0.1,
+            "answer": "Sorry — I'm not sure how to answer that one. Try asking about a ride's wait, the best time to ride, rope drop, crowds on a date, or park hours.",
+            "rides": [],
+            "parks": ["hollywood_studios"],
+            "dates": ["2026-09-29"],
+            "destination": "wdw",
+            "links": []
+          }
+        ]
+      },
+      "prod_legacy": {
+        "reply": false,
+        "confidence": 0.1,
+        "intent": "other"
+      }
+    },
+    {
+      "id": "live6_fop_worth_it_tree_of_life",
+      "text": "Is it worth getting there before opening for Flight of Passage or … evening … Oct 20. Also does anyone know if the Tree of Life show is still running?",
+      "legacy": {
+        "reply": false,
+        "confidence": 0.1,
+        "intent": "other",
+        "answer": "",
+        "links": [],
+        "parts": [
+          {
+            "intent": "other",
+            "confidence": 0.1,
+            "answer": "Sorry — I'm not sure how to answer that one. Try asking about a ride's wait, the best time to ride, rope drop, crowds on a date, or park hours.",
+            "rides": ["Avatar Flight of Passage"],
+            "parks": ["animal_kingdom"],
+            "dates": ["2026-10-20"],
+            "destination": "wdw",
+            "links": []
+          },
+          {
+            "intent": "other",
+            "confidence": 0.1,
+            "answer": "Sorry — I'm not sure how to answer that one. Try asking about a ride's wait, the best time to ride, rope drop, crowds on a date, or park hours.",
+            "rides": ["Tree of Life"],
+            "parks": ["animal_kingdom"],
+            "dates": ["2026-10-20"],
+            "destination": "wdw",
+            "links": []
+          }
+        ]
+      },
+      "fixed": {
+        "reply": false,
+        "confidence": 0.1,
+        "intent": "other",
+        "answer": "",
+        "links": [],
+        "parts": [
+          {
+            "intent": "other",
+            "confidence": 0.1,
+            "answer": "Sorry — I'm not sure how to answer that one. Try asking about a ride's wait, the best time to ride, rope drop, crowds on a date, or park hours.",
+            "rides": ["Avatar Flight of Passage"],
+            "parks": ["animal_kingdom"],
+            "dates": ["2026-10-20"],
+            "destination": "wdw",
+            "links": []
+          },
+          {
+            "intent": "other",
+            "confidence": 0.1,
+            "answer": "Sorry — I'm not sure how to answer that one. Try asking about a ride's wait, the best time to ride, rope drop, crowds on a date, or park hours.",
+            "rides": ["Tree of Life"],
+            "parks": ["animal_kingdom"],
+            "dates": ["2026-10-20"],
+            "destination": "wdw",
+            "links": []
+          }
+        ]
+      },
+      "prod_legacy": {
+        "reply": false,
+        "confidence": 0.1,
+        "intent": "other"
+      }
+    },
+    {
+      "id": "oneliner_best_time_slinky",
+      "text": "When is the best time to ride Slinky Dog Dash?",
+      "legacy": {
+        "reply": true,
+        "confidence": 0.95,
+        "intent": "best_time",
+        "answer": "Historically, Slinky Dog Dash has its shortest waits around 9 PM (about 51 min). Waits peak around 12 PM (about 73 min). Lightest day: Wednesday.",
+        "links": [
+          "https://ropedropplanner.com/wdw/attractions/slinky-dog-dash/best-time",
+          "https://ropedropplanner.com/wdw/attractions/slinky-dog-dash/wait-times",
+          "https://ropedropplanner.com/wdw/attractions/slinky-dog-dash"
+        ],
+        "parts": [
+          {
+            "intent": "best_time",
+            "confidence": 0.95,
+            "answer": "Historically, Slinky Dog Dash has its shortest waits around 9 PM (about 51 min). Waits peak around 12 PM (about 73 min). Lightest day: Wednesday.",
+            "rides": ["Slinky Dog Dash"],
+            "parks": ["hollywood_studios"],
+            "dates": [],
+            "destination": "wdw",
+            "links": [
+              "https://ropedropplanner.com/wdw/attractions/slinky-dog-dash/best-time",
+              "https://ropedropplanner.com/wdw/attractions/slinky-dog-dash/wait-times",
+              "https://ropedropplanner.com/wdw/attractions/slinky-dog-dash"
+            ]
+          }
+        ]
+      },
+      "fixed": {
+        "reply": true,
+        "confidence": 0.95,
+        "intent": "best_time",
+        "answer": "Historically, Slinky Dog Dash has its shortest waits around 9 PM (about 51 min). Waits peak around 12 PM (about 73 min). Lightest day: Wednesday.",
+        "links": [
+          "https://ropedropplanner.com/wdw/attractions/slinky-dog-dash/best-time",
+          "https://ropedropplanner.com/wdw/attractions/slinky-dog-dash/wait-times",
+          "https://ropedropplanner.com/wdw/attractions/slinky-dog-dash"
+        ],
+        "parts": [
+          {
+            "intent": "best_time",
+            "confidence": 0.95,
+            "answer": "Historically, Slinky Dog Dash has its shortest waits around 9 PM (about 51 min). Waits peak around 12 PM (about 73 min). Lightest day: Wednesday.",
+            "rides": ["Slinky Dog Dash"],
+            "parks": ["hollywood_studios"],
+            "dates": [],
+            "destination": "wdw",
+            "links": [
+              "https://ropedropplanner.com/wdw/attractions/slinky-dog-dash/best-time",
+              "https://ropedropplanner.com/wdw/attractions/slinky-dog-dash/wait-times",
+              "https://ropedropplanner.com/wdw/attractions/slinky-dog-dash"
+            ]
+          }
+        ]
+      },
+      "prod_legacy": {
+        "reply": true,
+        "confidence": 0.95,
+        "intent": "best_time"
+      }
+    },
+    {
+      "id": "oneliner_fragment_mk_hours",
+      "text": "MK hours tomorrow",
+      "legacy": {
+        "reply": true,
+        "confidence": 0.95,
+        "intent": "park_hours",
+        "answer": "Magic Kingdom Tuesday, Sep 29: 9:00 AM-6:00 PM (Early Entry from 8:30 AM). Hours can change, so double-check before you go.",
+        "links": ["https://ropedropplanner.com/wdw/magic_kingdom/hours"],
+        "parts": [
+          {
+            "intent": "park_hours",
+            "confidence": 0.95,
+            "answer": "Magic Kingdom Tuesday, Sep 29: 9:00 AM-6:00 PM (Early Entry from 8:30 AM). Hours can change, so double-check before you go.",
+            "rides": [],
+            "parks": ["magic_kingdom"],
+            "dates": ["2026-09-29"],
+            "destination": "wdw",
+            "links": ["https://ropedropplanner.com/wdw/magic_kingdom/hours"]
+          }
+        ]
+      },
+      "fixed": {
+        "reply": true,
+        "confidence": 0.95,
+        "intent": "park_hours",
+        "answer": "Magic Kingdom Tuesday, Sep 29: 9:00 AM-6:00 PM (Early Entry from 8:30 AM). Hours can change, so double-check before you go.",
+        "links": ["https://ropedropplanner.com/wdw/magic_kingdom/hours"],
+        "parts": [
+          {
+            "intent": "park_hours",
+            "confidence": 0.95,
+            "answer": "Magic Kingdom Tuesday, Sep 29: 9:00 AM-6:00 PM (Early Entry from 8:30 AM). Hours can change, so double-check before you go.",
+            "rides": [],
+            "parks": ["magic_kingdom"],
+            "dates": ["2026-09-29"],
+            "destination": "wdw",
+            "links": ["https://ropedropplanner.com/wdw/magic_kingdom/hours"]
+          }
+        ]
+      },
+      "prod_legacy": {
+        "reply": true,
+        "confidence": 0.95,
+        "intent": "park_hours"
+      }
+    },
+    {
+      "id": "oneliner_mk_crowded_tomorrow",
+      "text": "Is Magic Kingdom crowded tomorrow?",
+      "legacy": {
+        "reply": true,
+        "confidence": 0.95,
+        "intent": "crowds_on_date",
+        "answer": "Predicted crowd level for Magic Kingdom on Tuesday, Sep 29: 4/10 (Moderate), based on historical wait data.",
+        "links": [
+          "https://ropedropplanner.com/wdw/magic_kingdom/crowd-by-day",
+          "https://ropedropplanner.com/wdw/crowd-calendar"
+        ],
+        "parts": [
+          {
+            "intent": "crowds_on_date",
+            "confidence": 0.95,
+            "answer": "Predicted crowd level for Magic Kingdom on Tuesday, Sep 29: 4/10 (Moderate), based on historical wait data.",
+            "rides": [],
+            "parks": ["magic_kingdom"],
+            "dates": ["2026-09-29"],
+            "destination": "wdw",
+            "links": [
+              "https://ropedropplanner.com/wdw/magic_kingdom/crowd-by-day",
+              "https://ropedropplanner.com/wdw/crowd-calendar"
+            ]
+          }
+        ]
+      },
+      "fixed": {
+        "reply": true,
+        "confidence": 0.95,
+        "intent": "crowds_on_date",
+        "answer": "Predicted crowd level for Magic Kingdom on Tuesday, Sep 29: 4/10 (Moderate), based on historical wait data.",
+        "links": [
+          "https://ropedropplanner.com/wdw/magic_kingdom/crowd-by-day",
+          "https://ropedropplanner.com/wdw/crowd-calendar"
+        ],
+        "parts": [
+          {
+            "intent": "crowds_on_date",
+            "confidence": 0.95,
+            "answer": "Predicted crowd level for Magic Kingdom on Tuesday, Sep 29: 4/10 (Moderate), based on historical wait data.",
+            "rides": [],
+            "parks": ["magic_kingdom"],
+            "dates": ["2026-09-29"],
+            "destination": "wdw",
+            "links": [
+              "https://ropedropplanner.com/wdw/magic_kingdom/crowd-by-day",
+              "https://ropedropplanner.com/wdw/crowd-calendar"
+            ]
+          }
+        ]
+      },
+      "prod_legacy": {
+        "reply": true,
+        "confidence": 0.95,
+        "intent": "crowds_on_date"
+      }
+    },
+    {
+      "id": "comment_mention_rope_drop",
+      "text": "u/ropedrop-bot what should we rope drop at Hollywood Studios on Saturday?",
+      "legacy": {
+        "reply": true,
+        "confidence": 0.92,
+        "intent": "rope_drop",
+        "answer": "Best rope-drop picks based on historical waits — Hollywood Studios: The Twilight Zone Tower of Terror™ (about 26 min at open vs 52 min at peak).",
+        "links": [
+          "https://ropedropplanner.com/wdw/hollywood_studios/rope-drop"
+        ],
+        "parts": [
+          {
+            "intent": "rope_drop",
+            "confidence": 0.92,
+            "answer": "Best rope-drop picks based on historical waits — Hollywood Studios: The Twilight Zone Tower of Terror™ (about 26 min at open vs 52 min at peak).",
+            "rides": [],
+            "parks": ["hollywood_studios"],
+            "dates": ["2026-10-03"],
+            "destination": "wdw",
+            "links": [
+              "https://ropedropplanner.com/wdw/hollywood_studios/rope-drop"
+            ]
+          }
+        ]
+      },
+      "fixed": {
+        "reply": true,
+        "confidence": 0.92,
+        "intent": "rope_drop",
+        "answer": "Best rope-drop picks based on historical waits — Hollywood Studios: The Twilight Zone Tower of Terror™ (about 26 min at open vs 52 min at peak).",
+        "links": [
+          "https://ropedropplanner.com/wdw/hollywood_studios/rope-drop"
+        ],
+        "parts": [
+          {
+            "intent": "rope_drop",
+            "confidence": 0.92,
+            "answer": "Best rope-drop picks based on historical waits — Hollywood Studios: The Twilight Zone Tower of Terror™ (about 26 min at open vs 52 min at peak).",
+            "rides": [],
+            "parks": ["hollywood_studios"],
+            "dates": ["2026-10-03"],
+            "destination": "wdw",
+            "links": [
+              "https://ropedropplanner.com/wdw/hollywood_studios/rope-drop"
+            ]
+          }
+        ]
+      },
+      "prod_legacy": {
+        "reply": true,
+        "confidence": 0.92,
+        "intent": "rope_drop"
+      }
+    },
+    {
+      "id": "title_body_slinky_or_rise",
+      "text": "Slinky or Rise first?\n\nWe'll be at Hollywood Studios on Oct 15 with early entry. Which should we rope drop?",
+      "legacy": {
+        "reply": false,
+        "confidence": 0.3,
+        "intent": "other",
+        "answer": "",
+        "links": [],
+        "parts": [
+          {
+            "intent": "compare_rides",
+            "confidence": 0.66,
+            "answer": "Historically on a typical Thursday, Slinky Dog Dash climbs from ~61 min at 9 AM to ~66 by 11 AM, Star Wars: Rise of the Resistance from ~51 to ~53; none of them climbs much, so the order matters less than being there at open.",
+            "rides": ["Slinky Dog Dash", "Star Wars: Rise of the Resistance"],
+            "parks": ["hollywood_studios"],
+            "dates": ["2026-10-15"],
+            "destination": "wdw",
+            "links": [
+              "https://ropedropplanner.com/wdw/hollywood_studios/rope-drop",
+              "https://ropedropplanner.com/wdw/attractions/slinky-dog-dash/best-time",
+              "https://ropedropplanner.com/wdw/attractions/star-wars-rise-of-the-resistance/best-time"
+            ]
+          },
+          {
+            "intent": "rope_drop",
+            "confidence": 0.24,
+            "answer": "I don't have enough data for a rope-drop pick there.",
+            "rides": [],
+            "parks": ["hollywood_studios"],
+            "dates": ["2026-10-15"],
+            "destination": "wdw",
+            "links": [
+              "https://ropedropplanner.com/wdw/hollywood_studios/rope-drop"
+            ]
+          }
+        ]
+      },
+      "fixed": {
+        "reply": true,
+        "confidence": 0.7,
+        "intent": "compare_rides",
+        "answer": "Over the last 60 days on a typical weekday, Slinky Dog Dash climbs from ~60 min at opening to ~60 by 2 hours after opening, Star Wars: Rise of the Resistance from ~45 to ~55, so Star Wars: Rise of the Resistance first saves the most.",
+        "links": [
+          "https://ropedropplanner.com/wdw/hollywood_studios/rope-drop",
+          "https://ropedropplanner.com/wdw/attractions/slinky-dog-dash/best-time",
+          "https://ropedropplanner.com/wdw/attractions/star-wars-rise-of-the-resistance/best-time"
+        ],
+        "parts": [
+          {
+            "intent": "compare_rides",
+            "confidence": 0.87,
+            "answer": "Over the last 60 days on a typical weekday, Slinky Dog Dash climbs from ~60 min at opening to ~60 by 2 hours after opening, Star Wars: Rise of the Resistance from ~45 to ~55, so Star Wars: Rise of the Resistance first saves the most.",
+            "rides": ["Slinky Dog Dash", "Star Wars: Rise of the Resistance"],
+            "parks": ["hollywood_studios"],
+            "dates": ["2026-10-15"],
+            "destination": "wdw",
+            "links": [
+              "https://ropedropplanner.com/wdw/hollywood_studios/rope-drop",
+              "https://ropedropplanner.com/wdw/attractions/slinky-dog-dash/best-time",
+              "https://ropedropplanner.com/wdw/attractions/star-wars-rise-of-the-resistance/best-time"
+            ]
+          },
+          {
+            "intent": "rope_drop",
+            "confidence": 0.24,
+            "answer": "I don't have enough data for a rope-drop pick there.",
+            "rides": [],
+            "parks": ["hollywood_studios"],
+            "dates": ["2026-10-15"],
+            "destination": "wdw",
+            "links": [
+              "https://ropedropplanner.com/wdw/hollywood_studios/rope-drop"
+            ]
+          }
+        ]
+      },
+      "prod_legacy": {
+        "reply": false,
+        "confidence": 0.3,
+        "intent": "other"
+      }
+    },
+    {
+      "id": "bullet_plan_make_sense",
+      "text": "Our MK plan for Oct 14:\n- rope drop Tron\n- then Space Mountain\n- then Haunted Mansion\n\nDoes this plan make sense? Also what time does MK open that day?",
+      "legacy": {
+        "reply": true,
+        "confidence": 0.87,
+        "intent": "multi",
+        "answer": "**Ride order:** Historically on a typical Wednesday, TRON Lightcycle / Run climbs from ~60 min at 9 AM to ~60 by 11 AM, Space Mountain climbs from ~25 min at 8 AM to ~37 by 10 AM, Haunted Mansion climbs from ~13 min at 9 AM to ~24 by 11 AM, so Space Mountain and Haunted Mansion climb the most; do them before TRON Lightcycle / Run.\n\n**Park hours:** Magic Kingdom Wednesday, Oct 14: 8:00 AM-11:00 PM (Early Entry from 7:30 AM). Hours can change, so double-check before you go.",
+        "links": [
+          "https://ropedropplanner.com/wdw/magic_kingdom/rope-drop",
+          "https://ropedropplanner.com/wdw/magic_kingdom/hours",
+          "https://ropedropplanner.com/wdw/attractions/tron-lightcycle-run/best-time"
+        ],
+        "parts": [
+          {
+            "intent": "compare_rides",
+            "confidence": 0.87,
+            "answer": "Historically on a typical Wednesday, TRON Lightcycle / Run climbs from ~60 min at 9 AM to ~60 by 11 AM, Space Mountain climbs from ~25 min at 8 AM to ~37 by 10 AM, Haunted Mansion climbs from ~13 min at 9 AM to ~24 by 11 AM, so Space Mountain and Haunted Mansion climb the most; do them before TRON Lightcycle / Run.",
+            "rides": [
+              "TRON Lightcycle / Run",
+              "Space Mountain",
+              "Haunted Mansion"
+            ],
+            "parks": ["magic_kingdom"],
+            "dates": ["2026-10-14"],
+            "destination": "wdw",
+            "links": [
+              "https://ropedropplanner.com/wdw/magic_kingdom/rope-drop",
+              "https://ropedropplanner.com/wdw/attractions/tron-lightcycle-run/best-time",
+              "https://ropedropplanner.com/wdw/attractions/space-mountain/best-time"
+            ]
+          },
+          {
+            "intent": "park_hours",
+            "confidence": 0.95,
+            "answer": "Magic Kingdom Wednesday, Oct 14: 8:00 AM-11:00 PM (Early Entry from 7:30 AM). Hours can change, so double-check before you go.",
+            "rides": [],
+            "parks": ["magic_kingdom"],
+            "dates": ["2026-10-14"],
+            "destination": "wdw",
+            "links": ["https://ropedropplanner.com/wdw/magic_kingdom/hours"]
+          }
+        ]
+      },
+      "fixed": {
+        "reply": false,
+        "confidence": 0.5,
+        "intent": "park_hours",
+        "answer": "Magic Kingdom Wednesday, Oct 14: 8:00 AM-11:00 PM (Early Entry from 7:30 AM). Hours can change, so double-check before you go.",
+        "links": ["https://ropedropplanner.com/wdw/magic_kingdom/hours"],
+        "parts": [
+          {
+            "intent": "compare_rides",
+            "confidence": 0.66,
+            "answer": "Over the last 60 days on a typical weekday, TRON Lightcycle / Run climbs from ~45 min at opening to ~50 by 2 hours after opening, Space Mountain from ~25 to ~30, Haunted Mansion from ~13 to ~20; none of them climbs much, so the order matters less than being there at open.",
+            "rides": [
+              "TRON Lightcycle / Run",
+              "Space Mountain",
+              "Haunted Mansion"
+            ],
+            "parks": ["magic_kingdom"],
+            "dates": ["2026-10-14"],
+            "destination": "wdw",
+            "links": [
+              "https://ropedropplanner.com/wdw/magic_kingdom/rope-drop",
+              "https://ropedropplanner.com/wdw/attractions/tron-lightcycle-run/best-time",
+              "https://ropedropplanner.com/wdw/attractions/space-mountain/best-time"
+            ]
+          },
+          {
+            "intent": "park_hours",
+            "confidence": 0.95,
+            "answer": "Magic Kingdom Wednesday, Oct 14: 8:00 AM-11:00 PM (Early Entry from 7:30 AM). Hours can change, so double-check before you go.",
+            "rides": [],
+            "parks": ["magic_kingdom"],
+            "dates": ["2026-10-14"],
+            "destination": "wdw",
+            "links": ["https://ropedropplanner.com/wdw/magic_kingdom/hours"]
+          }
+        ]
+      },
+      "prod_legacy": {
+        "reply": true,
+        "confidence": 0.87,
+        "intent": "multi"
+      }
+    },
+    {
+      "id": "first_timer_ll_first_then_guardians",
+      "text": "First time at WDW with my parents! Should we buy Lightning Lane Multi Pass for Epcot? Also what's the best time to ride Guardians?",
+      "legacy": {
+        "reply": false,
+        "confidence": 0.5,
+        "intent": "best_time",
+        "answer": "Historically, Guardians of the Galaxy: Cosmic Rewind has its shortest waits around 8 AM (about 59 min). Waits peak around 7 PM (about 87 min). Lightest day: Wednesday.",
+        "links": [
+          "https://ropedropplanner.com/wdw/attractions/guardians-of-the-galaxy-cosmic-rewind/best-time",
+          "https://ropedropplanner.com/wdw/attractions/guardians-of-the-galaxy-cosmic-rewind/wait-times",
+          "https://ropedropplanner.com/wdw/attractions/guardians-of-the-galaxy-cosmic-rewind"
+        ],
+        "parts": [
+          {
+            "intent": "other",
+            "confidence": 0.1,
+            "answer": "Sorry — I'm not sure how to answer that one. Try asking about a ride's wait, the best time to ride, rope drop, crowds on a date, or park hours.",
+            "rides": [],
+            "parks": ["epcot"],
+            "dates": [],
+            "destination": "wdw",
+            "links": []
+          },
+          {
+            "intent": "best_time",
+            "confidence": 0.95,
+            "answer": "Historically, Guardians of the Galaxy: Cosmic Rewind has its shortest waits around 8 AM (about 59 min). Waits peak around 7 PM (about 87 min). Lightest day: Wednesday.",
+            "rides": ["Guardians of the Galaxy: Cosmic Rewind"],
+            "parks": ["epcot"],
+            "dates": [],
+            "destination": "wdw",
+            "links": [
+              "https://ropedropplanner.com/wdw/attractions/guardians-of-the-galaxy-cosmic-rewind/best-time",
+              "https://ropedropplanner.com/wdw/attractions/guardians-of-the-galaxy-cosmic-rewind/wait-times",
+              "https://ropedropplanner.com/wdw/attractions/guardians-of-the-galaxy-cosmic-rewind"
+            ]
+          }
+        ]
+      },
+      "fixed": {
+        "reply": false,
+        "confidence": 0.5,
+        "intent": "best_time",
+        "answer": "Historically, Guardians of the Galaxy: Cosmic Rewind has its shortest waits around 8 AM (about 59 min). Waits peak around 7 PM (about 87 min). Lightest day: Wednesday.",
+        "links": [
+          "https://ropedropplanner.com/wdw/attractions/guardians-of-the-galaxy-cosmic-rewind/best-time",
+          "https://ropedropplanner.com/wdw/attractions/guardians-of-the-galaxy-cosmic-rewind/wait-times",
+          "https://ropedropplanner.com/wdw/attractions/guardians-of-the-galaxy-cosmic-rewind"
+        ],
+        "parts": [
+          {
+            "intent": "other",
+            "confidence": 0.1,
+            "answer": "Sorry — I'm not sure how to answer that one. Try asking about a ride's wait, the best time to ride, rope drop, crowds on a date, or park hours.",
+            "rides": [],
+            "parks": ["epcot"],
+            "dates": [],
+            "destination": "wdw",
+            "links": []
+          },
+          {
+            "intent": "best_time",
+            "confidence": 0.95,
+            "answer": "Historically, Guardians of the Galaxy: Cosmic Rewind has its shortest waits around 8 AM (about 59 min). Waits peak around 7 PM (about 87 min). Lightest day: Wednesday.",
+            "rides": ["Guardians of the Galaxy: Cosmic Rewind"],
+            "parks": ["epcot"],
+            "dates": [],
+            "destination": "wdw",
+            "links": [
+              "https://ropedropplanner.com/wdw/attractions/guardians-of-the-galaxy-cosmic-rewind/best-time",
+              "https://ropedropplanner.com/wdw/attractions/guardians-of-the-galaxy-cosmic-rewind/wait-times",
+              "https://ropedropplanner.com/wdw/attractions/guardians-of-the-galaxy-cosmic-rewind"
+            ]
+          }
+        ]
+      },
+      "prod_legacy": {
+        "reply": false,
+        "confidence": 0.5,
+        "intent": "best_time"
+      }
+    },
+    {
+      "id": "hours_then_dining_opinion",
+      "text": "What time does Magic Kingdom open on Oct 14? And is the Be Our Guest dinner worth it?",
+      "legacy": {
+        "reply": true,
+        "confidence": 0.76,
+        "intent": "park_hours",
+        "answer": "Magic Kingdom Wednesday, Oct 14: 8:00 AM-11:00 PM (Early Entry from 7:30 AM). Hours can change, so double-check before you go.",
+        "links": ["https://ropedropplanner.com/wdw/magic_kingdom/hours"],
+        "parts": [
+          {
+            "intent": "park_hours",
+            "confidence": 0.95,
+            "answer": "Magic Kingdom Wednesday, Oct 14: 8:00 AM-11:00 PM (Early Entry from 7:30 AM). Hours can change, so double-check before you go.",
+            "rides": [],
+            "parks": ["magic_kingdom"],
+            "dates": ["2026-10-14"],
+            "destination": "wdw",
+            "links": ["https://ropedropplanner.com/wdw/magic_kingdom/hours"]
+          },
+          {
+            "intent": "other",
+            "confidence": 0.1,
+            "answer": "Sorry — I'm not sure how to answer that one. Try asking about a ride's wait, the best time to ride, rope drop, crowds on a date, or park hours.",
+            "rides": [],
+            "parks": ["magic_kingdom"],
+            "dates": ["2026-10-14"],
+            "destination": "wdw",
+            "links": []
+          }
+        ]
+      },
+      "fixed": {
+        "reply": true,
+        "confidence": 0.76,
+        "intent": "park_hours",
+        "answer": "Magic Kingdom Wednesday, Oct 14: 8:00 AM-11:00 PM (Early Entry from 7:30 AM). Hours can change, so double-check before you go.",
+        "links": ["https://ropedropplanner.com/wdw/magic_kingdom/hours"],
+        "parts": [
+          {
+            "intent": "park_hours",
+            "confidence": 0.95,
+            "answer": "Magic Kingdom Wednesday, Oct 14: 8:00 AM-11:00 PM (Early Entry from 7:30 AM). Hours can change, so double-check before you go.",
+            "rides": [],
+            "parks": ["magic_kingdom"],
+            "dates": ["2026-10-14"],
+            "destination": "wdw",
+            "links": ["https://ropedropplanner.com/wdw/magic_kingdom/hours"]
+          },
+          {
+            "intent": "other",
+            "confidence": 0.1,
+            "answer": "Sorry — I'm not sure how to answer that one. Try asking about a ride's wait, the best time to ride, rope drop, crowds on a date, or park hours.",
+            "rides": [],
+            "parks": ["magic_kingdom"],
+            "dates": ["2026-10-14"],
+            "destination": "wdw",
+            "links": []
+          }
+        ]
+      },
+      "prod_legacy": {
+        "reply": true,
+        "confidence": 0.76,
+        "intent": "park_hours"
+      }
+    },
+    {
+      "id": "dlr_week_rsr_best_time",
+      "text": "Heading to Disneyland Resort next week.\n\nWhat's the best time to ride Radiator Springs Racers at DCA?",
+      "legacy": {
+        "reply": true,
+        "confidence": 0.95,
+        "intent": "best_time",
+        "answer": "Historically, Radiator Springs Racers has its shortest waits around 9 PM (about 58 min). Waits peak around 8 AM (about 75 min). Lightest day: Sunday.",
+        "links": [
+          "https://ropedropplanner.com/dlr/attractions/radiator-springs-racers-dca/best-time",
+          "https://ropedropplanner.com/dlr/attractions/radiator-springs-racers-dca/wait-times",
+          "https://ropedropplanner.com/dlr/attractions/radiator-springs-racers-dca"
+        ],
+        "parts": [
+          {
+            "intent": "best_time",
+            "confidence": 0.95,
+            "answer": "Historically, Radiator Springs Racers has its shortest waits around 9 PM (about 58 min). Waits peak around 8 AM (about 75 min). Lightest day: Sunday.",
+            "rides": ["Radiator Springs Racers"],
+            "parks": ["california_adventure"],
+            "dates": [
+              "2026-10-05",
+              "2026-10-06",
+              "2026-10-07",
+              "2026-10-08",
+              "2026-10-09",
+              "2026-10-10",
+              "2026-10-11"
+            ],
+            "destination": "dlr",
+            "links": [
+              "https://ropedropplanner.com/dlr/attractions/radiator-springs-racers-dca/best-time",
+              "https://ropedropplanner.com/dlr/attractions/radiator-springs-racers-dca/wait-times",
+              "https://ropedropplanner.com/dlr/attractions/radiator-springs-racers-dca"
+            ]
+          }
+        ]
+      },
+      "fixed": {
+        "reply": true,
+        "confidence": 0.95,
+        "intent": "best_time",
+        "answer": "Historically, Radiator Springs Racers has its shortest waits around 9 PM (about 58 min). Waits peak around 8 AM (about 75 min). Lightest day: Sunday.",
+        "links": [
+          "https://ropedropplanner.com/dlr/attractions/radiator-springs-racers-dca/best-time",
+          "https://ropedropplanner.com/dlr/attractions/radiator-springs-racers-dca/wait-times",
+          "https://ropedropplanner.com/dlr/attractions/radiator-springs-racers-dca"
+        ],
+        "parts": [
+          {
+            "intent": "best_time",
+            "confidence": 0.95,
+            "answer": "Historically, Radiator Springs Racers has its shortest waits around 9 PM (about 58 min). Waits peak around 8 AM (about 75 min). Lightest day: Sunday.",
+            "rides": ["Radiator Springs Racers"],
+            "parks": ["california_adventure"],
+            "dates": [
+              "2026-10-05",
+              "2026-10-06",
+              "2026-10-07",
+              "2026-10-08",
+              "2026-10-09",
+              "2026-10-10",
+              "2026-10-11"
+            ],
+            "destination": "dlr",
+            "links": [
+              "https://ropedropplanner.com/dlr/attractions/radiator-springs-racers-dca/best-time",
+              "https://ropedropplanner.com/dlr/attractions/radiator-springs-racers-dca/wait-times",
+              "https://ropedropplanner.com/dlr/attractions/radiator-springs-racers-dca"
+            ]
+          }
+        ]
+      },
+      "prod_legacy": {
+        "reply": true,
+        "confidence": 0.95,
+        "intent": "best_time"
+      }
+    },
+    {
+      "id": "dlr_space_evening",
+      "text": "We're doing Disneyland on Oct 20. How long is the line for Space Mountain in the evening?",
+      "legacy": {
+        "reply": true,
+        "confidence": 0.95,
+        "intent": "best_time",
+        "answer": "Historically, Space Mountain averages about 49 min in the evening (5 PM-8 PM) on a typical Tuesday. Its shortest waits are around 8 AM (about 27 min) and it peaks around 7 PM (about 51 min).",
+        "links": [
+          "https://ropedropplanner.com/dlr/attractions/space-mountain-dl/best-time",
+          "https://ropedropplanner.com/dlr/attractions/space-mountain-dl/wait-times",
+          "https://ropedropplanner.com/dlr/attractions/space-mountain-dl"
+        ],
+        "parts": [
+          {
+            "intent": "best_time",
+            "confidence": 0.95,
+            "answer": "Historically, Space Mountain averages about 49 min in the evening (5 PM-8 PM) on a typical Tuesday. Its shortest waits are around 8 AM (about 27 min) and it peaks around 7 PM (about 51 min).",
+            "rides": ["Space Mountain"],
+            "parks": ["disneyland"],
+            "dates": ["2026-10-20"],
+            "destination": "dlr",
+            "links": [
+              "https://ropedropplanner.com/dlr/attractions/space-mountain-dl/best-time",
+              "https://ropedropplanner.com/dlr/attractions/space-mountain-dl/wait-times",
+              "https://ropedropplanner.com/dlr/attractions/space-mountain-dl"
+            ]
+          }
+        ]
+      },
+      "fixed": {
+        "reply": true,
+        "confidence": 0.95,
+        "intent": "best_time",
+        "answer": "Historically, Space Mountain averages about 49 min in the evening (5 PM-8 PM) on a typical Tuesday. Its shortest waits are around 8 AM (about 27 min) and it peaks around 7 PM (about 51 min).",
+        "links": [
+          "https://ropedropplanner.com/dlr/attractions/space-mountain-dl/best-time",
+          "https://ropedropplanner.com/dlr/attractions/space-mountain-dl/wait-times",
+          "https://ropedropplanner.com/dlr/attractions/space-mountain-dl"
+        ],
+        "parts": [
+          {
+            "intent": "best_time",
+            "confidence": 0.95,
+            "answer": "Historically, Space Mountain averages about 49 min in the evening (5 PM-8 PM) on a typical Tuesday. Its shortest waits are around 8 AM (about 27 min) and it peaks around 7 PM (about 51 min).",
+            "rides": ["Space Mountain"],
+            "parks": ["disneyland"],
+            "dates": ["2026-10-20"],
+            "destination": "dlr",
+            "links": [
+              "https://ropedropplanner.com/dlr/attractions/space-mountain-dl/best-time",
+              "https://ropedropplanner.com/dlr/attractions/space-mountain-dl/wait-times",
+              "https://ropedropplanner.com/dlr/attractions/space-mountain-dl"
+            ]
+          }
+        ]
+      },
+      "prod_legacy": {
+        "reply": true,
+        "confidence": 0.95,
+        "intent": "best_time"
+      }
+    },
+    {
+      "id": "range_least_busy_ak",
+      "text": "Going Oct 12-16. Which day is least busy at Animal Kingdom?",
+      "legacy": {
+        "reply": true,
+        "confidence": 0.95,
+        "intent": "crowds_on_date",
+        "answer": "Predicted crowd levels (1-10, from historical wait data): Animal Kingdom: Mon Oct 12 6/10, Tue Oct 13 5/10, Wed Oct 14 4/10, Thu Oct 15 5/10, Fri Oct 16 7/10 (lowest: Wed Oct 14).",
+        "links": [
+          "https://ropedropplanner.com/wdw/animal_kingdom/crowd-by-day",
+          "https://ropedropplanner.com/wdw/crowd-calendar"
+        ],
+        "parts": [
+          {
+            "intent": "crowds_on_date",
+            "confidence": 0.95,
+            "answer": "Predicted crowd levels (1-10, from historical wait data): Animal Kingdom: Mon Oct 12 6/10, Tue Oct 13 5/10, Wed Oct 14 4/10, Thu Oct 15 5/10, Fri Oct 16 7/10 (lowest: Wed Oct 14).",
+            "rides": [],
+            "parks": ["animal_kingdom"],
+            "dates": [
+              "2026-10-12",
+              "2026-10-13",
+              "2026-10-14",
+              "2026-10-15",
+              "2026-10-16"
+            ],
+            "destination": "wdw",
+            "links": [
+              "https://ropedropplanner.com/wdw/animal_kingdom/crowd-by-day",
+              "https://ropedropplanner.com/wdw/crowd-calendar"
+            ]
+          }
+        ]
+      },
+      "fixed": {
+        "reply": true,
+        "confidence": 0.95,
+        "intent": "crowds_on_date",
+        "answer": "Predicted crowd levels (1-10, from historical wait data): Animal Kingdom: Mon Oct 12 6/10, Tue Oct 13 5/10, Wed Oct 14 4/10, Thu Oct 15 5/10, Fri Oct 16 7/10 (lowest: Wed Oct 14).",
+        "links": [
+          "https://ropedropplanner.com/wdw/animal_kingdom/crowd-by-day",
+          "https://ropedropplanner.com/wdw/crowd-calendar"
+        ],
+        "parts": [
+          {
+            "intent": "crowds_on_date",
+            "confidence": 0.95,
+            "answer": "Predicted crowd levels (1-10, from historical wait data): Animal Kingdom: Mon Oct 12 6/10, Tue Oct 13 5/10, Wed Oct 14 4/10, Thu Oct 15 5/10, Fri Oct 16 7/10 (lowest: Wed Oct 14).",
+            "rides": [],
+            "parks": ["animal_kingdom"],
+            "dates": [
+              "2026-10-12",
+              "2026-10-13",
+              "2026-10-14",
+              "2026-10-15",
+              "2026-10-16"
+            ],
+            "destination": "wdw",
+            "links": [
+              "https://ropedropplanner.com/wdw/animal_kingdom/crowd-by-day",
+              "https://ropedropplanner.com/wdw/crowd-calendar"
+            ]
+          }
+        ]
+      },
+      "prod_legacy": {
+        "reply": true,
+        "confidence": 0.95,
+        "intent": "crowds_on_date"
+      }
+    },
+    {
+      "id": "the_14th_epcot",
+      "text": "We land on the 14th and go straight to the parks. Is Epcot busy that day?",
+      "legacy": {
+        "reply": true,
+        "confidence": 0.95,
+        "intent": "crowds_on_date",
+        "answer": "Predicted crowd level for EPCOT on Wednesday, Oct 14: 5/10 (Moderate), based on historical wait data.",
+        "links": [
+          "https://ropedropplanner.com/wdw/epcot/crowd-by-day",
+          "https://ropedropplanner.com/wdw/crowd-calendar"
+        ],
+        "parts": [
+          {
+            "intent": "crowds_on_date",
+            "confidence": 0.95,
+            "answer": "Predicted crowd level for EPCOT on Wednesday, Oct 14: 5/10 (Moderate), based on historical wait data.",
+            "rides": [],
+            "parks": ["epcot"],
+            "dates": ["2026-10-14"],
+            "destination": "wdw",
+            "links": [
+              "https://ropedropplanner.com/wdw/epcot/crowd-by-day",
+              "https://ropedropplanner.com/wdw/crowd-calendar"
+            ]
+          }
+        ]
+      },
+      "fixed": {
+        "reply": true,
+        "confidence": 0.95,
+        "intent": "crowds_on_date",
+        "answer": "Predicted crowd level for EPCOT on Wednesday, Oct 14: 5/10 (Moderate), based on historical wait data.",
+        "links": [
+          "https://ropedropplanner.com/wdw/epcot/crowd-by-day",
+          "https://ropedropplanner.com/wdw/crowd-calendar"
+        ],
+        "parts": [
+          {
+            "intent": "crowds_on_date",
+            "confidence": 0.95,
+            "answer": "Predicted crowd level for EPCOT on Wednesday, Oct 14: 5/10 (Moderate), based on historical wait data.",
+            "rides": [],
+            "parks": ["epcot"],
+            "dates": ["2026-10-14"],
+            "destination": "wdw",
+            "links": [
+              "https://ropedropplanner.com/wdw/epcot/crowd-by-day",
+              "https://ropedropplanner.com/wdw/crowd-calendar"
+            ]
+          }
+        ]
+      },
+      "prod_legacy": {
+        "reply": true,
+        "confidence": 0.95,
+        "intent": "crowds_on_date"
+      }
+    },
+    {
+      "id": "next_friday_hs",
+      "text": "How crowded will Hollywood Studios be next Friday?",
+      "legacy": {
+        "reply": true,
+        "confidence": 0.95,
+        "intent": "crowds_on_date",
+        "answer": "Predicted crowd level for Hollywood Studios on Friday, Oct 2: 8/10 (High), based on historical wait data.",
+        "links": [
+          "https://ropedropplanner.com/wdw/hollywood_studios/crowd-by-day",
+          "https://ropedropplanner.com/wdw/crowd-calendar"
+        ],
+        "parts": [
+          {
+            "intent": "crowds_on_date",
+            "confidence": 0.95,
+            "answer": "Predicted crowd level for Hollywood Studios on Friday, Oct 2: 8/10 (High), based on historical wait data.",
+            "rides": [],
+            "parks": ["hollywood_studios"],
+            "dates": ["2026-10-02"],
+            "destination": "wdw",
+            "links": [
+              "https://ropedropplanner.com/wdw/hollywood_studios/crowd-by-day",
+              "https://ropedropplanner.com/wdw/crowd-calendar"
+            ]
+          }
+        ]
+      },
+      "fixed": {
+        "reply": true,
+        "confidence": 0.95,
+        "intent": "crowds_on_date",
+        "answer": "Predicted crowd level for Hollywood Studios on Friday, Oct 2: 8/10 (High), based on historical wait data.",
+        "links": [
+          "https://ropedropplanner.com/wdw/hollywood_studios/crowd-by-day",
+          "https://ropedropplanner.com/wdw/crowd-calendar"
+        ],
+        "parts": [
+          {
+            "intent": "crowds_on_date",
+            "confidence": 0.95,
+            "answer": "Predicted crowd level for Hollywood Studios on Friday, Oct 2: 8/10 (High), based on historical wait data.",
+            "rides": [],
+            "parks": ["hollywood_studios"],
+            "dates": ["2026-10-02"],
+            "destination": "wdw",
+            "links": [
+              "https://ropedropplanner.com/wdw/hollywood_studios/crowd-by-day",
+              "https://ropedropplanner.com/wdw/crowd-calendar"
+            ]
+          }
+        ]
+      },
+      "prod_legacy": {
+        "reply": true,
+        "confidence": 0.95,
+        "intent": "crowds_on_date"
+      }
+    },
+    {
+      "id": "mondays_mid_october",
+      "text": "Are Mondays in mid-October busy at Magic Kingdom?",
+      "legacy": {
+        "reply": true,
+        "confidence": 0.95,
+        "intent": "crowds_on_date",
+        "answer": "Predicted crowd levels (1-10, from historical wait data): Magic Kingdom: Mon Oct 12 6/10, Mon Oct 19 6/10 (about the same on each day).",
+        "links": [
+          "https://ropedropplanner.com/wdw/magic_kingdom/crowd-by-day",
+          "https://ropedropplanner.com/wdw/crowd-calendar"
+        ],
+        "parts": [
+          {
+            "intent": "crowds_on_date",
+            "confidence": 0.95,
+            "answer": "Predicted crowd levels (1-10, from historical wait data): Magic Kingdom: Mon Oct 12 6/10, Mon Oct 19 6/10 (about the same on each day).",
+            "rides": [],
+            "parks": ["magic_kingdom"],
+            "dates": ["2026-10-12", "2026-10-19"],
+            "destination": "wdw",
+            "links": [
+              "https://ropedropplanner.com/wdw/magic_kingdom/crowd-by-day",
+              "https://ropedropplanner.com/wdw/crowd-calendar"
+            ]
+          }
+        ]
+      },
+      "fixed": {
+        "reply": true,
+        "confidence": 0.95,
+        "intent": "crowds_on_date",
+        "answer": "Predicted crowd levels (1-10, from historical wait data): Magic Kingdom: Mon Oct 12 6/10, Mon Oct 19 6/10 (about the same on each day).",
+        "links": [
+          "https://ropedropplanner.com/wdw/magic_kingdom/crowd-by-day",
+          "https://ropedropplanner.com/wdw/crowd-calendar"
+        ],
+        "parts": [
+          {
+            "intent": "crowds_on_date",
+            "confidence": 0.95,
+            "answer": "Predicted crowd levels (1-10, from historical wait data): Magic Kingdom: Mon Oct 12 6/10, Mon Oct 19 6/10 (about the same on each day).",
+            "rides": [],
+            "parks": ["magic_kingdom"],
+            "dates": ["2026-10-12", "2026-10-19"],
+            "destination": "wdw",
+            "links": [
+              "https://ropedropplanner.com/wdw/magic_kingdom/crowd-by-day",
+              "https://ropedropplanner.com/wdw/crowd-calendar"
+            ]
+          }
+        ]
+      },
+      "prod_legacy": {
+        "reply": true,
+        "confidence": 0.95,
+        "intent": "crowds_on_date"
+      }
+    },
+    {
+      "id": "rant_tron",
+      "text": "Rant: waited 95 minutes for Tron today and it broke down. Never again!",
+      "legacy": {
+        "reply": false,
+        "confidence": 0.0,
+        "intent": "no_question",
+        "answer": "",
+        "links": [],
+        "parts": []
+      },
+      "fixed": {
+        "reply": false,
+        "confidence": 0.0,
+        "intent": "no_question",
+        "answer": "",
+        "links": [],
+        "parts": []
+      },
+      "prod_legacy": {
+        "reply": false,
+        "confidence": 0.0,
+        "intent": "no_question"
+      }
+    },
+    {
+      "id": "psa_guardians",
+      "text": "PSA: Guardians of the Galaxy virtual queue is gone, it's standby only now. Plan accordingly.",
+      "legacy": {
+        "reply": false,
+        "confidence": 0.0,
+        "intent": "no_question",
+        "answer": "",
+        "links": [],
+        "parts": []
+      },
+      "fixed": {
+        "reply": false,
+        "confidence": 0.0,
+        "intent": "no_question",
+        "answer": "",
+        "links": [],
+        "parts": []
+      },
+      "prod_legacy": {
+        "reply": false,
+        "confidence": 0.0,
+        "intent": "no_question"
+      }
+    },
+    {
+      "id": "photo_caption",
+      "text": "Sunset over Cinderella Castle last night 😍 Worth the wait for Happily Ever After!",
+      "legacy": {
+        "reply": false,
+        "confidence": 0.0,
+        "intent": "no_question",
+        "answer": "",
+        "links": [],
+        "parts": []
+      },
+      "fixed": {
+        "reply": false,
+        "confidence": 0.0,
+        "intent": "no_question",
+        "answer": "",
+        "links": [],
+        "parts": []
+      },
+      "prod_legacy": {
+        "reply": false,
+        "confidence": 0.0,
+        "intent": "no_question"
+      }
+    },
+    {
+      "id": "trip_report_rhetorical",
+      "text": "Trip report: MK on Saturday was packed. Who knew Columbus Day weekend was that busy? Tron broke down twice but 7DMT was a walk-on at 8 PM.",
+      "legacy": {
+        "reply": false,
+        "confidence": 0.0,
+        "intent": "no_question",
+        "answer": "",
+        "links": [],
+        "parts": []
+      },
+      "fixed": {
+        "reply": false,
+        "confidence": 0.0,
+        "intent": "no_question",
+        "answer": "",
+        "links": [],
+        "parts": []
+      },
+      "prod_legacy": {
+        "reply": false,
+        "confidence": 0.0,
+        "intent": "no_question"
+      }
+    },
+    {
+      "id": "dining_epcot",
+      "text": "Can anyone recommend a good table service restaurant in Epcot for dinner?",
+      "legacy": {
+        "reply": false,
+        "confidence": 0.1,
+        "intent": "other",
+        "answer": "Sorry — I'm not sure how to answer that one. Try asking about a ride's wait, the best time to ride, rope drop, crowds on a date, or park hours.",
+        "links": [],
+        "parts": [
+          {
+            "intent": "other",
+            "confidence": 0.1,
+            "answer": "Sorry — I'm not sure how to answer that one. Try asking about a ride's wait, the best time to ride, rope drop, crowds on a date, or park hours.",
+            "rides": [],
+            "parks": ["epcot"],
+            "dates": [],
+            "destination": "wdw",
+            "links": []
+          }
+        ]
+      },
+      "fixed": {
+        "reply": false,
+        "confidence": 0.1,
+        "intent": "other",
+        "answer": "Sorry — I'm not sure how to answer that one. Try asking about a ride's wait, the best time to ride, rope drop, crowds on a date, or park hours.",
+        "links": [],
+        "parts": [
+          {
+            "intent": "other",
+            "confidence": 0.1,
+            "answer": "Sorry — I'm not sure how to answer that one. Try asking about a ride's wait, the best time to ride, rope drop, crowds on a date, or park hours.",
+            "rides": [],
+            "parks": ["epcot"],
+            "dates": [],
+            "destination": "wdw",
+            "links": []
+          }
+        ]
+      },
+      "prod_legacy": {
+        "reply": false,
+        "confidence": 0.1,
+        "intent": "other"
+      }
+    },
+    {
+      "id": "hotel_pop_vs_aoa",
+      "text": "Is Pop Century or Art of Animation better for a family of 5?",
+      "legacy": {
+        "reply": false,
+        "confidence": 0.1,
+        "intent": "other",
+        "answer": "Sorry — I'm not sure how to answer that one. Try asking about a ride's wait, the best time to ride, rope drop, crowds on a date, or park hours.",
+        "links": [],
+        "parts": [
+          {
+            "intent": "other",
+            "confidence": 0.1,
+            "answer": "Sorry — I'm not sure how to answer that one. Try asking about a ride's wait, the best time to ride, rope drop, crowds on a date, or park hours.",
+            "rides": [],
+            "parks": [],
+            "dates": [],
+            "destination": "wdw",
+            "links": []
+          }
+        ]
+      },
+      "fixed": {
+        "reply": false,
+        "confidence": 0.1,
+        "intent": "other",
+        "answer": "Sorry — I'm not sure how to answer that one. Try asking about a ride's wait, the best time to ride, rope drop, crowds on a date, or park hours.",
+        "links": [],
+        "parts": [
+          {
+            "intent": "other",
+            "confidence": 0.1,
+            "answer": "Sorry — I'm not sure how to answer that one. Try asking about a ride's wait, the best time to ride, rope drop, crowds on a date, or park hours.",
+            "rides": [],
+            "parks": [],
+            "dates": [],
+            "destination": "wdw",
+            "links": []
+          }
+        ]
+      },
+      "prod_legacy": {
+        "reply": false,
+        "confidence": 0.1,
+        "intent": "other"
+      }
+    },
+    {
+      "id": "height_tron",
+      "text": "What's the height requirement for Tron? My son is 47 inches.",
+      "legacy": {
+        "reply": false,
+        "confidence": 0.1,
+        "intent": "other",
+        "answer": "Sorry — I'm not sure how to answer that one. Try asking about a ride's wait, the best time to ride, rope drop, crowds on a date, or park hours.",
+        "links": [],
+        "parts": [
+          {
+            "intent": "other",
+            "confidence": 0.1,
+            "answer": "Sorry — I'm not sure how to answer that one. Try asking about a ride's wait, the best time to ride, rope drop, crowds on a date, or park hours.",
+            "rides": ["TRON Lightcycle / Run"],
+            "parks": ["magic_kingdom"],
+            "dates": [],
+            "destination": "wdw",
+            "links": []
+          }
+        ]
+      },
+      "fixed": {
+        "reply": false,
+        "confidence": 0.1,
+        "intent": "other",
+        "answer": "Sorry — I'm not sure how to answer that one. Try asking about a ride's wait, the best time to ride, rope drop, crowds on a date, or park hours.",
+        "links": [],
+        "parts": [
+          {
+            "intent": "other",
+            "confidence": 0.1,
+            "answer": "Sorry — I'm not sure how to answer that one. Try asking about a ride's wait, the best time to ride, rope drop, crowds on a date, or park hours.",
+            "rides": ["TRON Lightcycle / Run"],
+            "parks": ["magic_kingdom"],
+            "dates": [],
+            "destination": "wdw",
+            "links": []
+          }
+        ]
+      },
+      "prod_legacy": {
+        "reply": false,
+        "confidence": 0.1,
+        "intent": "other"
+      }
+    },
+    {
+      "id": "ll_worth_it_mk",
+      "text": "Is Lightning Lane Multi Pass worth it for Magic Kingdom on a Saturday in October?",
+      "legacy": {
+        "reply": false,
+        "confidence": 0.1,
+        "intent": "other",
+        "answer": "Sorry — I'm not sure how to answer that one. Try asking about a ride's wait, the best time to ride, rope drop, crowds on a date, or park hours.",
+        "links": [],
+        "parts": [
+          {
+            "intent": "other",
+            "confidence": 0.1,
+            "answer": "Sorry — I'm not sure how to answer that one. Try asking about a ride's wait, the best time to ride, rope drop, crowds on a date, or park hours.",
+            "rides": [],
+            "parks": ["magic_kingdom"],
+            "dates": ["2026-10-03"],
+            "destination": "wdw",
+            "links": []
+          }
+        ]
+      },
+      "fixed": {
+        "reply": false,
+        "confidence": 0.1,
+        "intent": "other",
+        "answer": "Sorry — I'm not sure how to answer that one. Try asking about a ride's wait, the best time to ride, rope drop, crowds on a date, or park hours.",
+        "links": [],
+        "parts": [
+          {
+            "intent": "other",
+            "confidence": 0.1,
+            "answer": "Sorry — I'm not sure how to answer that one. Try asking about a ride's wait, the best time to ride, rope drop, crowds on a date, or park hours.",
+            "rides": [],
+            "parks": ["magic_kingdom"],
+            "dates": ["2026-10-03"],
+            "destination": "wdw",
+            "links": []
+          }
+        ]
+      },
+      "prod_legacy": {
+        "reply": false,
+        "confidence": 0.1,
+        "intent": "other"
+      }
+    },
+    {
+      "id": "tokyo_golden_week",
+      "text": "How busy is Tokyo DisneySea during Golden Week?",
+      "legacy": {
+        "reply": false,
+        "confidence": 0.05,
+        "intent": "crowds_on_date",
+        "answer": "Sorry — I can only answer Walt Disney World and Disneyland Resort questions right now.",
+        "links": [],
+        "parts": [
+          {
+            "intent": "crowds_on_date",
+            "confidence": 0.05,
+            "answer": "Sorry — I can only answer Walt Disney World and Disneyland Resort questions right now.",
+            "rides": [],
+            "parks": [],
+            "dates": [],
+            "destination": "tdr",
+            "links": []
+          }
+        ]
+      },
+      "fixed": {
+        "reply": false,
+        "confidence": 0.05,
+        "intent": "crowds_on_date",
+        "answer": "Sorry — I can only answer Walt Disney World and Disneyland Resort questions right now.",
+        "links": [],
+        "parts": [
+          {
+            "intent": "crowds_on_date",
+            "confidence": 0.05,
+            "answer": "Sorry — I can only answer Walt Disney World and Disneyland Resort questions right now.",
+            "rides": [],
+            "parks": [],
+            "dates": [],
+            "destination": "tdr",
+            "links": []
+          }
+        ]
+      },
+      "prod_legacy": {
+        "reply": false,
+        "confidence": 0.05,
+        "intent": "crowds_on_date"
+      }
+    }
+  ]
+}

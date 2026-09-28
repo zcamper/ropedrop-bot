@@ -1,8 +1,10 @@
 // Production wiring of the engine's dependencies to Devvit's Reddit API,
-// Redis, settings, and HTTP fetch.
+// Redis and settings, plus the data-bundle refresh (the only HTTP fetch).
 
 import { context, reddit, redis, settings } from '@devvit/web/server';
-import { askBot, getDailySummary } from '../core/api.js';
+import { askFromBundle, dailyFromBundle } from '../bot/service.js';
+import { openRedisBundle } from '../bundle/source.js';
+import { refreshBundle, type KV, type RefreshResult } from '../bundle/sync.js';
 import {
   normalizeSettings,
   type BotSettings,
@@ -12,8 +14,6 @@ import type { Deps, ReplyMarker, Store } from '../core/engine.js';
 import { asT1, asT3, isDeletedText } from '../core/logic.js';
 
 const SETTING_KEYS: (keyof BotSettings)[] = [
-  'apiBaseUrl',
-  'botKey',
   'minConfidence',
   'maxRepliesPerHour',
   'skipFlairs',
@@ -113,13 +113,37 @@ const store: Store = {
   },
 };
 
+/** Devvit Redis as the bundle store's key-value surface. */
+export const kv: KV = {
+  get: (k) => redis.get(k),
+  set: (k, v, o) => redis.set(k, v, o),
+  del: (...k) => redis.del(...k),
+};
+
+const log = {
+  info: (m: string) => console.log(m),
+  warn: (m: string) => console.warn(m),
+  error: (m: string) => console.error(m),
+};
+
+/** GET the public bundle manifest and store a new generation if there is one. */
+export function refreshData(
+  opts: { force?: boolean } = {}
+): Promise<RefreshResult> {
+  return refreshBundle(
+    { kv, fetch: (u, i) => fetch(u, i), now: () => new Date(), log },
+    opts
+  );
+}
+
 export const deps: Deps = {
   settings: loadSettings,
   botUsername,
   isModerator,
   isStillVisible,
-  ask: (s, q) => askBot(fetch, s, q),
-  dailySummary: (s) => getDailySummary(fetch, s, s.dailyDestination),
+  ask: async (_s, q) => askFromBundle(await openRedisBundle(kv), new Date(), q),
+  dailySummary: async (s) =>
+    dailyFromBundle(await openRedisBundle(kv), new Date(), s.dailyDestination),
   async submitComment(parentId, text) {
     const id = parentId.startsWith('t1_') ? asT1(parentId) : asT3(parentId);
     const c = await reddit.submitComment({ id, text, runAs: 'APP' });
@@ -146,11 +170,7 @@ export const deps: Deps = {
   },
   store,
   now: () => new Date(),
-  log: {
-    info: (m) => console.log(m),
-    warn: (m) => console.warn(m),
-    error: (m) => console.error(m),
-  },
+  log,
 };
 
 /** Is the user who clicked a menu item a moderator here? */

@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict';
 import { beforeEach, test } from 'node:test';
-import type { ApiResult, AskResponse } from './api.js';
 import { normalizeSettings, type BotSettings } from './config.js';
 import {
   handleComment,
@@ -9,7 +8,9 @@ import {
   runDaily,
   type Deps,
   type PostEvent,
+  type AskResponse,
   type ReplyMarker,
+  type Result,
   type Store,
 } from './engine.js';
 
@@ -50,8 +51,8 @@ type World = {
   asked: string[];
   logs: string[];
   settings: Partial<BotSettings>;
-  askResult: ApiResult<AskResponse>;
-  summaryResult: ApiResult<unknown>;
+  askResult: Result<AskResponse>;
+  summaryResult: Result<{ markdown: string }>;
   mods: Set<string>;
   visible: boolean;
   now: Date;
@@ -64,7 +65,7 @@ function makeWorld(): World {
     posts: [],
     asked: [],
     logs: [],
-    settings: { dryRun: false, botKey: 'k' },
+    settings: { dryRun: false },
     askResult: {
       ok: true,
       data: {
@@ -157,14 +158,18 @@ void test('auto: low confidence -> no reply', async () => {
   assert.equal(w.comments.length, 0);
 });
 
-void test('auto: API error (401/429/503) -> log only, nothing posted', async () => {
-  for (const status of [401, 429, 503]) {
+void test('auto: data unavailable (no bundle / stale / read error) -> log only, nothing posted', async () => {
+  for (const error of [
+    'bundle not loaded yet',
+    'bundle is stale',
+    'chunk missing',
+  ]) {
     w = makeWorld();
-    w.askResult = { ok: false, error: { kind: 'http', status } };
+    w.askResult = { ok: false, error };
     const o = await handlePost(w.deps, postEv(), 'auto');
     assert.equal(o.status, 'error');
     assert.equal(w.comments.length, 0);
-    assert.ok(w.logs.some((l) => l.includes(`HTTP ${status}`)));
+    assert.ok(w.logs.some((l) => l.includes(error)));
   }
 });
 
@@ -243,7 +248,7 @@ void test('auto: dryRun logs instead of posting and marks id so it is not re-ask
 });
 
 void test('auto: default settings are dry run (fresh install cannot post)', async () => {
-  w.settings = { botKey: 'k' };
+  w.settings = {};
   assert.equal((await handlePost(w.deps, postEv(), 'auto')).status, 'dry_run');
   assert.equal(w.comments.length, 0);
 });
@@ -381,7 +386,7 @@ void test('daily: outside window / disabled -> skipped, API not called', async (
 });
 
 void test('daily: API error releases the claim so the next tick retries', async () => {
-  w.summaryResult = { ok: false, error: { kind: 'http', status: 503 } };
+  w.summaryResult = { ok: false, error: 'bundle not loaded yet' };
   assert.equal((await runDaily(w.deps)).status, 'error');
   assert.equal(w.posts.length, 0);
   w.summaryResult = { ok: true, data: { markdown: '## T\n\nB' } };
