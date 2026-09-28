@@ -336,13 +336,11 @@ function factsRideBestTime(
       .map(([d, [a, n]]) => [d, a, n] as [number, number, number])
       .sort((x, y) => x[1] - y[1] || 0);
     if (ranked.length >= 3) {
-      facts.lowest_wait_days = ranked
-        .slice(0, 2)
-        .map(([d, a, n]) => ({
-          day: WEEKDAY_NAMES[d],
-          avg_wait_min: a,
-          samples: n,
-        }));
+      facts.lowest_wait_days = ranked.slice(0, 2).map(([d, a, n]) => ({
+        day: WEEKDAY_NAMES[d],
+        avg_wait_min: a,
+        samples: n,
+      }));
       const [d, a, n] = ranked[ranked.length - 1] as [number, number, number];
       facts.highest_wait_day = {
         day: WEEKDAY_NAMES[d],
