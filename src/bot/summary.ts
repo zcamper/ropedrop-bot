@@ -37,7 +37,13 @@ function parkEntry(
     hours: h
       ? { open: h.open, close: h.close, early_entry: h.early_entry }
       : null,
-    pick: o?.rope_drop[0]?.ride ?? null,
+    // No pick at official opening (Hollywood Studios on some days) → the
+    // Early Entry pick, labelled. Mirrors Python bot_summary.render_markdown.
+    pick:
+      o?.rope_drop[0]?.ride ??
+      (h?.early_entry && o?.early_entry_picks?.[0]
+        ? `${o.early_entry_picks[0].ride} (Early Entry)`
+        : null),
     peak: o?.peak ? { start: o.peak.start, end: o.peak.end } : null,
     quieter:
       o?.peak && o.quieter
