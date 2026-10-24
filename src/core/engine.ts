@@ -9,6 +9,7 @@ import {
   LOCK_TTL_SECONDS,
   MANUAL_CONFIDENCE_FLOOR,
   type BotSettings,
+  type Destination,
 } from './config.js';
 import {
   buildCommentQuestion,
@@ -22,7 +23,8 @@ import {
   type Decision,
   type Link,
 } from './logic.js';
-import { etDateLabel, shouldPostDaily } from './time.js';
+import type { WeeklyKind } from '../bot/types.js';
+import { etDateLabel, etParts, shouldPostDaily } from './time.js';
 
 export type ReplyMarker = 'live' | 'dry';
 
@@ -75,6 +77,12 @@ export type Deps = {
   dailySummary: (
     s: BotSettings
   ) => Promise<Result<{ markdown: string; source?: string }>>;
+  /** A weekly post from the bundle, built for `dateKey` (ET). */
+  weeklyPost: (
+    kind: WeeklyKind,
+    dest: Destination,
+    dateKey: string
+  ) => Promise<Result<{ title: string; body: string; source?: string }>>;
   submitComment: (parentId: string, text: string) => Promise<string>;
   submitPost: (title: string, text: string, sticky: boolean) => Promise<string>;
   store: Store;
@@ -414,4 +422,98 @@ export async function runDaily(deps: Deps): Promise<DailyOutcome> {
     log.error(`[daily] error (${message}); nothing posted`);
     return { status: 'error', message };
   }
+}
+
+// ---------------------------------------------------------------- weekly posts
+
+/** Monday: what planners asked (one post). Friday: what changed (one post per resort). */
+export const WEEKLY_SCHEDULE: {
+  kind: WeeklyKind;
+  weekday: number; // ET, 0 = Sunday
+  dests: Destination[];
+  enabled: (s: BotSettings) => boolean;
+}[] = [
+  {
+    kind: 'weekly_questions',
+    weekday: 1,
+    dests: ['wdw'], // the questions post is cross-resort; wdw's copy is the one we post
+    enabled: (s) => s.weeklyQuestionsEnabled,
+  },
+  {
+    kind: 'weekly_changes',
+    weekday: 5,
+    dests: ['wdw', 'dlr'],
+    enabled: (s) => s.weeklyChangesEnabled,
+  },
+];
+
+export type WeeklyOutcome = {
+  kind: WeeklyKind;
+  dest: Destination;
+} & DailyOutcome;
+
+/** Hourly tick: post whichever weekly post is due (same window/claim rules as the daily post). */
+export async function runWeekly(deps: Deps): Promise<WeeklyOutcome[]> {
+  const { store, log } = deps;
+  const out: WeeklyOutcome[] = [];
+  let s: BotSettings;
+  try {
+    s = await deps.settings();
+  } catch (err) {
+    log.error(`[weekly] settings error (${String(err)}); nothing posted`);
+    return out;
+  }
+  const now = deps.now();
+  const et = etParts(now);
+  for (const job of WEEKLY_SCHEDULE) {
+    for (const dest of job.dests) {
+      const tag = { kind: job.kind, dest };
+      if (et.weekday !== job.weekday) continue;
+      const probe = shouldPostDaily({
+        enabled: job.enabled(s),
+        now,
+        targetHourET: s.weeklyPostHourET,
+        windowHours: DAILY_WINDOW_HOURS,
+        alreadyPostedForDate: false,
+      });
+      if (!probe.post) {
+        out.push({ ...tag, status: 'skipped', reason: probe.reason });
+        continue;
+      }
+      const claimKey = `weekly:${job.kind}:${dest}:${probe.dateKey}`;
+      if (!(await store.tryLock(claimKey, 8 * 24 * 60 * 60))) {
+        out.push({ ...tag, status: 'skipped', reason: 'already_posted' });
+        continue;
+      }
+      try {
+        const res = await deps.weeklyPost(job.kind, dest, probe.dateKey);
+        if (!res.ok) {
+          if (res.error.startsWith('nothing_to_post')) {
+            // Keep the claim: the data for today says there's nothing to post.
+            log.info(`[weekly] ${job.kind} ${dest}: ${res.error}`);
+            out.push({ ...tag, status: 'skipped', reason: 'nothing_to_post' });
+            continue;
+          }
+          throw new Error(res.error);
+        }
+        const data = res.data.source ? ` (data ${res.data.source})` : '';
+        if (s.dryRun) {
+          log.info(
+            `[weekly] DRY RUN — would post "${res.data.title}"${data}:\n${res.data.body}`
+          );
+          out.push({ ...tag, status: 'dry_run', dateKey: probe.dateKey });
+          continue;
+        }
+        const postId = await deps.submitPost(res.data.title, res.data.body, false);
+        log.info(`[weekly] posted ${postId} ${job.kind} ${dest} for ${probe.dateKey}${data}`);
+        out.push({ ...tag, status: 'posted', postId, dateKey: probe.dateKey });
+      } catch (err) {
+        await store.unlock(claimKey).catch(() => undefined);
+        const message = err instanceof Error ? err.message : String(err);
+        log.error(`[weekly] ${job.kind} ${dest} error (${message}); nothing posted`);
+        out.push({ ...tag, status: 'error', message });
+      }
+    }
+  }
+  return out;
 }

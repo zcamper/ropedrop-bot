@@ -5,6 +5,7 @@ import { test } from 'node:test';
 import { parseDailySummary } from '../core/logic.js';
 import { fixtureSource } from '../testutil/bundle.js';
 import {
+  weeklyFromSources,
   askFromBundle,
   askFromSources,
   dailyFromBundle,
@@ -164,4 +165,45 @@ void test('askFromSources: first working source wins and is named; falls back on
   const d = await dailyFromSources([good], NOW, 'wdw');
   assert.ok(d.ok);
   assert.equal(d.data.source, 'embedded:G1');
+});
+
+// ---------------------------------------------------------------- weekly posts (2026-10-24)
+
+function withPosts(posts: unknown) {
+  return { src: Object.assign(fixtureSource(), { posts: async () => posts }), label: 'redis:G2' };
+}
+const CHANGES = {
+  kind: 'posts',
+  dest: 'wdw',
+  generated_at: '2026-10-30T08:15:00Z',
+  weekly_changes: {
+    ok: true,
+    date: '2026-10-30',
+    title: 'What changed at Walt Disney World this week (Friday, Oct 30)',
+    markdown: '## What changed at Walt Disney World this week (Friday, Oct 30)\n\n**Back open**\n* X',
+  },
+};
+
+void test('weekly: posts the bundle markdown without its heading line', async () => {
+  const r = await weeklyFromSources([withPosts(CHANGES)], 'weekly_changes', 'wdw', '2026-10-30');
+  assert.ok(r.ok);
+  assert.equal(r.data.title, CHANGES.weekly_changes.title);
+  assert.equal(r.data.body, '**Back open**\n* X');
+});
+
+void test('weekly: a post built for another day is never posted', async () => {
+  const r = await weeklyFromSources([withPosts(CHANGES)], 'weekly_changes', 'wdw', '2026-11-06');
+  assert.equal(r.ok, false);
+  assert.ok(!r.ok && !r.error.startsWith('nothing_to_post'));
+});
+
+void test('weekly: ok=false from the server means nothing to post', async () => {
+  const quiet = { ...CHANGES, weekly_changes: { ok: false, reason: 'nothing_changed', date: '2026-10-30', title: null, markdown: null } };
+  const r = await weeklyFromSources([withPosts(quiet)], 'weekly_changes', 'wdw', '2026-10-30');
+  assert.ok(!r.ok && r.error === 'nothing_to_post (nothing_changed)');
+});
+
+void test('weekly: bundles from before posts.json fall through to an error', async () => {
+  const r = await weeklyFromSources([{ src: fixtureSource(), label: 'embedded:G1' }], 'weekly_changes', 'wdw', '2026-10-30');
+  assert.ok(!r.ok && r.error.includes('no weekly_changes'));
 });

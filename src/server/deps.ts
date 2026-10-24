@@ -3,7 +3,11 @@
 
 import { context, reddit, redis, settings } from '@devvit/web/server';
 import embeddedGzBase64 from 'virtual:rdb-snapshot';
-import { askFromSources, dailyFromSources } from '../bot/service.js';
+import {
+  askFromSources,
+  dailyFromSources,
+  weeklyFromSources,
+} from '../bot/service.js';
 import { dataSources, loadEmbedded } from '../bundle/embedded.js';
 import { refreshBundle, type KV, type RefreshResult } from '../bundle/sync.js';
 import {
@@ -23,6 +27,9 @@ const SETTING_KEYS: (keyof BotSettings)[] = [
   'dailyPostHourET',
   'dailyDestination',
   'dailyPostSticky',
+  'weeklyQuestionsEnabled',
+  'weeklyChangesEnabled',
+  'weeklyPostHourET',
   'dryRun',
 ];
 
@@ -165,6 +172,8 @@ export const deps: Deps = {
   ask: async (_s, q) => askFromSources(await sources(), new Date(), q),
   dailySummary: async (s) =>
     dailyFromSources(await sources(), new Date(), s.dailyDestination),
+  weeklyPost: async (kind, dest, dateKey) =>
+    weeklyFromSources(await sources(), kind, dest, dateKey),
   async submitComment(parentId, text) {
     const id = parentId.startsWith('t1_') ? asT1(parentId) : asT3(parentId);
     const c = await reddit.submitComment({ id, text, runAs: 'APP' });

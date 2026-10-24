@@ -52,6 +52,7 @@ export type Manifest = {
         ll?: string;
         daw?: string;
         menus?: string[];
+        posts?: string;
       };
     }
   >;
@@ -421,6 +422,25 @@ export type MenuFile = Header & {
   >;
 };
 
+/** One ready-to-post weekly post (server-built and fact-checked; see DSNY app/services/bot_weekly.py). */
+export type WeeklyPost = {
+  ok: boolean;
+  reason?: string | null;
+  /** Park-local YYYY-MM-DD the post was built for. */
+  date: string | null;
+  title: string | null;
+  markdown: string | null;
+};
+
+export type WeeklyKind = 'weekly_questions' | 'weekly_changes';
+
+/** posts.json (wdw, dlr only; added 2026-10-24, optional). */
+export type Posts = {
+  kind: 'posts';
+  dest: Dest;
+  generated_at: string;
+} & Partial<Record<WeeklyKind, WeeklyPost>>;
+
 /** Read access to one bundle generation. Every getter may reject. */
 export interface BundleSource {
   generation(): Promise<string>;
@@ -431,4 +451,6 @@ export interface BundleSource {
   daw(dest: Dest): Promise<DAW | null>;
   menus(dest: Dest, part: number): Promise<MenuFile | null>;
   menuParts(dest: Dest): Promise<number>;
+  /** Weekly posts; absent in bundles from before 2026-10-24. */
+  posts?(dest: Dest): Promise<Posts | null>;
 }

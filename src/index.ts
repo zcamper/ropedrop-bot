@@ -22,6 +22,7 @@ import {
   handlePost,
   outcomeToast,
   runDaily,
+  runWeekly,
 } from './core/engine.js';
 import {
   callerIsModerator,
@@ -165,6 +166,16 @@ internal.post('/scheduler/daily-outlook', async (c) => {
   const outcome = await runDaily(deps);
   if (outcome.status !== 'skipped' || outcome.reason !== 'outside_window') {
     console.log(`[scheduler] daily-outlook -> ${JSON.stringify(outcome)}`);
+  }
+  return c.json<TaskResponse>({}, 200);
+});
+
+internal.post('/scheduler/weekly-posts', async (c) => {
+  const outcomes = await runWeekly(deps);
+  for (const o of outcomes) {
+    if (o.status !== 'skipped' || !['outside_window', 'disabled'].includes(o.reason)) {
+      console.log(`[scheduler] weekly-posts -> ${JSON.stringify(o)}`);
+    }
   }
   return c.json<TaskResponse>({}, 200);
 });

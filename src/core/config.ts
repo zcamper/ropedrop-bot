@@ -48,6 +48,9 @@ export type BotSettings = {
   dailyPostHourET: number;
   dailyDestination: Destination;
   dailyPostSticky: boolean;
+  weeklyQuestionsEnabled: boolean;
+  weeklyChangesEnabled: boolean;
+  weeklyPostHourET: number;
   dryRun: boolean;
 };
 
@@ -61,6 +64,10 @@ export const DEFAULTS = {
   dailyPostHourET: 7,
   dailyDestination: 'wdw' as Destination,
   dailyPostSticky: false,
+  // Weekly posts (2026-10-24) start OFF: a mod turns them on after reviewing a sample.
+  weeklyQuestionsEnabled: false,
+  weeklyChangesEnabled: false,
+  weeklyPostHourET: 9,
   // Safe by default: a fresh install logs what it would post instead of posting.
   dryRun: true,
 } as const;
@@ -127,6 +134,17 @@ export function normalizeSettings(raw: RawSettings): BotSettings {
     ),
     dailyDestination: dest === 'dlr' ? 'dlr' : 'wdw',
     dailyPostSticky: bool(raw.dailyPostSticky, DEFAULTS.dailyPostSticky),
+    weeklyQuestionsEnabled: bool(
+      raw.weeklyQuestionsEnabled,
+      DEFAULTS.weeklyQuestionsEnabled
+    ),
+    weeklyChangesEnabled: bool(
+      raw.weeklyChangesEnabled,
+      DEFAULTS.weeklyChangesEnabled
+    ),
+    weeklyPostHourET: Math.floor(
+      clamp(num(raw.weeklyPostHourET, DEFAULTS.weeklyPostHourET), 0, 23)
+    ),
     dryRun: bool(raw.dryRun, DEFAULTS.dryRun),
   };
 }

@@ -8,7 +8,7 @@ import { truncate } from '../core/logic.js';
 import { analyzePost } from './answer.js';
 import { renderDailyMarkdown } from './summary.js';
 import { localToday } from './tz.js';
-import type { BundleSource, Dest } from './types.js';
+import type { BundleSource, Dest, WeeklyKind } from './types.js';
 import { isoDay } from './util.js';
 
 export type StoredBundle = BundleSource & { generatedAt(): string };
@@ -119,6 +119,44 @@ export async function dailyFromSources(
     const r = await dailyFromBundle(s.src, now, dest);
     if (r.ok) return { ok: true, data: { ...r.data, source: s.label } };
     errors.push(`${s.label}: ${r.error}`);
+  }
+  return { ok: false, error: errors.join('; ') };
+}
+
+/**
+ * A weekly post from the bundle's posts.json: the server builds and fact-checks
+ * it, so the app only posts it. Only a post built for `dateKey` counts (a
+ * stale bundle must not repost last week's text); ok=false means "post nothing".
+ */
+export async function weeklyFromSources(
+  sources: LabelledBundle[],
+  kind: WeeklyKind,
+  dest: Dest,
+  dateKey: string
+): Promise<Result<{ title: string; body: string; source?: string }>> {
+  if (!sources.length) return { ok: false, error: 'bundle not loaded yet' };
+  const errors: string[] = [];
+  for (const s of sources) {
+    try {
+      const posts = s.src.posts ? await s.src.posts(dest) : null;
+      const p = posts?.[kind];
+      if (!p) {
+        errors.push(`${s.label}: no ${kind}`);
+        continue;
+      }
+      if (p.date !== dateKey) {
+        errors.push(`${s.label}: ${kind} is for ${p.date ?? 'no date'}, not ${dateKey}`);
+        continue;
+      }
+      if (!p.ok || !p.title || !p.markdown) {
+        // The newest data says there is nothing to post (thin week / fact check).
+        return { ok: false, error: `nothing_to_post (${p.reason ?? 'not ok'})` };
+      }
+      const body = p.markdown.replace(/^##[^\n]*\n+/, '').trim();
+      return { ok: true, data: { title: p.title, body, source: s.label } };
+    } catch (err) {
+      errors.push(`${s.label}: ${message(err)}`);
+    }
   }
   return { ok: false, error: errors.join('; ') };
 }

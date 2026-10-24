@@ -6,6 +6,7 @@ import {
   handlePost,
   outcomeToast,
   runDaily,
+  runWeekly,
   type Deps,
   type PostEvent,
   type AskResponse,
@@ -53,6 +54,8 @@ type World = {
   settings: Partial<BotSettings>;
   askResult: Result<AskResponse>;
   summaryResult: Result<{ markdown: string }>;
+  weeklyCalls: string[];
+  weeklyResult: Result<{ title: string; body: string }>;
   mods: Set<string>;
   visible: boolean;
   now: Date;
@@ -79,6 +82,8 @@ function makeWorld(): World {
       ok: true,
       data: { markdown: "## Today's Crowd Outlook — Friday, Sep 25\n\n| a |" },
     },
+    weeklyCalls: [],
+    weeklyResult: { ok: true, data: { title: 'What changed', body: 'Back open: X' } },
     mods: new Set<string>(['modperson']),
     visible: true,
     now: new Date('2026-09-25T11:05:00Z'), // 7:05 ET
@@ -93,6 +98,10 @@ function makeWorld(): World {
       return w.askResult;
     },
     dailySummary: async () => w.summaryResult,
+    weeklyPost: async (kind, dest, dateKey) => {
+      w.weeklyCalls.push(`${kind}:${dest}:${dateKey}`);
+      return w.weeklyResult;
+    },
     submitComment: async (parent, text) => {
       w.comments.push({ parent, text });
       return `t1_reply${w.comments.length}`;
@@ -527,4 +536,67 @@ void test('mention by a moderator is answered (posts by mods are still skipped)'
       .status,
     'skipped'
   );
+});
+
+// ---------------------------------------------------------------- weekly posts
+
+const MON_9_ET = new Date('2026-10-26T13:05:00Z'); // Monday 9:05 EDT
+const FRI_9_ET = new Date('2026-10-30T13:05:00Z'); // Friday 9:05 EDT
+
+void test('weekly: off by default (a mod turns each post on)', async () => {
+  w.now = FRI_9_ET;
+  const out = await runWeekly(w.deps);
+  assert.deepEqual(out.map((o) => o.status === 'skipped' && o.reason), ['disabled', 'disabled']);
+  assert.equal(w.weeklyCalls.length, 0);
+});
+
+void test('weekly: Friday posts one changes post per resort, once', async () => {
+  w.settings.weeklyChangesEnabled = true;
+  w.now = FRI_9_ET;
+  const out = await runWeekly(w.deps);
+  assert.deepEqual(out.map((o) => `${o.dest}:${o.status}`), ['wdw:posted', 'dlr:posted']);
+  assert.deepEqual(w.weeklyCalls, ['weekly_changes:wdw:2026-10-30', 'weekly_changes:dlr:2026-10-30']);
+  assert.equal(w.posts.length, 2);
+  assert.equal(w.posts[0]?.sticky, false);
+  w.now = new Date('2026-10-30T14:05:00Z');
+  const again = await runWeekly(w.deps);
+  assert.ok(again.every((o) => o.status === 'skipped' && o.reason === 'already_posted'));
+  assert.equal(w.posts.length, 2);
+});
+
+void test('weekly: Monday questions post; other days and hours do nothing', async () => {
+  w.settings.weeklyQuestionsEnabled = true;
+  w.settings.weeklyChangesEnabled = true;
+  w.now = MON_9_ET;
+  const out = await runWeekly(w.deps);
+  assert.deepEqual(out.map((o) => `${o.kind}:${o.status}`), ['weekly_questions:posted']);
+  w.now = new Date('2026-10-27T13:05:00Z'); // Tuesday
+  assert.deepEqual(await runWeekly(w.deps), []);
+  w.now = new Date('2026-10-30T11:05:00Z'); // Friday 7 ET, before the 9 ET window
+  assert.ok((await runWeekly(w.deps)).every((o) => o.status === 'skipped' && o.reason === 'outside_window'));
+});
+
+void test('weekly: nothing to post keeps the claim; a data error releases it', async () => {
+  w.settings.weeklyChangesEnabled = true;
+  w.now = FRI_9_ET;
+  w.weeklyResult = { ok: false, error: 'nothing_to_post (nothing_changed)' };
+  const out = await runWeekly(w.deps);
+  assert.ok(out.every((o) => o.status === 'skipped' && o.reason === 'nothing_to_post'));
+  assert.ok(w.store.locks.has('weekly:weekly_changes:wdw:2026-10-30'));
+
+  w.store.locks.clear();
+  w.weeklyResult = { ok: false, error: 'bundle not loaded yet' };
+  assert.ok((await runWeekly(w.deps)).every((o) => o.status === 'error'));
+  assert.equal(w.store.locks.size, 0);
+  assert.equal(w.posts.length, 0);
+});
+
+void test('weekly: dryRun logs instead of posting', async () => {
+  w.settings.weeklyChangesEnabled = true;
+  w.settings.dryRun = true;
+  w.now = FRI_9_ET;
+  const out = await runWeekly(w.deps);
+  assert.ok(out.every((o) => o.status === 'dry_run'));
+  assert.equal(w.posts.length, 0);
+  assert.ok(w.logs.some((l) => l.includes('DRY RUN') && l.includes('What changed')));
 });

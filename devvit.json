@@ -8,7 +8,9 @@
   "permissions": {
     "http": {
       "enable": true,
-      "domains": ["ropedrop-bot-data.storage.googleapis.com"]
+      "domains": [
+        "ropedrop-bot-data.storage.googleapis.com"
+      ]
     },
     "redis": true,
     "reddit": {
@@ -27,7 +29,10 @@
       {
         "label": "Ask RopeDrop bot",
         "description": "Ask the RopeDrop bot to answer this (ignores flair skip list and hourly cap; still needs confidence >= 0.5).",
-        "location": ["post", "comment"],
+        "location": [
+          "post",
+          "comment"
+        ],
         "forUserType": "moderator",
         "endpoint": "/internal/menu/ask"
       }
@@ -42,6 +47,10 @@
       "bundle-refresh": {
         "endpoint": "/internal/scheduler/bundle-refresh",
         "cron": "10 9-12 * * *"
+      },
+      "weekly-posts": {
+        "endpoint": "/internal/scheduler/weekly-posts",
+        "cron": "5 * * * *"
       }
     }
   },
@@ -106,6 +115,24 @@
         "type": "boolean",
         "label": "Distinguish + sticky the daily post",
         "defaultValue": false
+      },
+      "weeklyQuestionsEnabled": {
+        "type": "boolean",
+        "label": "Post \"What Disney planners are asking\" on Mondays",
+        "helpText": "Most-asked planning topics in Disney subreddits (last 2 weeks) with the RopeDrop page that answers each. Built and fact-checked by RopeDrop; skipped on thin weeks.",
+        "defaultValue": false
+      },
+      "weeklyChangesEnabled": {
+        "type": "boolean",
+        "label": "Post \"What changed this week\" on Fridays (WDW + Disneyland)",
+        "helpText": "Rides back open, refurbishments starting, Multi Pass price moves. Skipped when nothing changed.",
+        "defaultValue": false
+      },
+      "weeklyPostHourET": {
+        "type": "number",
+        "label": "Weekly post hour (0-23, US Eastern Time)",
+        "defaultValue": 9,
+        "validationEndpoint": "/internal/settings/hour-et"
       }
     }
   },
