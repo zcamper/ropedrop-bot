@@ -66,6 +66,8 @@ export const EXTRA_LABELS: Record<string, string> = {
 };
 
 const MAX_LIST = 10;
+const WATER_PARK_WORDS = /\b(water ?parks?|typhoon lagoon|blizzard beach)\b/;
+const CANT_RIDE = /\b(not|cant|can t|cannot|wont|won t|too (short|small|little)|unable|isnt|is not) (be able to )?(ride|tall|go on|do)\b|\b(not|cant|can t|cannot) ride\b|\btoo (short|small|little)\b/;
 
 // ---------------------------------------------------------------- shared helpers
 
@@ -851,8 +853,12 @@ function heightFacts(env: AnswerEnv, core: Core, pq: ParsedQuestion): Facts {
     }
     return facts;
   }
+  // 2026-10-24 ("What rides can my 44inch child NOT ride?"): theme parks only unless the
+  // question names a water park (their slides have no park and crowded the list), grouped
+  // by park, and a "can't ride" question leads with what's too tall for the child.
+  const water = WATER_PARK_WORDS.test(pq.normalized);
   const rides = Object.values(core.rides).filter(
-    (r) => parkOk(pq, r.park) && r.height_min_in
+    (r) => r.height_min_in && (r.park ? parkOk(pq, r.park) : water && !pq.parkSlug)
   );
   if (rides.length < 3) return facts;
   rides.sort(
@@ -861,20 +867,36 @@ function heightFacts(env: AnswerEnv, core: Core, pq: ParsedQuestion): Facts {
       a.name.localeCompare(b.name, 'en')
   );
   const fmt = (r: Ride) => `${r.name} (${r.height_min_in} in)`;
+  const parkOrder = (rs: Ride[]) => {
+    const order: string[] = [];
+    for (const r of rs) if (!order.includes(r.park ?? '')) order.push(r.park ?? '');
+    return order;
+  };
+  const grouped = (rs: Ride[], max: number): string | null => {
+    if (!rs.length) return null;
+    const parks = parkOrder(rs);
+    if (parks.length === 1) return joinList(rs.map(fmt), max);
+    return parks
+      .map((p) => {
+        const name = p ? parkDisplayName(env.common, pq.destination, p) : 'Water parks';
+        return `${name}: ${joinList(rs.filter((r) => (r.park ?? '') === p).map(fmt), 4)}`;
+      })
+      .join('; ');
+  };
   facts.where = scopeName(env, pq);
   facts.untracked = tracked(core, pq).filter(
     (r) => !r.height_min_in && !r.kids_only
   ).length;
   if (h !== null) {
     facts.child = `${h}-inch`;
-    const can = rides.filter((r) => (r.height_min_in as number) <= h).map(fmt);
-    const cannot = rides
-      .filter((r) => (r.height_min_in as number) > h)
-      .map(fmt);
-    facts.can = can.length ? joinList(can) : null;
-    facts.cannot = cannot.length ? joinList(cannot) : null;
+    const can = rides.filter((r) => (r.height_min_in as number) <= h);
+    const cannot = rides.filter((r) => (r.height_min_in as number) > h);
+    facts.can = grouped(can, MAX_LIST);
+    facts.can_count = can.length;
+    facts.cannot = grouped(cannot, MAX_LIST);
+    facts.negative = CANT_RIDE.test(pq.normalized);
   } else {
-    facts.all = joinList(rides.map(fmt), 15);
+    facts.all = grouped(rides, 15);
   }
   facts._quality = 1.0;
   return facts;
@@ -899,6 +921,14 @@ function heightText(facts: Facts): string {
     facts.untracked > 0
       ? ` The other ${facts.untracked} rides we track at ${facts.where} have no posted minimum in our data.`
       : '';
+  if (facts.child && facts.negative) {
+    if (!facts.cannot)
+      return `A ${facts.child} child meets every posted minimum height at ${facts.where}.${tail}`;
+    return (
+      `At ${facts.where}, a ${facts.child} child is too short for ${facts.cannot}. ` +
+      `They meet the posted minimum for the other ${facts.can_count} rides that have one.${tail}`
+    );
+  }
   if (facts.child) {
     const can = facts.can
       ? `can ride ${facts.can}`
@@ -1363,6 +1393,8 @@ export function extraParseScore(pq: ParsedQuestion): number {
   }
   if (pq.parkSlug) return 1.0;
   if (pq.destinationExplicit) return 0.85;
+  // A height list states its resort, so the default (Walt Disney World) is visible.
+  if (pq.intent === 'ride_height' && pq.heightIn !== null) return 0.85;
   if (['daw', 'll_price', 'll_sellout'].includes(pq.intent)) return 1.0;
   if (pq.intent === 'menu_price') return 0.85;
   return 0.6;

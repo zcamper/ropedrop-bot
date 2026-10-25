@@ -699,7 +699,71 @@ export function staleAsOf(core: Core, pq: ParsedQuestion): string | null {
     : null;
 }
 
+/** Longer than this, crowd answers rank weeks instead of listing days. */
+export const WEEK_MODE_MIN_DAYS = 15;
+
+/**
+ * "What weeks are least busy this winter?" (2026-10-24): over a month or a season the
+ * day list only ever showed the first 7 days. Rank Sunday-to-Saturday weeks by their
+ * average predicted level across the asked parks instead (a week needs >= 4 days with
+ * a forecast), and say where the forecast stops.
+ */
+function factsCrowdWeeks(common: Common, core: Core, pq: ParsedQuestion): Facts {
+  const parks = targetParks(common, pq);
+  const out: Facts = {
+    type: 'crowd_weeks',
+    scale: '1 (quietest) to 10 (busiest)',
+    data_basis: 'prediction from historical wait-time data (not live)',
+    period: pq.dateLabel ?? `${fmtDay(pq.dates[0] as Day)} to ${fmtDay(pq.dates[pq.dates.length - 1] as Day)}`,
+    parks: parks.map((p) => pname(common, pq, p)),
+    scope:
+      parks.length === 1
+        ? pname(common, pq, parks[0] as string)
+        : `${common.destinations[pq.destination]?.name ?? pq.destination}'s ${parks.length} parks`,
+    weeks: [],
+  };
+  const asOf = staleAsOf(core, pq);
+  if (asOf) out.as_of = asOf;
+  const byWeek = new Map<Day, { days: Set<Day>; levels: number[]; conf: string[] }>();
+  let lastWithData: Day | null = null;
+  for (const d of pq.dates) {
+    const sun = d - ((weekday(d) + 1) % 7); // the Sunday starting d's week (weekday(): Mon=0..Sun=6)
+    for (const p of parks) {
+      const c = getCrowd(core, p, d);
+      if (!c) continue;
+      const w = byWeek.get(sun) ?? { days: new Set<Day>(), levels: [], conf: [] };
+      w.days.add(d);
+      w.levels.push(c.crowd_level);
+      w.conf.push(String(c.model_confidence));
+      byWeek.set(sun, w);
+      if (lastWithData === null || d > lastWithData) lastWithData = d;
+    }
+  }
+  const weeks: Facts[] = [];
+  const confs: string[] = [];
+  for (const [sun, w] of Array.from(byWeek.entries()).sort((a, b) => a[0] - b[0])) {
+    if (w.days.size < 4) continue;
+    const avg = pyRound(w.levels.reduce((a, b) => a + b, 0) / w.levels.length, 1);
+    const label = fmtDay(Math.max(sun, pq.dates[0] as Day));
+    weeks.push({ week_of: label.slice(label.indexOf(', ') + 2), avg_level: avg, days: w.days.size }); // "Jan 10"
+    confs.push(...w.conf);
+  }
+  out.weeks = weeks;
+  const lastAsked = pq.dates[pq.dates.length - 1] as Day;
+  if (lastWithData !== null && lastWithData < lastAsked) out.forecast_through = fmtDay(lastWithData);
+  if (weeks.length >= 2) {
+    const sorted = [...weeks].sort((a, b) => a.avg_level - b.avg_level);
+    out.quietest_weeks = sorted.slice(0, 3);
+    out.busiest_week = sorted[sorted.length - 1];
+  }
+  const confQ: Record<string, number> = { high: 1.0, medium: 0.85, low: 0.6 };
+  out._quality =
+    weeks.length >= 2 ? Math.min(...Array.from(new Set(confs)).map((c) => confQ[c] ?? 0.6)) : 0.0;
+  return out;
+}
+
 function factsCrowds(common: Common, core: Core, pq: ParsedQuestion): Facts {
+  if (pq.dates.length >= WEEK_MODE_MIN_DAYS) return factsCrowdWeeks(common, core, pq);
   const parks = targetParks(common, pq);
   const dates = pq.dates.slice(
     0,
@@ -950,7 +1014,9 @@ function crowdList(facts: Facts): string {
       seg +=
         ties.length === 1
           ? ` (lowest: ${shortDay(lo.date)})`
-          : ' (about the same on each day)';
+          : ties.length === rows.length
+            ? ' (about the same on each day)'
+            : ` (lowest: ${ties.slice(0, 3).map((f) => shortDay(f.date)).join(', ')}${ties.length > 3 ? ' and others' : ''})`;
     }
     segs.push(seg);
   }
@@ -1083,6 +1149,19 @@ function templateAnswer(pq: ParsedQuestion, facts: Facts): string {
       ? `Best rope-drop picks based on historical waits — ${bits.join('; ')}.`
       : "I don't have enough data for a rope-drop pick there.";
   }
+  if (t === 'crowd_weeks') {
+    const q: Facts[] = facts.quietest_weeks ?? [];
+    if (!q.length) return "I don't have crowd predictions that far ahead yet.";
+    const scope = facts.scope;
+    const list = q.map((w) => `week of ${w.week_of} (${w.avg_level})`).join(', ');
+    const b: Facts = facts.busiest_week;
+    let s =
+      `Quietest weeks for ${facts.period}, by average predicted crowd level (1-10) at ${scope}: ` +
+      `${list}. Busiest: week of ${b.week_of} (${b.avg_level}).`;
+    if (facts.forecast_through) s += ` Forecasts currently run through ${facts.forecast_through}.`;
+    if (facts.as_of) s += ` (Forecast as of ${facts.as_of}.)`;
+    return s;
+  }
   if (t === 'crowd_forecast') {
     const fc: Facts[] = facts.forecasts ?? [];
     if (!fc.length) return "I don't have a crowd prediction for that date yet.";
@@ -1150,7 +1229,7 @@ function allowedNumbers(facts: Facts, question: string): Set<number> {
       }
     }
   }
-  if (facts.type === 'crowd_forecast') {
+  if (facts.type === 'crowd_forecast' || facts.type === 'crowd_weeks') {
     out.add(1);
     out.add(10);
   }
@@ -1194,6 +1273,7 @@ export function parseScore(pq: ParsedQuestion): number {
     s = pq.parkSlug ? 1.0 : 0.85;
   }
   if (pq.rideAliasUnresolved && !pq.ride) s = Math.min(s, 0.4);
+  if (pq.periodUnresolved) s = Math.min(s, 0.3); // never answer a period as "today"
   if (!pq.destinationExplicit && !pq.parkSlug && !pq.ride) s *= 0.95;
   return s;
 }

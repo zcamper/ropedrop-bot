@@ -41,7 +41,7 @@ Disneyland Paris, Tokyo, Hong Kong and Shanghai unless noted):
 | Ride timing                   | "best time to ride Slinky", "Flight of Passage wait in the afternoon"                                           | posted-wait averages, last ~90 days                                                    |
 | Ride order at open            | "Rise or Indy first?"                                                                                           | opening-rush profile (first 15 min after the official open vs 2 h later), last 60 days |
 | Rope drop, busy/quiet windows | "what should we rope drop at HS on Saturday?"                                                                   | last 90 days                                                                           |
-| Crowds on a date              | "Is MK busy tomorrow?", "Mondays in mid-October"                                                                | model forecast, next 60 days                                                           |
+| Crowds on a date or period    | "Is MK busy tomorrow?", "Mondays in mid-October", "least busy weeks this winter"                               | the site's crowd calendar forecast, next ~6 months; months/seasons ranked by week     |
 | Crowd patterns                | "quietest day of the week at Epcot", "weekends vs weekdays at Disneyland", "Tokyo DisneySea during Golden Week" | last 90 days; holidays for DLR/TDR/HKDL                                                |
 | Park hours                    | "MK hours tomorrow"                                                                                             | Disney's published hours, next 30 days                                                 |
 | Lightning Lane (WDW)          | "Multi Pass price at MK on Oct 3", "when does 7DMT Single Pass sell out?"                                       | captured prices; sell-out times in ET since Apr 2026                                   |
@@ -72,7 +72,7 @@ Safety and operational notes:
   neither is usable or the newest is more than 30 days old, the bot logs it
   and does nothing. It never posts an error message.
 - Date-bound answers only cover the dates the data covers (hours 30 days,
-  crowd forecasts 60 days, events 14 days, from the data's own date; LL prices
+  crowd forecasts ~6 months (183 days), events 14 days, from the data's own date; LL prices
   for the dates captured) and stay silent beyond them. When the data is from
   an earlier day, hours and crowd answers say "as of <date>" instead of
   presenting it as current, closures need data from the last 2 days, and the

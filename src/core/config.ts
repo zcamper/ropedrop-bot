@@ -11,7 +11,7 @@ export const MAX_QUESTION_CHARS = 2000;
  * Don't answer from a bundle older than this. 30 days = the published-hours
  * window, so the snapshot embedded at upload time keeps working while the
  * daily refresh is unavailable. Date-bound answers are further limited to
- * the dates the data covers (hours 30 d, crowds 60 d, events 14 d from the
+ * the dates the data covers (hours 30 d, crowds 183 d, events 14 d from the
  * data's own date); closures need data from the last 2 days.
  */
 export const MAX_BUNDLE_AGE_MS = 30 * 24 * 60 * 60 * 1000;

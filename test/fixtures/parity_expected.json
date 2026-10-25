@@ -138,7 +138,7 @@
         "reply": true,
         "confidence": 0.95,
         "intent": "multi",
-        "answer": "**Crowds:** Predicted crowd levels (1-10, from historical wait data): Magic Kingdom: Mon Oct 12 6/10, Wed Oct 14 7/10, Fri Oct 16 5/10 (lowest: Fri Oct 16); Hollywood Studios: Mon Oct 12 5/10, Wed Oct 14 5/10, Fri Oct 16 7/10 (about the same on each day).\n\n**Crowds:** Predicted crowd level for Animal Kingdom on Friday, Oct 16: 7/10 (High), based on historical wait data.",
+        "answer": "**Crowds:** Predicted crowd levels (1-10, from historical wait data): Magic Kingdom: Mon Oct 12 6/10, Wed Oct 14 7/10, Fri Oct 16 5/10 (lowest: Fri Oct 16); Hollywood Studios: Mon Oct 12 5/10, Wed Oct 14 5/10, Fri Oct 16 7/10 (lowest: Mon Oct 12, Wed Oct 14).\n\n**Crowds:** Predicted crowd level for Animal Kingdom on Friday, Oct 16: 7/10 (High), based on historical wait data.",
         "links": [
           "https://ropedropplanner.com/wdw/magic_kingdom/crowd-by-day",
           "https://ropedropplanner.com/wdw/animal_kingdom/crowd-by-day",
@@ -148,7 +148,7 @@
           {
             "intent": "crowds_on_date",
             "confidence": 0.95,
-            "answer": "Predicted crowd levels (1-10, from historical wait data): Magic Kingdom: Mon Oct 12 6/10, Wed Oct 14 7/10, Fri Oct 16 5/10 (lowest: Fri Oct 16); Hollywood Studios: Mon Oct 12 5/10, Wed Oct 14 5/10, Fri Oct 16 7/10 (about the same on each day).",
+            "answer": "Predicted crowd levels (1-10, from historical wait data): Magic Kingdom: Mon Oct 12 6/10, Wed Oct 14 7/10, Fri Oct 16 5/10 (lowest: Fri Oct 16); Hollywood Studios: Mon Oct 12 5/10, Wed Oct 14 5/10, Fri Oct 16 7/10 (lowest: Mon Oct 12, Wed Oct 14).",
             "rides": [],
             "parks": ["magic_kingdom", "hollywood_studios"],
             "dates": ["2026-10-12", "2026-10-14", "2026-10-16"],
@@ -178,7 +178,7 @@
         "reply": true,
         "confidence": 0.95,
         "intent": "multi",
-        "answer": "**Crowds:** Predicted crowd levels (1-10, from historical wait data): Magic Kingdom: Mon Oct 12 6/10, Wed Oct 14 7/10, Fri Oct 16 5/10 (lowest: Fri Oct 16); Hollywood Studios: Mon Oct 12 5/10, Wed Oct 14 5/10, Fri Oct 16 7/10 (about the same on each day).\n\n**Crowds:** Predicted crowd level for Animal Kingdom on Friday, Oct 16: 7/10 (High), based on historical wait data.",
+        "answer": "**Crowds:** Predicted crowd levels (1-10, from historical wait data): Magic Kingdom: Mon Oct 12 6/10, Wed Oct 14 7/10, Fri Oct 16 5/10 (lowest: Fri Oct 16); Hollywood Studios: Mon Oct 12 5/10, Wed Oct 14 5/10, Fri Oct 16 7/10 (lowest: Mon Oct 12, Wed Oct 14).\n\n**Crowds:** Predicted crowd level for Animal Kingdom on Friday, Oct 16: 7/10 (High), based on historical wait data.",
         "links": [
           "https://ropedropplanner.com/wdw/magic_kingdom/crowd-by-day",
           "https://ropedropplanner.com/wdw/animal_kingdom/crowd-by-day",
@@ -188,7 +188,7 @@
           {
             "intent": "crowds_on_date",
             "confidence": 0.95,
-            "answer": "Predicted crowd levels (1-10, from historical wait data): Magic Kingdom: Mon Oct 12 6/10, Wed Oct 14 7/10, Fri Oct 16 5/10 (lowest: Fri Oct 16); Hollywood Studios: Mon Oct 12 5/10, Wed Oct 14 5/10, Fri Oct 16 7/10 (about the same on each day).",
+            "answer": "Predicted crowd levels (1-10, from historical wait data): Magic Kingdom: Mon Oct 12 6/10, Wed Oct 14 7/10, Fri Oct 16 5/10 (lowest: Fri Oct 16); Hollywood Studios: Mon Oct 12 5/10, Wed Oct 14 5/10, Fri Oct 16 7/10 (lowest: Mon Oct 12, Wed Oct 14).",
             "rides": [],
             "parks": ["magic_kingdom", "hollywood_studios"],
             "dates": ["2026-10-12", "2026-10-14", "2026-10-16"],

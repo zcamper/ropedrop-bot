@@ -363,3 +363,33 @@ void test('a stated child height carries over to the height question', async () 
     r.answer
   );
 });
+
+// ---- 2026-10-24: seasons, weeks, periods, "can't ride" ----------------------
+
+void test('a month or season is ranked by week, never answered as today', async () => {
+  const e = await env();
+  const oct = await analyzePost(e, 'What is the least busy week in October at Magic Kingdom?');
+  assert.equal(oct.intent, 'crowds_on_date');
+  assert.match(oct.answer, /^Quietest weeks for October, by average predicted crowd level \(1-10\) at Magic Kingdom: week of Oct \d+ \(\d\.\d\)/);
+  assert.match(oct.answer, /Busiest: week of Oct \d+/);
+  assert.ok(!oct.answer.includes('Sep 28'));
+  // Past the forecast (fixture crowds stop late November): no reply, and not today's level.
+  const winter = await analyzePost(e, 'Planning to go to Disney world this winter. What weeks is it the least busy?');
+  assert.ok(winter.confidence < 0.7);
+  assert.ok(!winter.answer.includes('Sep 28'));
+  // A period that no date rule understands is not "today".
+  const trip = await analyzePost(e, 'Is Magic Kingdom busy on our trip?');
+  assert.ok(trip.confidence < 0.7);
+});
+
+void test("a can't-ride height question leads with too-short rides, theme parks only, by park", async () => {
+  const e = await env();
+  const r = await analyzePost(e, 'What rides can my 44inch child NOT ride?');
+  assert.equal(r.intent, 'ride_height');
+  assert.ok(r.confidence >= 0.7);
+  assert.match(r.answer, /^At Walt Disney World, a 44-inch child is too short for /);
+  assert.match(r.answer, /Magic Kingdom: TRON Lightcycle \/ Run \(48 in\)/);
+  assert.ok(!/Summit Plummet|Crush 'n' Gusher/.test(r.answer)); // water parks only when asked
+  const w = await analyzePost(e, 'Which water park slides can a 44 inch kid not ride?');
+  assert.match(w.answer, /Water parks: .*Crush 'n' Gusher/);
+});

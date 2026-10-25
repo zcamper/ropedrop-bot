@@ -81,6 +81,8 @@ export type ParsedQuestion = {
   dates: Day[];
   dateLabel: string | null;
   dateExplicit: boolean;
+  /** Asks about a period (season, "which weeks", a month) that no date rule resolved. */
+  periodUnresolved?: boolean;
   timeWindow: TimeWindow | null;
   intent: Intent;
   intentKeyword: boolean;
@@ -504,6 +506,49 @@ export function monthWindow(
   return [start, end, label];
 }
 
+const PERIOD_WORDS =
+  /\b(winter|spring|summer|fall|autumn|season|seasons|weeks|which week|what week|month|months|holidays?|vacation|trip)\b/;
+
+// Seasons, as trip planners use them (2026-10-24: "this winter, what weeks are least
+// busy?" fell back to today). Winter = Dec 1 - end of Feb, then Mar-May, Jun-Aug, Sep-Nov.
+// "this/next <season>" = the one we're in (from today) or else the next one; "next" while
+// inside a season = the following year's. Bare "fall" needs a qualifier (it's also a verb);
+// "winter/spring/summer break" are holidays (crowd_pattern) and don't match.
+const SEASONS: Record<string, [number, number]> = {
+  winter: [12, 2],
+  spring: [3, 5],
+  summer: [6, 8],
+  fall: [9, 11],
+  autumn: [9, 11],
+};
+
+export function seasonWindow(
+  textLower: string,
+  today: Day
+): [Day, Day, string] | null {
+  const m =
+    /\b(?:(this|next|coming|upcoming|in|during|for|over)\s+(?:the\s+)?)?(winter|spring|summer|fall|autumn)\b(?!\s+(?:break|holidays?|vacation|festival|semester))/.exec(
+      textLower
+    );
+  if (!m) return null;
+  const qual = m[1];
+  const name = m[2] as string;
+  if (name === 'fall' && !qual) return null;
+  const [m1, m2] = SEASONS[name] as [number, number];
+  const t = ymd(today);
+  const inside = m1 <= m2 ? t.m >= m1 && t.m <= m2 : t.m >= m1 || t.m <= m2;
+  // Year the season STARTS in: the current one when we're inside it, else the next start.
+  let y0 = inside ? (m1 > m2 && t.m <= m2 ? t.y - 1 : t.y) : t.m < m1 ? t.y : t.y + 1;
+  if (inside && qual === 'next') y0 += 1;
+  const y1 = m1 <= m2 ? y0 : y0 + 1;
+  const start = Math.max(mkDay(y0, m1, 1) as Day, today);
+  const end = mkDay(y1, m2, lastDay(y1, m2)) as Day;
+  const label =
+    `${qual === 'next' ? 'next' : 'this'} ${name} ` +
+    `(${MONTH_NAMES[m1 - 1]} ${y0}–${MONTH_NAMES[m2 - 1]} ${y1})`;
+  return [start, end, label];
+}
+
 function dateListLabel(ds: Day[]): string {
   if (ds.length === 1) return fmtDay(ds[0] as Day);
   const consecutive = ds.every(
@@ -672,7 +717,7 @@ export function parseDates(
     }
   }
 
-  const ownWindow = monthWindow(textLower, today);
+  const ownWindow = monthWindow(textLower, today) ?? seasonWindow(textLower, today);
   const win: [Day, Day] | null = ownWindow
     ? [ownWindow[0], ownWindow[1]]
     : (ctx?.window ?? null);
@@ -1313,6 +1358,15 @@ export async function parseQuestion(
   ) {
     pq.dates = Array.from({ length: 7 }, (_, i) => today + i);
     pq.dateLabel = 'the next 7 days';
+  }
+  // 2026-10-24: "this winter, what weeks are least busy?" parsed no date, fell back to
+  // today and nearly posted today's crowd levels. A period nobody resolved is not today.
+  if (
+    (intent === 'crowds_on_date' || intent === 'park_hours') &&
+    !pq.dateExplicit &&
+    PERIOD_WORDS.test(norm)
+  ) {
+    pq.periodUnresolved = true;
   }
   pq.intent = intent;
   return pq;

@@ -6,6 +6,7 @@ import {
   childHeight,
   parseDates,
   parseQuestion,
+  seasonWindow,
   parseTimeWindow,
   questionSentences,
   splitSentences,
@@ -203,4 +204,19 @@ void test('"Tokyo Disneyland" is not Disneyland Resort', async () => {
   assert.equal(pq.destination, 'tdr');
   assert.equal(pq.parkSlug, 'tokyo_disneyland');
   assert.equal(pq.intent, 'crowds_on_date');
+});
+
+void test('seasonWindow: this/next winter, spring; bare "fall" and "winter break" do not match', () => {
+  const oct24 = mkDay(2026, 10, 24) as number;
+  const w = seasonWindow('this winter', oct24) as [number, number, string];
+  assert.deepEqual([isoDay(w[0]), isoDay(w[1])], ['2026-12-01', '2027-02-28']);
+  assert.match(w[2], /^this winter \(December 2026–February 2027\)$/);
+  const jan10 = mkDay(2027, 1, 10) as number;
+  const inside = seasonWindow('this winter', jan10) as [number, number, string];
+  assert.deepEqual([isoDay(inside[0]), isoDay(inside[1])], ['2027-01-10', '2027-02-28']);
+  const next = seasonWindow('next winter', jan10) as [number, number, string];
+  assert.equal(isoDay(next[0]), '2027-12-01');
+  assert.equal(isoDay((seasonWindow('in the spring', oct24) as [number, number, string])[0]), '2027-03-01');
+  assert.equal(seasonWindow('the ride might fall', oct24), null);
+  assert.equal(seasonWindow('crowds over winter break', oct24), null);
 });
