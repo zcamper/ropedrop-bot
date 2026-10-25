@@ -13,6 +13,7 @@ import {
   stripMentions,
   type ParseEnv,
 } from './parse.js';
+import type { AnswerEnv } from './answer.js';
 import { normalize, phraseSpans } from './text.js';
 import type { Dest } from './types.js';
 import { isoDay, mkDay, pyRound } from './util.js';
@@ -219,4 +220,18 @@ void test('seasonWindow: this/next winter, spring; bare "fall" and "winter break
   assert.equal(isoDay((seasonWindow('in the spring', oct24) as [number, number, string])[0]), '2027-03-01');
   assert.equal(seasonWindow('the ride might fall', oct24), null);
   assert.equal(seasonWindow('crowds over winter break', oct24), null);
+});
+
+void test('mined-question misfires stay silent: opinion posts, a bare month as "today"', async () => {
+  // 2026-10-24: real subreddit posts that got wrong replies.
+  const src = fixtureSource();
+  const { analyzePost } = await import('./answer.js');
+  const e: AnswerEnv = { src, common: await src.common(), now: new Date('2026-09-28T18:00:00Z'), today: mkDay(2026, 9, 28) as number };
+  for (const q of [
+    'Is it crazy to say they should refurbish space mountain?',
+    'November opening hours?\n\nAnyone know when November park closure times will be released?',
+  ]) {
+    const r = await analyzePost(e, q);
+    assert.ok(r.confidence < 0.7, `${q} -> ${r.confidence} ${r.answer}`);
+  }
 });

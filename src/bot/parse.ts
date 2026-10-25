@@ -507,7 +507,7 @@ export function monthWindow(
 }
 
 const PERIOD_WORDS =
-  /\b(winter|spring|summer|fall|autumn|season|seasons|weeks|which week|what week|month|months|holidays?|vacation|trip)\b/;
+  /\b(winter|spring|summer|fall|autumn|season|seasons|weeks|which week|what week|month|months|holidays?|vacation|trip|january|february|april|june|july|august|september|october|november|december)\b/;
 
 // Seasons, as trip planners use them (2026-10-24: "this winter, what weeks are least
 // busy?" fell back to today). Winter = Dec 1 - end of Feb, then Mar-May, Jun-Aug, Sep-Nov.
@@ -921,7 +921,14 @@ const OPINION_PATTERNS = [
   /\bintense\b/,
   /\bmotion sick/,
   /\bheight (requirement|limit|restriction)/,
-  /\bhow tall\b/,
+  /\bhow tall\b/,  // 2026-10-24 mined-question test: "Is it crazy to say they should refurbish Space
+  // Mountain?" got a closure-status reply.
+  /\bshould (they|disney|it) (be )?\w+/,
+  /\bis it (crazy|just me|weird|bad|wrong)\b/,
+  /\bam i (crazy|wrong|the only one)\b/,
+  /\bdo (you|yall|you guys|people) think\b/,
+  /\bthoughts on\b/,
+  /\bunpopular opinion\b/,
 ];
 
 /** Opinion wording that also silences the new data intents. */
@@ -934,7 +941,14 @@ const HARD_OPINION = [
   /\bscary\b/,
   /\bintense\b/,
   /\bmotion sick/,
-  /\b(better|best) (restaurant|place to eat|hotel|resort)\b/,
+  /\b(better|best) (restaurant|place to eat|hotel|resort)\b/,  // 2026-10-24 mined-question test: "Is it crazy to say they should refurbish Space
+  // Mountain?" got a closure-status reply.
+  /\bshould (they|disney|it) (be )?\w+/,
+  /\bis it (crazy|just me|weird|bad|wrong)\b/,
+  /\bam i (crazy|wrong|the only one)\b/,
+  /\bdo (you|yall|you guys|people) think\b/,
+  /\bthoughts on\b/,
+  /\bunpopular opinion\b/,
 ];
 
 export function isOpinion(norm: string): boolean {
