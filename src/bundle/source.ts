@@ -10,6 +10,8 @@ import type {
   Events,
   LL,
   MenuFile,
+  MenuItemsFile,
+  Parties,
   Posts,
 } from '../bot/types.js';
 import { K, type GenMeta, type KV } from './sync.js';
@@ -82,6 +84,18 @@ export class LayoutSource implements BundleSource {
 
   posts(dest: Dest): Promise<Posts | null> {
     return this.json<Posts>(this.files(dest)?.posts);
+  }
+
+  parties(dest: Dest): Promise<Parties | null> {
+    return this.json<Parties>(this.files(dest)?.parties);
+  }
+
+  menuItems(dest: Dest, part: number): Promise<MenuItemsFile | null> {
+    return this.json<MenuItemsFile>(this.files(dest)?.menu_items?.[part - 1]);
+  }
+
+  async menuItemParts(dest: Dest): Promise<number> {
+    return this.files(dest)?.menu_items?.length ?? 0;
   }
 }
 

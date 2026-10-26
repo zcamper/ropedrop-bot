@@ -1,0 +1,249 @@
+{
+ "now": "2026-10-26T19:18:46.051984+00:00",
+ "today": "2026-10-26",
+ "cases": [
+  {
+   "q": "When and where can I meet Powerline Max in December?",
+   "intent": "party",
+   "confidence": 0.88,
+   "answer": "Disney lists Max Goof as Powerline at Disney Jollywood Nights (Hollywood Studios), at the Echo Lake Holiday Celebration. December party nights: Dec 5, 7, 12, 14, 19, 21 and 23, 7:30 PM to 12:30 AM. Disney doesn't post a meet time for it, and the party needs its own ticket.",
+   "links": [
+    "https://ropedropplanner.com/wdw/special-events/jollywood-nights",
+    "https://ropedropplanner.com/wdw/hollywood_studios/jollywood-nights-crowds"
+   ]
+  },
+  {
+   "q": "What nights is the Very Merry party in December?",
+   "intent": "party",
+   "confidence": 0.95,
+   "answer": "Mickey's Very Merry Christmas Party (Magic Kingdom) has 13 nights in December: Dec 1, 3, 4, 6, 8, 10, 11, 13, 15, 17, 18, 20 and 22. It runs 7 PM to midnight, with entry from 4 PM. Sold out: Dec 1, 18, 20 and 22.",
+   "links": [
+    "https://ropedropplanner.com/wdw/special-events/mickeys-very-merry-christmas-party",
+    "https://ropedropplanner.com/wdw/magic_kingdom/christmas-party-crowds"
+   ]
+  },
+  {
+   "q": "Is Jollywood Nights worth it?",
+   "intent": "party",
+   "confidence": 0.95,
+   "answer": "Disney Jollywood Nights (Hollywood Studios): 15 nights coming up (Nov 7, 14, 16, 21, 23, 28; Dec 5, 7…), 7:30 PM to 12:30 AM, tickets $169 to $199 plus tax. Entertainment: Jingle Bell, Jingle BAM!, Disney Holidays in Hollywood, What’s This? Tim Burton’s The Nightmare Before Christmas Sing-Along. Characters Disney lists include Baloo or King Louie, Lotso, Bo Peep, The Mandalorian and Grogu, Joy. 6 rides are listed as open. Sold out: Nov 7.",
+   "links": [
+    "https://ropedropplanner.com/wdw/special-events/jollywood-nights",
+    "https://ropedropplanner.com/wdw/hollywood_studios/jollywood-nights-crowds"
+   ]
+  },
+  {
+   "q": "what time does the parade start at the Christmas party",
+   "intent": "party",
+   "confidence": 0.95,
+   "answer": "At Mickey's Very Merry Christmas Party (Magic Kingdom), Mickey's Once Upon a Christmastime Parade: 8:30 PM and 11 PM on all 11 nights with posted times (Sun Nov 8 to Fri Nov 27); later nights aren't posted yet.",
+   "links": [
+    "https://ropedropplanner.com/wdw/special-events/mickeys-very-merry-christmas-party",
+    "https://ropedropplanner.com/wdw/magic_kingdom/christmas-party-crowds"
+   ]
+  },
+  {
+   "q": "What nights is Jollywood Nights in December?",
+   "intent": "party",
+   "confidence": 0.95,
+   "answer": "Disney Jollywood Nights (Hollywood Studios) has 7 nights in December: Dec 5, 7, 12, 14, 19, 21 and 23. It runs 7:30 PM to 12:30 AM, with entry from 5:30 PM.",
+   "links": [
+    "https://ropedropplanner.com/wdw/special-events/jollywood-nights",
+    "https://ropedropplanner.com/wdw/hollywood_studios/jollywood-nights-crowds"
+   ]
+  },
+  {
+   "q": "When are the fireworks at Jollywood Nights?",
+   "intent": "party",
+   "confidence": 0.95,
+   "answer": "At Disney Jollywood Nights (Hollywood Studios), Jingle Bell, Jingle BAM!: 10 PM on all 13 nights with posted times (Sat Nov 7 to Wed Dec 23); later nights aren't posted yet.",
+   "links": [
+    "https://ropedropplanner.com/wdw/special-events/jollywood-nights",
+    "https://ropedropplanner.com/wdw/hollywood_studios/jollywood-nights-crowds"
+   ]
+  },
+  {
+   "q": "Which Very Merry Christmas Party nights are sold out?",
+   "intent": "party",
+   "confidence": 0.95,
+   "answer": "Mickey's Very Merry Christmas Party (Magic Kingdom) has 25 nights coming up: Nov 8, 9, 12, 13, 15, 17, 19, 20, 24, 25, 27, 29; Dec 1, 3, 4, 6, 8, 10, 11, 13, 15, 17, 18, 20, 22. It runs 7 PM to midnight, with entry from 4 PM. Sold out: Nov 8, 9, 12, 13, 17, 20, 24, 25, 27; Dec 1, 18, 20, 22.",
+   "links": [
+    "https://ropedropplanner.com/wdw/special-events/mickeys-very-merry-christmas-party",
+    "https://ropedropplanner.com/wdw/magic_kingdom/christmas-party-crowds"
+   ]
+  },
+  {
+   "q": "How much are Jollywood Nights tickets?",
+   "intent": "party",
+   "confidence": 0.45,
+   "answer": "Disney's ticket page lists $169 to $199 (ages 10+, before tax) for the Disney Jollywood Nights nights still on sale. Sold out: Nov 7.",
+   "links": [
+    "https://ropedropplanner.com/wdw/special-events/jollywood-nights",
+    "https://ropedropplanner.com/wdw/hollywood_studios/jollywood-nights-crowds"
+   ]
+  },
+  {
+   "q": "What rides are open at the Very Merry party?",
+   "intent": "party",
+   "confidence": 0.95,
+   "answer": "Disney lists 20 rides open during Mickey's Very Merry Christmas Party, including Haunted Mansion, Prince Charming Regal Carrousel, Mad Tea Party, Dumbo the Flying Elephant, Peter Pan's Flight, Pirates of the Caribbean.",
+   "links": [
+    "https://ropedropplanner.com/wdw/special-events/mickeys-very-merry-christmas-party",
+    "https://ropedropplanner.com/wdw/magic_kingdom/christmas-party-crowds"
+   ]
+  },
+  {
+   "q": "What treats are at the Very Merry party?",
+   "intent": "party",
+   "confidence": 0.95,
+   "answer": "Disney lists these at Mickey's Very Merry Christmas Party: Carne Asada Loaded Fries at Pecos Bill Tall Tale Inn & Cafe; Snowflake Ornament dessert at Pinocchio Village Haus; Hazelnut Carriage Cake at Cinderella’s Royal Table.",
+   "links": [
+    "https://ropedropplanner.com/wdw/special-events/mickeys-very-merry-christmas-party",
+    "https://ropedropplanner.com/wdw/magic_kingdom/christmas-party-crowds"
+   ]
+  },
+  {
+   "q": "What time does Jollywood Nights start?",
+   "intent": "party",
+   "confidence": 0.95,
+   "answer": "Disney Jollywood Nights (Hollywood Studios) runs 7:30 PM to 12:30 AM, and party ticket holders can enter from 5:30 PM.",
+   "links": [
+    "https://ropedropplanner.com/wdw/special-events/jollywood-nights",
+    "https://ropedropplanner.com/wdw/hollywood_studios/jollywood-nights-crowds"
+   ]
+  },
+  {
+   "q": "Can I meet Max at Disney World?",
+   "intent": "party",
+   "confidence": 0.22,
+   "answer": "",
+   "links": []
+  },
+  {
+   "q": "When is the Oogie Boogie Bash?",
+   "intent": "party",
+   "confidence": 0.95,
+   "answer": "Oogie Boogie Bash – A Disney Halloween Party (Disney California Adventure) has 3 nights coming up: Oct 27, 29 and 31. It runs 6 PM to 11 PM, with entry from 3 PM.",
+   "links": [
+    "https://ropedropplanner.com/dlr/special-events/oogie-boogie-bash-halloween-party",
+    "https://ropedropplanner.com/dlr/california_adventure/oogie-boogie-bash-crowds"
+   ]
+  },
+  {
+   "q": "What flavors of Dole whip are available at Disney World?",
+   "intent": "menu",
+   "confidence": 0.95,
+   "answer": "Our menu data lists DOLE Whip in 9 flavors at Walt Disney World (menus read Oct 21): pineapple, orange, lime, strawberry, key lime, mango, peach, raspberry and watermelon.\n\n- **Magic Kingdom:** pineapple and mango at Aloha Isle; orange and strawberry at Sunshine Tree Terrace\n- **EPCOT:** Refreshment Outpost (no flavor named)\n- **Animal Kingdom:** pineapple at Tamu Tamu Refreshments; pineapple and orange at Warung Outpost\n- **Disney Springs:** peach, pineapple and raspberry at Swirls on the Water; pineapple and orange at The Basket at Wine Bar George and Wine Bar George – A Restaurant & Bar\n- **Resort hotels:** lime at Barefoot Pool Bar (Polynesian Village) and Oasis Bar & Grill (Polynesian Village); key lime at Good's Food to Go (Old Key West); Pineapple Lanai (Polynesian Village) (no flavor named); 2 more stands\n- **Water parks:** orange and pineapple at Leaning Palms (Typhoon Lagoon); strawberry and watermelon at Snack Shack (Typhoon Lagoon)\n\nOlder rows also name cherry at Swirls on the Water, but no recent menu read confirms it, so we can't say it is still offered.",
+   "links": [
+    "https://ropedropplanner.com/wdw/dining/aloha-isle/menu",
+    "https://ropedropplanner.com/wdw/dining/sunshine-tree-terrace/menu",
+    "https://ropedropplanner.com/wdw/dining/refreshment-outpost/menu",
+    "https://ropedropplanner.com/wdw/dining/tamu-tamu-refreshments/menu",
+    "https://ropedropplanner.com/wdw/food-prices"
+   ]
+  },
+  {
+   "q": "Where can I get a Dole Whip at Disneyland?",
+   "intent": "menu",
+   "confidence": 0.95,
+   "answer": "Our menu data shows DOLE Whip on the menu at 3 stands at Disneyland Resort (menus read Oct 22):\n\n- **Disneyland Park:** The Tropical Hideaway Express: DOLE Whip, DOLE Whip Float, DOLE Whip Swirl, 1 more; Tiki Juice Bar: DOLE Whip Cone, DOLE Whip Float, DOLE Whip Pineapple Soft Serve\n- **Resort hotels:** Trader Sam's Enchanted Tiki Bar (Disneyland Hotel): DOLE Whip, DOLE Whip Float, DOLE Whip Float with a splash of Rum",
+   "links": [
+    "https://ropedropplanner.com/dlr/dining/the-tropical-hideaway-express-dl/menu",
+    "https://ropedropplanner.com/dlr/dining/tiki-juice-bar-dl/menu",
+    "https://ropedropplanner.com/dlr/dining/trader-sams-dlr/menu",
+    "https://ropedropplanner.com/dlr/food-prices"
+   ]
+  },
+  {
+   "q": "Is the Mickey pretzel still at Magic Kingdom?",
+   "intent": "menu",
+   "confidence": 0.95,
+   "answer": "Our menu data shows Mickey pretzel on the menu at 2 stands at Magic Kingdom (menus read Oct 21):\n\n- **Magic Kingdom:** Liberty Square Market: Mickey-shaped Pretzel; The Lunching Pad: Mickey Pretzel",
+   "links": [
+    "https://ropedropplanner.com/wdw/dining/liberty-square-market/menu",
+    "https://ropedropplanner.com/wdw/dining/lunching-pad/menu",
+    "https://ropedropplanner.com/wdw/snack-tour/magic_kingdom"
+   ]
+  },
+  {
+   "q": "How much is a Dole Whip at Disney World?",
+   "intent": "menu",
+   "confidence": 0.95,
+   "answer": "Our menu data shows DOLE Whip on the menu at 16 stands at Walt Disney World (menus read Oct 21):\n\n- **Magic Kingdom:** Aloha Isle: DOLE Whip Pineapple Juice Float $7.29, 1 more; Sunshine Tree Terrace: DOLE Whip Orange Cup $5.79, 1 more\n- **EPCOT:** Refreshment Outpost: DOLE Whip in a Cone $6.29\n- **Animal Kingdom:** Tamu Tamu Refreshments: DOLE Whip Pineapple Cup $5.79, 6 more; Warung Outpost: DOLE Whip Cup $5.79, 4 more\n- **Disney Springs:** Swirls on the Water: DOLE Whip Float $6.79, 5 more; The Basket at Wine Bar George: Frozcato made with DOLE WHIP Pineapple $15.00, 1 more; 1 more stand\n- **Resort hotels:** Barefoot Pool Bar (Polynesian Village): Frozen Margarita with DOLE Whip Lime $18.00; Good's Food to Go (Old Key West): DOLE Whip Key Lime and Vanilla Soft-serve Swirl $5.99; 4 more stands\n- **Water parks:** Leaning Palms (Typhoon Lagoon): DOLE Whip Orange Float $6.79, 1 more; Snack Shack (Typhoon Lagoon): DOLE Whip Bathtub Sundae $16.29, 5 more",
+   "links": [
+    "https://ropedropplanner.com/wdw/dining/aloha-isle/menu",
+    "https://ropedropplanner.com/wdw/dining/sunshine-tree-terrace/menu",
+    "https://ropedropplanner.com/wdw/dining/refreshment-outpost/menu",
+    "https://ropedropplanner.com/wdw/dining/tamu-tamu-refreshments/menu",
+    "https://ropedropplanner.com/wdw/food-prices"
+   ]
+  },
+  {
+   "q": "Where can I get a lemon Dole Whip at Disney World?",
+   "intent": "menu",
+   "confidence": 0.24,
+   "answer": "",
+   "links": []
+  },
+  {
+   "q": "Where can I get a Dole Whip?",
+   "intent": "menu",
+   "confidence": 0.63,
+   "answer": "Our menu data shows DOLE Whip on the menu at 16 stands at Walt Disney World (menus read Oct 21):\n\n- **Magic Kingdom:** Aloha Isle: DOLE Whip Pineapple Juice Float, 1 more; Sunshine Tree Terrace: DOLE Whip Orange Cup, 1 more\n- **EPCOT:** Refreshment Outpost: DOLE Whip in a Cone\n- **Animal Kingdom:** Tamu Tamu Refreshments: DOLE Whip Pineapple Cup, 6 more; Warung Outpost: DOLE Whip Cup, 4 more\n- **Disney Springs:** Swirls on the Water: DOLE Whip Float, 5 more; The Basket at Wine Bar George: Frozcato made with DOLE WHIP Pineapple, 1 more; Wine Bar George – A Restaurant & Bar: Frozcato made with DOLE WHIP Pineapple, 1 more\n- **Resort hotels:** Barefoot Pool Bar (Polynesian Village): Frozen Margarita with DOLE Whip Lime; Good's Food to Go (Old Key West): DOLE Whip Key Lime and Vanilla Soft-serve Swirl; Oasis Bar & Grill (Polynesian Village): Frozen Margarita with DOLE Whip Lime; 3 more stands\n- **Water parks:** Leaning Palms (Typhoon Lagoon): DOLE Whip Orange Float, 1 more; Snack Shack (Typhoon Lagoon): DOLE Whip Bathtub Sundae, 5 more",
+   "links": [
+    "https://ropedropplanner.com/wdw/dining/aloha-isle/menu",
+    "https://ropedropplanner.com/wdw/dining/sunshine-tree-terrace/menu",
+    "https://ropedropplanner.com/wdw/dining/refreshment-outpost/menu",
+    "https://ropedropplanner.com/wdw/dining/tamu-tamu-refreshments/menu",
+    "https://ropedropplanner.com/wdw/food-prices"
+   ]
+  },
+  {
+   "q": "How much is a churro at EPCOT?",
+   "intent": "menu",
+   "confidence": 0.95,
+   "answer": "Our menu data shows churro on the menu at 5 stands at EPCOT (menus read Oct 21):\n\n- **EPCOT:** La Cantina de San Angel: Churros $6.50, Churro Sundae $7.99, Churro Margarita $18.00; La Hacienda de San Angel: Helado con Churros $11.00; Land Kiosk: Dubai Nights Churro $6.99; Marketplace Milled And Mulled: Apple-Cinnamon and Caramel Mini Churros Sundae $5.29; 1 more stand\n\nOur menu data hasn't listed Apple-Caramel Churro Bites with Vanilla Dipping Sauce or Caramel Popcorn Churro Bites at Food Studio – Figment’s Inspiration Station at the Odyssey since Aug 5 (82 days).",
+   "links": [
+    "https://ropedropplanner.com/wdw/dining/cantina-de-san-angel/menu",
+    "https://ropedropplanner.com/wdw/dining/la-hacienda-de-san-angel-epcot/menu",
+    "https://ropedropplanner.com/wdw/dining/the-land-cart/menu",
+    "https://ropedropplanner.com/wdw/food-prices"
+   ]
+  },
+  {
+   "q": "what dole whip flavors are at MK",
+   "intent": "menu",
+   "confidence": 0.95,
+   "answer": "Our menu data lists DOLE Whip in 4 flavors at Magic Kingdom (menus read Oct 21): mango, orange, pineapple and strawberry.\n\n- **Magic Kingdom:** pineapple and mango at Aloha Isle; orange and strawberry at Sunshine Tree Terrace",
+   "links": [
+    "https://ropedropplanner.com/wdw/dining/aloha-isle/menu",
+    "https://ropedropplanner.com/wdw/dining/sunshine-tree-terrace/menu",
+    "https://ropedropplanner.com/wdw/snack-tour/magic_kingdom"
+   ]
+  },
+  {
+   "q": "Where can I get a churro at Disneyland?",
+   "intent": "menu",
+   "confidence": 0.95,
+   "answer": "Our menu data shows churro on the menu at 7 stands at Disneyland Resort (menus read Oct 22):\n\n- **Disneyland Park:** Market House: Churro Hand Tart; Stage Door Café: Churro Funnel Cake; The Golden Horseshoe: Cookie Butter Churro Sundae\n- **California Adventure:** Cozy Cone Motel 1 - Churros: Churro; Señor Buzz Churros: Cinnamon Super Galaxy Churro; Terran Treats: Cygnus X-1 Churro, Ube Cheesecake Churro\n- **Downtown Disney:** Wetzel's Pretzels: Choco Churro Bitz",
+   "links": [
+    "https://ropedropplanner.com/dlr/dining/market-house/menu",
+    "https://ropedropplanner.com/dlr/dining/stage-door-caf-dl/menu",
+    "https://ropedropplanner.com/dlr/dining/the-golden-horseshoe-dl/menu",
+    "https://ropedropplanner.com/dlr/dining/cozy-cone-motel-1-churros-dca/menu",
+    "https://ropedropplanner.com/dlr/food-prices"
+   ]
+  },
+  {
+   "q": "Do they still sell the turkey leg at Magic Kingdom?",
+   "intent": "menu",
+   "confidence": 0.95,
+   "answer": "Our menu data shows turkey leg on the menu at 2 stands at Magic Kingdom (menus read Oct 21):\n\n- **Magic Kingdom:** Liberty Square Market: Turkey Leg; Prince Eric's Village Market: Turkey Leg",
+   "links": [
+    "https://ropedropplanner.com/wdw/dining/liberty-square-market/menu",
+    "https://ropedropplanner.com/wdw/dining/prince-eric-village-market/menu",
+    "https://ropedropplanner.com/wdw/snack-tour/magic_kingdom"
+   ]
+  }
+ ]
+}

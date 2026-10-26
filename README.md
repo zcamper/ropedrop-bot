@@ -36,18 +36,20 @@ What it does:
 What it can answer (all 12 parks at Walt Disney World, Disneyland Resort,
 Disneyland Paris, Tokyo, Hong Kong and Shanghai unless noted):
 
-| Topic                         | Examples                                                                                                        | Data window                                                                            |
-| ----------------------------- | --------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| Ride timing                   | "best time to ride Slinky", "Flight of Passage wait in the afternoon"                                           | posted-wait averages, last ~90 days                                                    |
-| Ride order at open            | "Rise or Indy first?"                                                                                           | opening-rush profile (first 15 min after the official open vs 2 h later), last 60 days |
-| Rope drop, busy/quiet windows | "what should we rope drop at HS on Saturday?"                                                                   | last 90 days                                                                           |
-| Crowds on a date or period    | "Is MK busy tomorrow?", "Mondays in mid-October", "least busy weeks this winter"                               | the site's crowd calendar forecast, next ~6 months; months/seasons ranked by week     |
-| Crowd patterns                | "quietest day of the week at Epcot", "weekends vs weekdays at Disneyland", "Tokyo DisneySea during Golden Week" | last 90 days; holidays for DLR/TDR/HKDL                                                |
-| Park hours                    | "MK hours tomorrow"                                                                                             | Disney's published hours, next 30 days                                                 |
-| Lightning Lane (WDW)          | "Multi Pass price at MK on Oct 3", "when does 7DMT Single Pass sell out?"                                       | captured prices; sell-out times in ET since Apr 2026                                   |
-| Menus and prices              | "how much is a Dole Whip", "breakfast menu at Be Our Guest", Drinking Around the World                          | Disney menus seen in the last 30 days                                                  |
-| Ride facts                    | height ("what can a 40-inch kid ride"), indoor rides, rides with no minimum height, rain-sensitive rides        | ride data / rain analysis window                                                       |
-| Events and closures           | "Halloween party on Oct 9?", "what's closed for refurb at MK?"                                                  | Disney's schedule (14 days), closures as of the nightly snapshot                       |
+| Topic                         | Examples                                                                                                                          | Data window                                                                            |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Ride timing                   | "best time to ride Slinky", "Flight of Passage wait in the afternoon"                                                             | posted-wait averages, last ~90 days                                                    |
+| Ride order at open            | "Rise or Indy first?"                                                                                                             | opening-rush profile (first 15 min after the official open vs 2 h later), last 60 days |
+| Rope drop, busy/quiet windows | "what should we rope drop at HS on Saturday?"                                                                                     | last 90 days                                                                           |
+| Crowds on a date or period    | "Is MK busy tomorrow?", "Mondays in mid-October", "least busy weeks this winter"                                                  | the site's crowd calendar forecast, next ~6 months; months/seasons ranked by week      |
+| Crowd patterns                | "quietest day of the week at Epcot", "weekends vs weekdays at Disneyland", "Tokyo DisneySea during Golden Week"                   | last 90 days; holidays for DLR/TDR/HKDL                                                |
+| Park hours                    | "MK hours tomorrow"                                                                                                               | Disney's published hours, next 30 days                                                 |
+| Lightning Lane (WDW)          | "Multi Pass price at MK on Oct 3", "when does 7DMT Single Pass sell out?"                                                         | captured prices; sell-out times in ET since Apr 2026                                   |
+| Menus and prices              | "how much is a Dole Whip", "breakfast menu at Be Our Guest", Drinking Around the World                                            | Disney menus seen in the last 30 days                                                  |
+| Food items (WDW, Disneyland)  | "what flavors of Dole Whip are at Disney World?", "where can I get a churro at Disneyland?", "is the Mickey pretzel still at MK?" | every menu row we hold, current vs "not listed since <date>" per stand                 |
+| Ride facts                    | height ("what can a 40-inch kid ride"), indoor rides, rides with no minimum height, rain-sensitive rides                          | ride data / rain analysis window                                                       |
+| Events and closures           | "Halloween party on Oct 9?", "what's closed for refurb at MK?"                                                                    | Disney's schedule (14 days), closures as of the nightly snapshot                       |
+| Ticketed parties (WDW, DLR)   | "when can I meet Powerline Max in December?", "which Very Merry nights are sold out?", "is Jollywood worth it?" (facts only)      | Disney's event + ticket pages, captured twice a day; answers say "as of <date>"        |
 
 Opinion questions ("is Lightning Lane worth it?", "which hotel is better?",
 restaurant recommendations) are left to humans: the bot stays silent. Every
@@ -250,6 +252,16 @@ for these intentional changes:
 | D. All six destinations answered; `intl_ride_aliases` for the international parks | The bundle has the data; Python answered WDW/DLR only.                                                                                                                                                                                                                                                                                                              | tokyo_golden_week (now answered from TDR holiday data)                                                                                                                                                            |
 | E. New intents (table above)                                                      | New data in the bundle. Height questions used to be treated as opinion.                                                                                                                                                                                                                                                                                             | height_tron (now "48-inch minimum, a 47-inch child is 1 inch too short")                                                                                                                                          |
 | F. No live waits                                                                  | The bundle has no live snapshot, so "current wait" answers fall back to the historical typical wait — what the Python code did whenever its live cache was stale (quality 0.5, silent at 0.7).                                                                                                                                                                      | —                                                                                                                                                                                                                 |
+
+Party and food-item answers (`src/bot/party.ts`, `src/bot/menuItems.ts`, ported
+2026-10-26 from `bot_party.py` / `bot_menu.py`) have their own golden sets in
+`test/fixtures/party_menu/`: `fixture` (the backend's unit-test data) and `prod`
+(a real export, with the backend's answers recorded at the same moment), built by
+`scripts/parity/gen_party_menu_expected.py`. `src/bot/partyMenu.test.ts` asserts
+identical intent, confidence, answer and links, except that party answers end
+with "From Disney's event pages as of <date>." (the bundle is nightly) and only
+link event pages the site has. Bundles without `parties.json` / `menu_items.json`
+fall back to the 14-day events answer and the menu-price answer.
 
 To regenerate the golden file after a backend change, see the header of
 `scripts/parity/gen_expected.py` (needs a checkout of the private backend).

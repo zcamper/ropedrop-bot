@@ -12,6 +12,8 @@
 //    closures) are detected before the original intent patterns.
 
 import { partialRatio, ratio } from './fuzz.js';
+import { detectMenu } from './menuItems.js';
+import { detectParty, MEET_CUE, partyTopics } from './party.js';
 import { hasPhrase, normalize, phraseSpans } from './text.js';
 import type { Common, Core, Dest, Ride } from './types.js';
 import { DESTS } from './types.js';
@@ -49,7 +51,10 @@ export type Intent =
   | 'ride_toddler'
   | 'ride_rain'
   | 'special_events'
-  | 'closures';
+  | 'closures'
+  // ported from the backend 2026-10-26 (bot_party.py, bot_menu.py)
+  | 'party'
+  | 'menu';
 
 export type RideMatch = {
   entityId: string;
@@ -94,6 +99,16 @@ export type ParsedQuestion = {
   heightIn: number | null;
   /** Match score of a restaurant named by a menu question (set when answering). */
   matchScore: number | null;
+  /** Party slug named in the question (bot_parse.detect_party). */
+  partySlug: string | null;
+  /** Party topics asked about, lead topic first (bot_parse.party_topics). */
+  partyTopics: string[];
+  /** Food/drink item tokens ("dole", "whip") for the menu intent. */
+  menuQuery: string[];
+  menuFlavors: boolean;
+  menuPrice: boolean;
+  /** flavors | where | price | still (question shape). */
+  menuKind: string | null;
 };
 
 // ---------------------------------------------------------------- destinations / parks
@@ -538,7 +553,13 @@ export function seasonWindow(
   const t = ymd(today);
   const inside = m1 <= m2 ? t.m >= m1 && t.m <= m2 : t.m >= m1 || t.m <= m2;
   // Year the season STARTS in: the current one when we're inside it, else the next start.
-  let y0 = inside ? (m1 > m2 && t.m <= m2 ? t.y - 1 : t.y) : t.m < m1 ? t.y : t.y + 1;
+  let y0 = inside
+    ? m1 > m2 && t.m <= m2
+      ? t.y - 1
+      : t.y
+    : t.m < m1
+      ? t.y
+      : t.y + 1;
   if (inside && qual === 'next') y0 += 1;
   const y1 = m1 <= m2 ? y0 : y0 + 1;
   const start = Math.max(mkDay(y0, m1, 1) as Day, today);
@@ -717,7 +738,8 @@ export function parseDates(
     }
   }
 
-  const ownWindow = monthWindow(textLower, today) ?? seasonWindow(textLower, today);
+  const ownWindow =
+    monthWindow(textLower, today) ?? seasonWindow(textLower, today);
   const win: [Day, Day] | null = ownWindow
     ? [ownWindow[0], ownWindow[1]]
     : (ctx?.window ?? null);
@@ -921,7 +943,7 @@ const OPINION_PATTERNS = [
   /\bintense\b/,
   /\bmotion sick/,
   /\bheight (requirement|limit|restriction)/,
-  /\bhow tall\b/,  // 2026-10-24 mined-question test: "Is it crazy to say they should refurbish Space
+  /\bhow tall\b/, // 2026-10-24 mined-question test: "Is it crazy to say they should refurbish Space
   // Mountain?" got a closure-status reply.
   /\bshould (they|disney|it) (be )?\w+/,
   /\bis it (crazy|just me|weird|bad|wrong)\b/,
@@ -941,7 +963,7 @@ const HARD_OPINION = [
   /\bscary\b/,
   /\bintense\b/,
   /\bmotion sick/,
-  /\b(better|best) (restaurant|place to eat|hotel|resort)\b/,  // 2026-10-24 mined-question test: "Is it crazy to say they should refurbish Space
+  /\b(better|best) (restaurant|place to eat|hotel|resort)\b/, // 2026-10-24 mined-question test: "Is it crazy to say they should refurbish Space
   // Mountain?" got a closure-status reply.
   /\bshould (they|disney|it) (be )?\w+/,
   /\bis it (crazy|just me|weird|bad|wrong)\b/,
@@ -1167,6 +1189,8 @@ export function buildContext(
 export type ParseEnv = RideCtx & {
   /** Park-local "today" for a destination (tests pass a fixed day). */
   today: (dest: Dest) => Day;
+  /** Does any WDW/DLR menu row name these item tokens (in order)? */
+  menuNameExists?: (tokens: string[]) => Promise<boolean>;
 };
 
 export async function parseQuestion(
@@ -1207,6 +1231,12 @@ export async function parseQuestion(
     sub: null,
     heightIn: null,
     matchScore: null,
+    partySlug: null,
+    partyTopics: [],
+    menuQuery: [],
+    menuFlavors: false,
+    menuPrice: false,
+    menuKind: null,
   };
 
   let parks = detectParks(common, norm, pq.destination);
@@ -1315,6 +1345,58 @@ export async function parseQuestion(
   }
   pq.timeWindow = parseTimeWindow(textLower, norm);
   pq.heightIn = childHeight(textLower);
+
+  // Ticketed parties / After Hours (bot_parse, 2026-10-26): a named party, or a
+  // meet-a-character question (answered only for characters Disney lists at a
+  // party; party.ts). Facts only, so this also takes "is X worth it?".
+  const party = detectParty(
+    norm,
+    pq.destinationExplicit ? pq.destination : null,
+    pq.parkSlug
+  );
+  if (party || (MEET_CUE.test(norm) && !pq.rides.length)) {
+    if (party) {
+      if (!pq.destinationExplicit || party[0] === pq.destination) {
+        if (party[0] !== pq.destination) {
+          pq.destination = party[0];
+          pq.today = env.today(party[0]);
+        }
+        pq.destinationExplicit = true;
+      }
+      pq.partySlug = party[1];
+    }
+    pq.partyTopics = partyTopics(norm);
+    pq.intent = 'party';
+    pq.intentKeyword = true;
+    return pq;
+  }
+
+  // Food / drink items (bot_parse.detect_menu, 2026-10-26): "what flavors of
+  // Dole Whip", "where can I get a churro", "is the Mickey pretzel still at MK",
+  // "how much is a churro". Never for ride, opinion, Lightning Lane or Drinking
+  // Around the World questions; a phrase that isn't a clear food word must
+  // match a menu item name. Answered by menuItems.ts (WDW/DLR); other resorts
+  // and restaurant-named price questions fall back to menu_price there.
+  if (
+    !pq.rides.length &&
+    !isOpinion(norm) &&
+    !DAW_WORDS.test(norm) &&
+    !LL_WORDS.test(norm)
+  ) {
+    const menu = detectMenu(norm, common.park_aliases);
+    if (
+      menu &&
+      (menu.strong || (await env.menuNameExists?.(menu.tokens)) === true)
+    ) {
+      pq.menuQuery = menu.tokens;
+      pq.menuFlavors = menu.flavors;
+      pq.menuPrice = menu.price;
+      pq.menuKind = menu.kind;
+      pq.intent = 'menu';
+      pq.intentKeyword = true;
+      return pq;
+    }
+  }
 
   const extra = detectExtra(norm, textLower, pq.heightIn, pq.dateExplicit);
   if (

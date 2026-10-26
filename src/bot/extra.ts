@@ -11,6 +11,8 @@
 import { MAX_CLOSURES_AGE_MS } from '../core/config.js';
 import type { AnswerEnv, Facts, Link } from './answer.js';
 import { partialRatio } from './fuzz.js';
+import { menuItemFacts, menuItemLinks, menuItemText } from './menuItems.js';
+import { partyFacts, partyLinks, partyText } from './party.js';
 import { parkDisplayName, targetParks, type ParsedQuestion } from './parse.js';
 import { hasPhrase, normalize } from './text.js';
 import type {
@@ -48,6 +50,8 @@ export const EXTRA_INTENTS = new Set<string>([
   'ride_rain',
   'special_events',
   'closures',
+  'party',
+  'menu',
 ]);
 
 export const EXTRA_LABELS: Record<string, string> = {
@@ -63,11 +67,14 @@ export const EXTRA_LABELS: Record<string, string> = {
   ride_rain: 'Rain',
   special_events: 'Special events',
   closures: 'Closures',
+  party: 'Party',
+  menu: 'Menus',
 };
 
 const MAX_LIST = 10;
 const WATER_PARK_WORDS = /\b(water ?parks?|typhoon lagoon|blizzard beach)\b/;
-const CANT_RIDE = /\b(not|cant|can t|cannot|wont|won t|too (short|small|little)|unable|isnt|is not) (be able to )?(ride|tall|go on|do)\b|\b(not|cant|can t|cannot) ride\b|\btoo (short|small|little)\b/;
+const CANT_RIDE =
+  /\b(not|cant|can t|cannot|wont|won t|too (short|small|little)|unable|isnt|is not) (be able to )?(ride|tall|go on|do)\b|\b(not|cant|can t|cannot) ride\b|\btoo (short|small|little)\b/;
 
 // ---------------------------------------------------------------- shared helpers
 
@@ -858,7 +865,8 @@ function heightFacts(env: AnswerEnv, core: Core, pq: ParsedQuestion): Facts {
   // by park, and a "can't ride" question leads with what's too tall for the child.
   const water = WATER_PARK_WORDS.test(pq.normalized);
   const rides = Object.values(core.rides).filter(
-    (r) => r.height_min_in && (r.park ? parkOk(pq, r.park) : water && !pq.parkSlug)
+    (r) =>
+      r.height_min_in && (r.park ? parkOk(pq, r.park) : water && !pq.parkSlug)
   );
   if (rides.length < 3) return facts;
   rides.sort(
@@ -869,7 +877,8 @@ function heightFacts(env: AnswerEnv, core: Core, pq: ParsedQuestion): Facts {
   const fmt = (r: Ride) => `${r.name} (${r.height_min_in} in)`;
   const parkOrder = (rs: Ride[]) => {
     const order: string[] = [];
-    for (const r of rs) if (!order.includes(r.park ?? '')) order.push(r.park ?? '');
+    for (const r of rs)
+      if (!order.includes(r.park ?? '')) order.push(r.park ?? '');
     return order;
   };
   const grouped = (rs: Ride[], max: number): string | null => {
@@ -878,7 +887,9 @@ function heightFacts(env: AnswerEnv, core: Core, pq: ParsedQuestion): Facts {
     if (parks.length === 1) return joinList(rs.map(fmt), max);
     return parks
       .map((p) => {
-        const name = p ? parkDisplayName(env.common, pq.destination, p) : 'Water parks';
+        const name = p
+          ? parkDisplayName(env.common, pq.destination, p)
+          : 'Water parks';
         return `${name}: ${joinList(rs.filter((r) => (r.park ?? '') === p).map(fmt), 4)}`;
       })
       .join('; ');
@@ -1321,12 +1332,47 @@ export async function extraFacts(
       return eventsFacts(env, core, pq);
     case 'closures':
       return closuresFacts(env, core, pq);
+    case 'party': {
+      const f = await partyFacts(env, pq);
+      if (f) return f;
+      // A bundle from before parties.json (2026-10-26): the 14-day schedule.
+      pq.intent = 'special_events';
+      return eventsFacts(env, core, pq);
+    }
+    case 'menu':
+      return menuFacts(env, core, pq);
     default:
       return { type: 'none', _quality: 0 };
   }
 }
 
+/**
+ * Food/drink item questions. A price question that names a restaurant keeps
+ * the restaurant price answer (menu_price), and so does a resort or bundle
+ * without menu_items data (other resorts; bundles before 2026-10-26).
+ */
+async function menuFacts(
+  env: AnswerEnv,
+  core: Core,
+  pq: ParsedQuestion
+): Promise<Facts> {
+  if (pq.menuPrice && matchRestaurant(env, core, pq)) {
+    pq.intent = 'menu_price';
+    return menuPriceFacts(env, core, pq);
+  }
+  const f = await menuItemFacts(env, pq);
+  if (f) return f;
+  if (pq.menuPrice) {
+    pq.intent = 'menu_price';
+    return menuPriceFacts(env, core, pq);
+  }
+  return { type: 'menu', _quality: 0 };
+}
+
 export function extraTemplate(pq: ParsedQuestion, facts: Facts): string {
+  // Ported intents: their own composed text, or nothing (bot_answer.template_answer).
+  if (pq.intent === 'party') return partyText(facts);
+  if (pq.intent === 'menu') return menuItemText(facts);
   if (!(facts._quality > 0))
     return "Sorry — I couldn't find data to answer that one.";
   switch (pq.intent) {
@@ -1362,9 +1408,11 @@ export function extraTemplate(pq: ParsedQuestion, facts: Facts): string {
 export async function extraLinks(
   _env: AnswerEnv,
   _core: Core,
-  _pq: ParsedQuestion,
+  pq: ParsedQuestion,
   facts: Facts
 ): Promise<Link[]> {
+  if (pq.intent === 'party') return partyLinks(facts);
+  if (pq.intent === 'menu') return menuItemLinks(facts);
   return (facts._links as Link[] | undefined) ?? [];
 }
 
@@ -1384,6 +1432,11 @@ const RIDE_TARGETED = new Set([
  * (Lightning Lane, Drinking Around the World) keep a usable score.
  */
 export function extraParseScore(pq: ParsedQuestion): number {
+  // Backend bot_answer.parse_score for the ported intents.
+  if (pq.intent === 'party') return pq.partySlug ? 1.0 : 0.9;
+  // Menus differ by resort: answer only when the question names one (or a park).
+  if (pq.intent === 'menu')
+    return pq.destinationExplicit || pq.parkSlug ? 1.0 : 0.6;
   if (pq.ride && RIDE_TARGETED.has(pq.intent)) return pq.ride.score;
   if (
     pq.matchScore !== null &&
