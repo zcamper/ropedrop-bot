@@ -57,6 +57,9 @@ export interface Store {
   /** Number of actual replies in the last `windowMs` (prunes older entries). */
   countRecentReplies(nowMs: number, windowMs: number): Promise<number>;
   recordReply(thingId: string, nowMs: number, windowMs: number): Promise<void>;
+  /** The bot's reply under a thing (set since 0.0.14; older replies have none). */
+  getReplyId?(thingId: string): Promise<string | undefined>;
+  setReplyId?(thingId: string, replyId: string, ttlSeconds: number): Promise<void>;
 }
 
 export type Logger = {
@@ -231,8 +234,18 @@ async function respond(
 
   // 1. Never reply twice. A dry-run marker blocks the automatic path (so
   //    flipping dryRun off doesn't answer a backlog) but not a mod's request.
+  //    A mod can re-ask when the earlier reply is gone (2026-10-26: v0.0.9's wrong
+  //    rope-drop reply was deleted, and the menu kept saying "already replied").
   const marker = await store.getReplied(id);
-  if (marker === 'live' || (marker === 'dry' && mode === 'auto')) {
+  let reanswer = false;
+  if (marker === 'live' && mode === 'manual') {
+    const prior = await store.getReplyId?.(id);
+    reanswer = !prior || !(await deps.isStillVisible(prior));
+  }
+  if (
+    !reanswer &&
+    (marker === 'live' || (marker === 'dry' && mode === 'auto'))
+  ) {
     return { status: 'duplicate', reason: `already_handled_${marker}` };
   }
 
@@ -270,6 +283,7 @@ async function respond(
   const threshold =
     mode === 'manual' ? MANUAL_CONFIDENCE_FLOOR : s.minConfidence;
   if (!meetsConfidence(confidence, threshold) || !res.data.answer.trim()) {
+    await store.unlock(lockKey); // a retry (e.g. after a data refresh) asks again
     return { status: 'low_confidence', confidence, threshold };
   }
 
@@ -285,11 +299,13 @@ async function respond(
   }
 
   // 7. Re-check the marker right before posting (a parallel path may have won).
-  if ((await store.getReplied(id)) === 'live')
+  if (!reanswer && (await store.getReplied(id)) === 'live')
     return { status: 'duplicate', reason: 'already_handled_live' };
 
   const commentId = await deps.submitComment(id, body);
   await store.setReplied(id, 'live', DEDUPE_TTL_SECONDS);
+  await store.setReplyId?.(id, commentId, DEDUPE_TTL_SECONDS);
+  await store.unlock(lockKey); // the 'live' marker guards from here on
   await store.recordReply(id, nowMs, CAP_WINDOW_MS);
   return { status: 'replied', commentId, confidence };
 }

@@ -21,6 +21,13 @@ class MemStore implements Store {
   replied = new Map<string, ReplyMarker>();
   locks = new Set<string>();
   replies: { id: string; t: number }[] = [];
+  replyIds = new Map<string, string>();
+  async getReplyId(id: string) {
+    return this.replyIds.get(id);
+  }
+  async setReplyId(id: string, replyId: string) {
+    this.replyIds.set(id, replyId);
+  }
   async getReplied(id: string) {
     return this.replied.get(id);
   }
@@ -58,6 +65,7 @@ type World = {
   weeklyResult: Result<{ title: string; body: string }>;
   mods: Set<string>;
   visible: boolean;
+  gone: Set<string>;
   now: Date;
 };
 
@@ -86,13 +94,14 @@ function makeWorld(): World {
     weeklyResult: { ok: true, data: { title: 'What changed', body: 'Back open: X' } },
     mods: new Set<string>(['modperson']),
     visible: true,
+    gone: new Set<string>(),
     now: new Date('2026-09-25T11:05:00Z'), // 7:05 ET
   } as unknown as World;
   w.deps = {
     settings: async () => normalizeSettings(w.settings),
     botUsername: async () => 'ropedrop-bot',
     isModerator: async (u) => w.mods.has(u.toLowerCase()),
-    isStillVisible: async () => w.visible,
+    isStillVisible: async (id) => w.visible && !w.gone.has(id),
     ask: async (_s, q) => {
       w.asked.push(q);
       return w.askResult;
@@ -377,6 +386,36 @@ void test('manual: still never replies twice; can answer after a dry-run marker'
     (await handlePost(w.deps, postEv(), 'manual')).status,
     'replied'
   );
+});
+
+void test('manual: re-answers when the earlier reply is gone; not while it is up', async () => {
+  const first = await handlePost(w.deps, postEv(), 'manual');
+  assert.equal(first.status, 'replied');
+  const reply = (first as { commentId: string }).commentId;
+  assert.equal((await handlePost(w.deps, postEv(), 'manual')).status, 'duplicate');
+  w.gone.add(reply); // mod deleted the bot's reply
+  assert.equal((await handlePost(w.deps, postEv(), 'manual')).status, 'replied');
+  assert.equal(w.comments.length, 2);
+  // Automatic delivery never re-answers.
+  w.gone.add('t1_reply2');
+  assert.equal((await handlePost(w.deps, postEv(), 'auto')).status, 'duplicate');
+});
+
+void test('manual: a reply from before reply ids were stored can be re-asked', async () => {
+  await w.store.setReplied('t1_old', 'live');
+  const o = await handleComment(
+    w.deps,
+    { id: 't1_old', body: 'u/ropedrop-bot is EPCOT busy Friday?', authorName: 'v', deleted: false, spam: false },
+    'manual'
+  );
+  assert.equal(o.status, 'replied');
+});
+
+void test('no confident answer releases the lock, so a retry asks again (not in_flight)', async () => {
+  w.askResult = { ok: true, data: { answer: 'x', confidence: 0.1, links: [], intent: 'other' } };
+  assert.equal((await handlePost(w.deps, postEv(), 'manual')).status, 'low_confidence');
+  w.askResult = { ok: true, data: { answer: 'ok', confidence: 0.9, links: [], intent: 'menu' } };
+  assert.equal((await handlePost(w.deps, postEv(), 'manual')).status, 'replied');
 });
 
 void test('outcomeToast covers error without leaking details', () => {

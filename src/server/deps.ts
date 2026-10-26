@@ -101,6 +101,7 @@ async function parentText(parentId: string): Promise<string | undefined> {
 
 const k = {
   replied: (id: string) => `replied:${id}`,
+  replyId: (id: string) => `replyid:${id}`,
   replies: 'replies:window',
 };
 
@@ -111,6 +112,14 @@ const store: Store = {
   },
   async setReplied(id, marker, ttlSeconds) {
     await redis.set(k.replied(id), marker, {
+      expiration: new Date(Date.now() + ttlSeconds * 1000),
+    });
+  },
+  async getReplyId(id) {
+    return (await redis.get(k.replyId(id))) ?? undefined;
+  },
+  async setReplyId(id, replyId, ttlSeconds) {
+    await redis.set(k.replyId(id), replyId, {
       expiration: new Date(Date.now() + ttlSeconds * 1000),
     });
   },
