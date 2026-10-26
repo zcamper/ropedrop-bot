@@ -886,6 +886,9 @@ const INTENT_PATTERNS: [Intent, RegExp[]][] = [
     'best_time',
     [
       /\bbest time\b/,
+      // 2026-10-26 Reddit: "Is there any good time to ride Tron?" fell through to 'other'.
+      /\b(good|better|ideal|right) times? (to|for)\b/,
+      /\bwhen('?s| is) (a )?good time\b/,
       /\bwhat time (is best|should)\b/,
       /\bwhen (is the best|should (i|we))\b/,
       /\bshortest (wait|line)/,

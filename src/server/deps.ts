@@ -16,7 +16,7 @@ import {
   type RawSettings,
 } from '../core/config.js';
 import type { Deps, ReplyMarker, Store } from '../core/engine.js';
-import { asT1, asT3, isDeletedText } from '../core/logic.js';
+import { asT1, asT3, buildPostQuestion, isDeletedText } from '../core/logic.js';
 
 const SETTING_KEYS: (keyof BotSettings)[] = [
   'minConfidence',
@@ -83,6 +83,20 @@ async function isStillVisible(thingId: string): Promise<boolean> {
     !isDeletedText(p.authorName) &&
     !isDeletedText(p.body)
   );
+}
+
+/** What a bare summon is asking about: the parent comment, or the post's title + body. */
+async function parentText(parentId: string): Promise<string | undefined> {
+  if (parentId.startsWith('t1_')) {
+    const c = await reddit.getCommentById(asT1(parentId));
+    if (c.removed || c.spam || isDeletedText(c.body)) return undefined;
+    if (c.authorName?.toLowerCase() === (await botUsername()).toLowerCase())
+      return undefined;
+    return c.body;
+  }
+  const p = await reddit.getPostById(asT3(parentId));
+  if (p.removed || p.spam) return undefined;
+  return buildPostQuestion(p.title ?? '', isDeletedText(p.body) ? '' : p.body);
 }
 
 const k = {
@@ -169,6 +183,7 @@ export const deps: Deps = {
   botUsername,
   isModerator,
   isStillVisible,
+  parentText,
   ask: async (_s, q) => askFromSources(await sources(), new Date(), q),
   dailySummary: async (s) =>
     dailyFromSources(await sources(), new Date(), s.dailyDestination),
@@ -230,5 +245,6 @@ export async function loadCommentEvent(commentId: string) {
     authorName: c.authorName,
     deleted: false,
     spam: c.spam || c.removed,
+    parentId: c.parentId,
   };
 }
