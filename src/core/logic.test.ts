@@ -75,6 +75,23 @@ void test('stripMention removes every mention and tidies whitespace', () => {
   );
 });
 
+void test('profile-link mentions (Reddit apps) count as mentions and strip clean', () => {
+  // 2026-10-26: the leftover URL read as "ropedrop" and got a rope-drop answer.
+  for (const body of [
+    '[u/ropedrop-bot](https://www.reddit.com/user/ropedrop-bot/)',
+    '[RopeDrop-Bot](https://reddit.com/u/ropedrop-bot)',
+    'https://www.reddit.com/user/ropedrop-bot/',
+  ]) {
+    assert.equal(mentionsBot(body, BOT), true, body);
+    assert.equal(stripMention(body, BOT), '', body);
+  }
+  assert.equal(
+    stripMention('[u/ropedrop-bot](https://www.reddit.com/user/ropedrop-bot/) is Tron shorter at night?', BOT),
+    'is Tron shorter at night?'
+  );
+  assert.equal(mentionsBot('https://www.reddit.com/user/ropedrop-bot2/', BOT), false);
+});
+
 // ---------------------------------------------------------------- questions
 
 void test('buildPostQuestion joins title and body with a blank line', () => {
@@ -168,6 +185,8 @@ void test('shouldHandleComment: skips bot, removed, empty-after-mention; answers
   assert.equal(reason(comment({ spam: true })), 'deleted_or_removed');
   assert.equal(reason(comment({ body: '[deleted]' })), 'deleted_or_removed');
   assert.equal(reason(comment({ body: 'u/ropedrop-bot' })), 'empty_question');
+  // A bare summon under something is answered from the parent (engine).
+  assert.equal(reason(comment({ body: 'u/ropedrop-bot', parentId: 't1_q' })), 'handled');
 });
 
 void test('shouldHandleComment: manual works without a mention', () => {

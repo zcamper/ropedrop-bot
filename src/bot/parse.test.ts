@@ -235,3 +235,19 @@ void test('mined-question misfires stay silent: opinion posts, a bare month as "
     assert.ok(r.confidence < 0.7, `${q} -> ${r.confidence} ${r.answer}`);
   }
 });
+
+void test('"any good time to ride X" is a best-time question (2026-10-26 Reddit)', async () => {
+  const env = await penv();
+  for (const q of [
+    "Is there any good time to ride Tron? I've heard riding at night is just as bad as riding during the day because people want to see it lit up.",
+    'When is a good time to do Haunted Mansion?',
+    'Is there a better time for Slinky Dog?',
+  ]) {
+    const pq = await parseQuestion(env, q);
+    assert.equal(pq.intent, 'best_time', q);
+    assert.ok(pq.ride, q);
+  }
+  // "Have a good time" is not a question about timing.
+  const bye = await parseQuestion(env, 'Have a good time at Tron tonight!');
+  assert.notEqual(bye.intent, 'best_time');
+});

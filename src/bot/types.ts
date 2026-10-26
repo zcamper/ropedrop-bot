@@ -53,6 +53,10 @@ export type Manifest = {
         daw?: string;
         menus?: string[];
         posts?: string;
+        /** Ticketed parties / After Hours (wdw, dlr; added 2026-10-26). */
+        parties?: string;
+        /** Every menu row with its current / not-seen-since status (wdw, dlr; added 2026-10-26). */
+        menu_items?: string[];
       };
     }
   >;
@@ -422,6 +426,80 @@ export type MenuFile = Header & {
   >;
 };
 
+/** [date, adult price, child price, sold out] (prices before tax; null = not captured). */
+export type PartyNight = [string, number | null, number | null, boolean | null];
+/** [kind, name, location] — kind: character|show|parade|fireworks|ride|treat|dining|venue. */
+export type PartyOffering = [string, string, string | null];
+/** [disney entity id, name, entity kind, night, start "HH:MM", end "HH:MM" | null]. */
+export type PartyShowtime = [
+  string,
+  string,
+  string | null,
+  string,
+  string,
+  string | null,
+];
+
+export type PartyEvent = {
+  name: string;
+  kind: string;
+  park: string | null;
+  ticketed: boolean;
+  start: string | null;
+  end: string | null;
+  early_entry: string | null;
+  price_min: number | null;
+  price_max: number | null;
+  status_note: string | null;
+  /** Park-local date of the capture that last saw the event. */
+  seen: string | null;
+  /** Our /{dest}/special-events/{slug} page (null when the site has none). */
+  url: string | null;
+  series_url: string | null;
+  nights: PartyNight[];
+  offerings: PartyOffering[];
+  showtimes: PartyShowtime[];
+};
+
+/** parties.json (wdw, dlr; added 2026-10-26, optional). */
+export type Parties = Header & {
+  captured_at: string | null;
+  urls: { special_events: string };
+  events: Record<string, PartyEvent>;
+  /** Characters the regular-day character locator lists (not party-only). */
+  regular_characters: string[];
+};
+
+/** [item name, price | null, status c|g|u, last_seen park-local "YYYY-MM-DDTHH:MM" | null]. */
+export type MenuItemRow = [
+  string,
+  number | null,
+  'c' | 'g' | 'u',
+  string | null,
+];
+
+/** menu_items.json / menu_items-NN.json (wdw, dlr; added 2026-10-26, optional). */
+export type MenuItemsFile = Header & {
+  part: number;
+  parts: number;
+  currency: string;
+  resort_newest: string | null;
+  links: {
+    snack_tour: Record<string, { title: string; url: string }>;
+    food_prices: { title: string; url: string } | null;
+  };
+  stands: Record<
+    string,
+    {
+      name: string;
+      area: string;
+      place: string | null;
+      menu_url: string | null;
+      items: MenuItemRow[];
+    }
+  >;
+};
+
 /** One ready-to-post weekly post (server-built and fact-checked; see DSNY app/services/bot_weekly.py). */
 export type WeeklyPost = {
   ok: boolean;
@@ -453,4 +531,9 @@ export interface BundleSource {
   menuParts(dest: Dest): Promise<number>;
   /** Weekly posts; absent in bundles from before 2026-10-24. */
   posts?(dest: Dest): Promise<Posts | null>;
+  /** Ticketed parties; absent (null) in bundles from before 2026-10-26. */
+  parties?(dest: Dest): Promise<Parties | null>;
+  /** Menu rows with status; 0 parts in bundles from before 2026-10-26. */
+  menuItems?(dest: Dest, part: number): Promise<MenuItemsFile | null>;
+  menuItemParts?(dest: Dest): Promise<number>;
 }

@@ -80,6 +80,7 @@ internal.post('/triggers/comment-create', async (c) => {
         authorName: input.author?.name,
         deleted: !!comment?.deleted,
         spam: !!comment?.spam,
+        parentId: comment?.parentId || undefined,
       },
       'auto'
     );

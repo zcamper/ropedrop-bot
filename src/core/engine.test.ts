@@ -291,6 +291,42 @@ void test('auto comment: mention required; question has mention stripped; reply 
   assert.equal(w.comments[0]!.parent, 't1_c1');
 });
 
+void test('bare summon (link form) answers the parent comment; reply goes under the summon', async () => {
+  // 2026-10-26 r/RopeDropPlanner: "u/bot" replying to "Is there any good time to ride
+  // Tron?" arrived as a profile link and got a generic rope-drop answer.
+  const parents: string[] = [];
+  w.deps.parentText = async (id) => {
+    parents.push(id);
+    return id === 't1_q' ? 'Is there any good time to ride Tron? u/ropedrop-bot' : undefined;
+  };
+  const o = await handleComment(
+    w.deps,
+    {
+      id: 't1_summon',
+      body: '[u/ropedrop-bot](https://www.reddit.com/user/ropedrop-bot/)',
+      authorName: 'v',
+      deleted: false,
+      spam: false,
+      parentId: 't1_q',
+    },
+    'auto'
+  );
+  assert.equal(o.status, 'replied');
+  assert.deepEqual(parents, ['t1_q']);
+  assert.equal(w.asked[0], 'Is there any good time to ride Tron?');
+  assert.equal(w.comments[0]!.parent, 't1_summon');
+  assert.match(w.logs.at(-1)!, /question=parent/);
+
+  // Parent gone (or the bot's own comment): nothing to answer, API not called.
+  const gone = await handleComment(
+    w.deps,
+    { id: 't1_s2', body: 'u/ropedrop-bot', authorName: 'v', deleted: false, spam: false, parentId: 't1_x' },
+    'auto'
+  );
+  assert.deepEqual(gone, { status: 'skipped', reason: 'empty_question' });
+  assert.equal(w.asked.length, 1);
+});
+
 void test('handler never throws: Reddit failure becomes an error outcome', async () => {
   w.deps.submitComment = async () => {
     throw new Error('RATELIMIT');

@@ -83,6 +83,11 @@ export type Deps = {
     dest: Destination,
     dateKey: string
   ) => Promise<Result<{ title: string; body: string; source?: string }>>;
+  /**
+   * Question text of the comment/post a bare summon replied to (post = title + body);
+   * undefined when it is gone, removed, or the bot's own comment.
+   */
+  parentText?: (parentId: string) => Promise<string | undefined>;
   submitComment: (parentId: string, text: string) => Promise<string>;
   submitPost: (title: string, text: string, sticky: boolean) => Promise<string>;
   store: Store;
@@ -121,6 +126,7 @@ export type CommentEvent = {
   authorName: string | undefined;
   deleted: boolean;
   spam: boolean;
+  parentId?: string | undefined;
 };
 
 export type EventKind = 'post' | 'comment' | 'mention';
@@ -131,6 +137,8 @@ type Trace = {
   confidence?: number;
   destination?: string;
   source?: string;
+  /** The question came from the comment/post a bare summon replied to. */
+  fromParent?: boolean;
 };
 
 export async function handlePost(
@@ -184,12 +192,24 @@ export async function handleComment(
       manual: mode === 'manual',
     };
     const d = shouldHandleComment(ev, opts);
+    let question = d.handle ? buildCommentQuestion(ev.body ?? '', bot) : '';
+    // A bare summon under a question ("u/bot" as a reply) asks about that question.
+    // The reply still goes under the summoning comment.
+    if (d.handle && !question && ev.parentId && deps.parentText) {
+      question = buildCommentQuestion(
+        (await deps.parentText(ev.parentId)) ?? '',
+        bot
+      );
+      if (question) trace.fromParent = true;
+    }
     outcome = !d.handle
       ? { status: 'skipped', reason: d.reason }
-      : await respond(deps, s, mode, trace, {
-          thingId: ev.id as string,
-          question: buildCommentQuestion(ev.body ?? '', bot),
-        });
+      : !question
+        ? { status: 'skipped', reason: 'empty_question' }
+        : await respond(deps, s, mode, trace, {
+            thingId: ev.id as string,
+            question,
+          });
   } catch (err) {
     outcome = errorOutcome(err);
   }
@@ -342,6 +362,7 @@ export function outcomeLine(
     parts.push(`confidence=${trace.confidence}`);
   if (trace.destination) parts.push(`dest=${field(trace.destination)}`);
   if (trace.source) parts.push(`data=${field(trace.source)}`);
+  if (trace.fromParent) parts.push('question=parent');
   return parts.join(' ');
 }
 

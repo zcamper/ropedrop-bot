@@ -28,6 +28,7 @@ import {
   extraParseScore,
   extraTemplate,
 } from './extra.js';
+import { menuNameExists } from './menuItems.js';
 import {
   buildContext,
   MAX_COMPARE_RIDES,
@@ -708,13 +709,19 @@ export const WEEK_MODE_MIN_DAYS = 15;
  * average predicted level across the asked parks instead (a week needs >= 4 days with
  * a forecast), and say where the forecast stops.
  */
-function factsCrowdWeeks(common: Common, core: Core, pq: ParsedQuestion): Facts {
+function factsCrowdWeeks(
+  common: Common,
+  core: Core,
+  pq: ParsedQuestion
+): Facts {
   const parks = targetParks(common, pq);
   const out: Facts = {
     type: 'crowd_weeks',
     scale: '1 (quietest) to 10 (busiest)',
     data_basis: 'prediction from historical wait-time data (not live)',
-    period: pq.dateLabel ?? `${fmtDay(pq.dates[0] as Day)} to ${fmtDay(pq.dates[pq.dates.length - 1] as Day)}`,
+    period:
+      pq.dateLabel ??
+      `${fmtDay(pq.dates[0] as Day)} to ${fmtDay(pq.dates[pq.dates.length - 1] as Day)}`,
     parks: parks.map((p) => pname(common, pq, p)),
     scope:
       parks.length === 1
@@ -724,14 +731,21 @@ function factsCrowdWeeks(common: Common, core: Core, pq: ParsedQuestion): Facts 
   };
   const asOf = staleAsOf(core, pq);
   if (asOf) out.as_of = asOf;
-  const byWeek = new Map<Day, { days: Set<Day>; levels: number[]; conf: string[] }>();
+  const byWeek = new Map<
+    Day,
+    { days: Set<Day>; levels: number[]; conf: string[] }
+  >();
   let lastWithData: Day | null = null;
   for (const d of pq.dates) {
     const sun = d - ((weekday(d) + 1) % 7); // the Sunday starting d's week (weekday(): Mon=0..Sun=6)
     for (const p of parks) {
       const c = getCrowd(core, p, d);
       if (!c) continue;
-      const w = byWeek.get(sun) ?? { days: new Set<Day>(), levels: [], conf: [] };
+      const w = byWeek.get(sun) ?? {
+        days: new Set<Day>(),
+        levels: [],
+        conf: [],
+      };
       w.days.add(d);
       w.levels.push(c.crowd_level);
       w.conf.push(String(c.model_confidence));
@@ -741,16 +755,26 @@ function factsCrowdWeeks(common: Common, core: Core, pq: ParsedQuestion): Facts 
   }
   const weeks: Facts[] = [];
   const confs: string[] = [];
-  for (const [sun, w] of Array.from(byWeek.entries()).sort((a, b) => a[0] - b[0])) {
+  for (const [sun, w] of Array.from(byWeek.entries()).sort(
+    (a, b) => a[0] - b[0]
+  )) {
     if (w.days.size < 4) continue;
-    const avg = pyRound(w.levels.reduce((a, b) => a + b, 0) / w.levels.length, 1);
+    const avg = pyRound(
+      w.levels.reduce((a, b) => a + b, 0) / w.levels.length,
+      1
+    );
     const label = fmtDay(Math.max(sun, pq.dates[0] as Day));
-    weeks.push({ week_of: label.slice(label.indexOf(', ') + 2), avg_level: avg, days: w.days.size }); // "Jan 10"
+    weeks.push({
+      week_of: label.slice(label.indexOf(', ') + 2),
+      avg_level: avg,
+      days: w.days.size,
+    }); // "Jan 10"
     confs.push(...w.conf);
   }
   out.weeks = weeks;
   const lastAsked = pq.dates[pq.dates.length - 1] as Day;
-  if (lastWithData !== null && lastWithData < lastAsked) out.forecast_through = fmtDay(lastWithData);
+  if (lastWithData !== null && lastWithData < lastAsked)
+    out.forecast_through = fmtDay(lastWithData);
   if (weeks.length >= 2) {
     const sorted = [...weeks].sort((a, b) => a.avg_level - b.avg_level);
     out.quietest_weeks = sorted.slice(0, 3);
@@ -758,12 +782,15 @@ function factsCrowdWeeks(common: Common, core: Core, pq: ParsedQuestion): Facts 
   }
   const confQ: Record<string, number> = { high: 1.0, medium: 0.85, low: 0.6 };
   out._quality =
-    weeks.length >= 2 ? Math.min(...Array.from(new Set(confs)).map((c) => confQ[c] ?? 0.6)) : 0.0;
+    weeks.length >= 2
+      ? Math.min(...Array.from(new Set(confs)).map((c) => confQ[c] ?? 0.6))
+      : 0.0;
   return out;
 }
 
 function factsCrowds(common: Common, core: Core, pq: ParsedQuestion): Facts {
-  if (pq.dates.length >= WEEK_MODE_MIN_DAYS) return factsCrowdWeeks(common, core, pq);
+  if (pq.dates.length >= WEEK_MODE_MIN_DAYS)
+    return factsCrowdWeeks(common, core, pq);
   const parks = targetParks(common, pq);
   const dates = pq.dates.slice(
     0,
@@ -1016,7 +1043,10 @@ function crowdList(facts: Facts): string {
           ? ` (lowest: ${shortDay(lo.date)})`
           : ties.length === rows.length
             ? ' (about the same on each day)'
-            : ` (lowest: ${ties.slice(0, 3).map((f) => shortDay(f.date)).join(', ')}${ties.length > 3 ? ' and others' : ''})`;
+            : ` (lowest: ${ties
+                .slice(0, 3)
+                .map((f) => shortDay(f.date))
+                .join(', ')}${ties.length > 3 ? ' and others' : ''})`;
     }
     segs.push(seg);
   }
@@ -1153,12 +1183,15 @@ function templateAnswer(pq: ParsedQuestion, facts: Facts): string {
     const q: Facts[] = facts.quietest_weeks ?? [];
     if (!q.length) return "I don't have crowd predictions that far ahead yet.";
     const scope = facts.scope;
-    const list = q.map((w) => `week of ${w.week_of} (${w.avg_level})`).join(', ');
+    const list = q
+      .map((w) => `week of ${w.week_of} (${w.avg_level})`)
+      .join(', ');
     const b: Facts = facts.busiest_week;
     let s =
       `Quietest weeks for ${facts.period}, by average predicted crowd level (1-10) at ${scope}: ` +
       `${list}. Busiest: week of ${b.week_of} (${b.avg_level}).`;
-    if (facts.forecast_through) s += ` Forecasts currently run through ${facts.forecast_through}.`;
+    if (facts.forecast_through)
+      s += ` Forecasts currently run through ${facts.forecast_through}.`;
     if (facts.as_of) s += ` (Forecast as of ${facts.as_of}.)`;
     return s;
   }
@@ -1403,6 +1436,7 @@ export async function analyzePost(
     common: env.common,
     core: (d: Dest) => env.src.core(d),
     today: (d: Dest) => env.today ?? localToday(d, env.now),
+    menuNameExists: (tokens: string[]) => menuNameExists(env, tokens),
   };
   let parts: Part[];
   if (sents.length === 1) {

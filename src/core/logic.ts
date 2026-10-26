@@ -21,17 +21,31 @@ function mentionRegex(botUsername: string): RegExp {
   );
 }
 
+/**
+ * A profile link to the bot: "[label](https://www.reddit.com/user/name/)" or the bare
+ * URL. Reddit's apps insert a mention as that link (2026-10-26: the URL left after
+ * stripping "u/name" read as "ropedrop" and got a generic rope-drop answer).
+ */
+function profileLinkRegex(botUsername: string): RegExp {
+  const url = `(?:https?://)?(?:(?:www|old|new|np)\\.)?reddit\\.com/u(?:ser)?/${escapeRegex(botUsername)}/?(?![A-Za-z0-9_-])`;
+  return new RegExp(`\\[[^\\]\\n]*\\]\\(\\s*${url}[^)\\s]*\\s*\\)|${url}`, 'gi');
+}
+
 export function mentionsBot(
   text: string | undefined,
   botUsername: string
 ): boolean {
   if (!text || !botUsername) return false;
-  return mentionRegex(botUsername).test(text);
+  return (
+    mentionRegex(botUsername).test(text) ||
+    profileLinkRegex(botUsername).test(text)
+  );
 }
 
 /** Remove every mention of the bot and tidy whitespace. */
 export function stripMention(text: string, botUsername: string): string {
   return text
+    .replace(profileLinkRegex(botUsername), ' ')
     .replace(mentionRegex(botUsername), '$1')
     .replace(/[ \t]+/g, ' ')
     .replace(/ *\n */g, '\n')
@@ -116,6 +130,8 @@ export type CommentCandidate = {
   authorName: string | undefined;
   deleted: boolean;
   spam: boolean;
+  /** t1_/t3_ the comment replies to; a bare summon answers that text instead. */
+  parentId?: string | undefined;
 };
 
 export type FilterOptions = {
@@ -171,7 +187,9 @@ export function shouldHandleComment(
   }
   // A mention is an explicit request, so moderators get answers too (the
   // moderator rule only keeps the bot off mods' own posts, e.g. announcements).
-  if (!buildCommentQuestion(c.body ?? '', o.botUsername)) {
+  // A bare summon ("u/bot" replying to a question) is handled: the engine answers
+  // the parent's text.
+  if (!buildCommentQuestion(c.body ?? '', o.botUsername) && !c.parentId) {
     return { handle: false, reason: 'empty_question' };
   }
   return { handle: true };
